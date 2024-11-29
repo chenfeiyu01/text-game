@@ -1,0 +1,58 @@
+.battle-container {
+  width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.battle-status {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 5px;
+}
+
+.character-status {
+  flex: 1;
+  padding: 10px;
+}
+
+.battle-log {
+  height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.log-entry {
+  margin-bottom: 10px;
+  padding: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.message-normal {
+  color: #333;
+}
+
+.message-crit {
+  color: #cd3737;
+  font-weight: bold;
+}
+
+.message-skill {
+  color: #4ecdc4;
+  font-weight: bold;
+}
+
+.message-defeat {
+  color: #ffd93d;
+  font-weight: bold;
+}
+
+.round {
+  color: #95a5a6;
+  font-size: 0.9em;
+}

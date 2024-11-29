@@ -1,0 +1,25 @@
+.message-display {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.message {
+    margin: 5px 0;
+    padding: 5px;
+}
+
+.message.error {
+    color: #ff4444;
+}
+
+.message.system {
+    color: #44b;
+}
+
+.timestamp {
+    color: #666;
+    margin-right: 8px;
+    font-size: 0.8em;
+}
