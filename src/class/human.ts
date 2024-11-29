@@ -10,33 +10,58 @@ export class Character {
     private _exp: number = 0;     // 当前经验值
     private _level: number = 1;   // 当前等级
     private _charge: number = 0;  // 当前充能值
+    private _onStateChange?: () => void;
 
     /**
      * 构造函数
-     * @param name 角色名称
-     * @param _maxHp 最大生命值
-     * @param _maxMp 最大魔法值
-     * @param _attack 攻击力
-     * @param _defense 防御力
-     * @param _critRate 暴击率
-     * @param _critDamage 暴击伤害
-     * @param _chargeRate 充能率
-     * @param _equippedSkill 装备的技能
+     * @param config 角色配置对象
      */
-    constructor(
-        public readonly name: string,
-        private _maxHp: number = 100,
-        private _maxMp: number = 100,
-        private _attack: number = 10,
-        private _defense: number = 5,
-        private _critRate: number = 0.1,
-        private _critDamage: number = 1.5,
-        private _chargeRate: number = 1.0,
-        private _equippedSkill?: Skill
-    ) {
-        this._hp = _maxHp;
-        this._mp = _maxMp;
+    constructor(config: {
+        name: string,
+        maxHp?: number,
+        maxMp?: number,
+        attack?: number,
+        defense?: number,
+        critRate?: number,
+        critDamage?: number,
+        chargeRate?: number,
+        equippedSkill?: Skill
+    }) {
+        const {
+            name,
+            maxHp = 100,
+            maxMp = 100,
+            attack = 10,
+            defense = 5,
+            critRate = 0.1,
+            critDamage = 1.5,
+            chargeRate = 1.0,
+            equippedSkill
+        } = config;
+
+        this.name = name;
+        this._maxHp = maxHp;
+        this._maxMp = maxMp;
+        this._attack = attack;
+        this._defense = defense;
+        this._critRate = critRate;
+        this._critDamage = critDamage;
+        this._chargeRate = chargeRate;
+        this._equippedSkill = equippedSkill;
+
+        this._hp = maxHp;
+        this._mp = maxMp;
     }
+
+    public readonly name: string;
+    private _maxHp: number;
+    private _maxMp: number;
+    private _attack: number;
+    private _defense: number;
+    private _critRate: number;
+    private _critDamage: number;
+    private _chargeRate: number;
+    private _equippedSkill?: Skill;
 
     // Getters - 属性访问器
     get hp(): number { return this._hp; }
@@ -58,6 +83,7 @@ export class Character {
      */
     set hp(value: number) {
         this._hp = Math.max(0, Math.min(value, this._maxHp));
+        this.notifyStateChange();
     }
 
     /**
@@ -65,6 +91,7 @@ export class Character {
      */
     set mp(value: number) {
         this._mp = Math.max(0, Math.min(value, this._maxMp));
+        this.notifyStateChange();
     }
 
     /**
@@ -73,6 +100,7 @@ export class Character {
      */
     equipSkill(skill: Skill) {
         this._equippedSkill = skill;
+        this.notifyStateChange();
     }
 
     /**
@@ -110,6 +138,7 @@ export class Character {
         this._mp = this._maxMp;
 
         console.log(`${this.name} 升级到 ${this.level} 级！`);
+        this.notifyStateChange();
     }
 
     /**
@@ -119,6 +148,7 @@ export class Character {
     addCharge(amount: number) {
         // 固定充能量5%，受充能效率影响，上限100%
         this._charge = Math.min(100, this._charge + 5 * this._chargeRate);
+        this.notifyStateChange();
     }
 
     /**
@@ -152,6 +182,7 @@ export class Character {
         }
 
         console.log(`${this.name} 使用了 ${this._equippedSkill.name}！`);
+        this.notifyStateChange();
         return true;
     }
 
@@ -189,7 +220,7 @@ export class Character {
         const finalDamage = Math.min(this._hp, actualDamage);
         this.hp -= finalDamage;
         this.addCharge(finalDamage);
-        // console.log(`${this.name} 受到 ${finalDamage} 点伤害！还剩下 ${this.hp} 点生命值！`);
+        this.notifyStateChange();
         
         return {
             damage: finalDamage,
@@ -230,5 +261,17 @@ export class Character {
             充能: ${this.charge.toFixed(1)}%
             装备技能: ${this.equippedSkill?.name || '无'}
         `;
+    }
+
+    // 添加设置回调的方法
+    setStateChangeCallback(callback: () => void) {
+        this._onStateChange = callback;
+    }
+
+    // 在所有修改状态的方法中调用回调
+    private notifyStateChange() {
+        if (this._onStateChange) {
+            this._onStateChange();
+        }
     }
 }

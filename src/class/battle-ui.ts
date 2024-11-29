@@ -25,9 +25,9 @@ export class BattleUI {
         this.container.appendChild(this.statusContainer);
 
         // 创建战斗日志区域
-        this.logContainer = document.createElement('div');
-        this.logContainer.className = 'battle-log';
-        this.container.appendChild(this.logContainer);
+        // this.logContainer = document.createElement('div');
+        // this.logContainer.className = 'battle-log';
+        // this.container.appendChild(this.logContainer);
     }
 
     public updateStatus(player: Character, enemy: Character) {

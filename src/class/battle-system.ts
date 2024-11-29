@@ -30,6 +30,16 @@ export class BattleSystem {
         this.gameSystem = GameSystem.getInstance();
     }
 
+    private static instance: BattleSystem;
+
+    /**
+     * 获取战斗系统单例
+     * @returns BattleSystem实例
+     */
+    public static getInstance(): BattleSystem {
+        return BattleSystem.instance;
+    }
+
     /**
      * 开始战斗
      * @returns 战斗结果

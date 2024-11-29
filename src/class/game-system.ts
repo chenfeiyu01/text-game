@@ -52,7 +52,12 @@ export class GameSystem {
         this.messageLog.push(message);
         this.logMessage(message);
 
-        // 如果是错误消息，同时触发错误处理
+        // 触发消息更新事件
+        this.dispatchEvent({
+            type: EventType.MESSAGE_UPDATED,
+            data: { message, allMessages: this.messageLog }
+        });
+
         if (type === MessageType.ERROR) {
             this.handleError(content, data);
         }
@@ -84,12 +89,12 @@ export class GameSystem {
      * @param type 可选的消息类型过滤
      * @returns 消息数组
      */
-    public getRecentMessages(count: number = 10, type?: MessageType): GameMessage[] {
+    public getRecentMessages(count?: number, type?: MessageType): GameMessage[] {
         let messages = [...this.messageLog];
         if (type) {
             messages = messages.filter(msg => msg.type === type);
         }
-        return messages.slice(-count);
+        return count ? messages.slice(-count) : messages;
     }
 
     /**
@@ -122,6 +127,8 @@ export class GameSystem {
      */
     public dispatchEvent(event: GameEvent) {
         const listeners = this.eventListeners.get(event.type);
+        console.log(`正在分发事件 ${event.type}，监听器数量: ${listeners?.size || 0}`);
+        
         if (listeners) {
             listeners.forEach(callback => {
                 try {
