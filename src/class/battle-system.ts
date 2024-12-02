@@ -204,6 +204,7 @@ export class BattleSystem {
 
         if (winner === this.player && this.battleReward) {
             // 获得经验值
+            console.log('获得经验值 battleReward', this.battleReward)
             this.player.gainExp(this.battleReward.exp);
 
             // 发送经验值奖励消息

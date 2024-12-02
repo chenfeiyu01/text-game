@@ -11,13 +11,10 @@ const CharacterStatus: React.FC<{ character: Character }> = ({ character }) => {
     const [updateTrigger, setUpdateTrigger] = useState(0);
 
     useEffect(() => {
-        character.setStateChangeCallback(() => {
+        const cleanup = character.setStateChangeCallback(() => {
             setUpdateTrigger(prev => prev + 1);
         });
-
-        return () => {
-            character.setStateChangeCallback(() => {});
-        };
+        return cleanup;
     }, [character]);
 
     return (

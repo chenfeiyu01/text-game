@@ -11,6 +11,7 @@ export class Character {
     private _level: number = 1;   // 当前等级
     private _charge: number = 0;  // 当前充能值
     private _onStateChange?: () => void;
+    private _stateChangeCallbacks: Set<() => void> = new Set();
 
     /**
      * 构造函数
@@ -111,6 +112,8 @@ export class Character {
      */
     gainExp(amount: number) {
         this._exp += amount;
+        console.log('gainExp', this._exp)
+        this.notifyStateChange();
         this.checkLevelUp();
     }
 
@@ -137,13 +140,13 @@ export class Character {
 
     /**
      * 检查是否满足升级条件
-     * 当经验值达到要求时触发升级
      */
     private checkLevelUp() {
         const expNeeded = this.calculateExpNeeded();
         if (this._exp >= expNeeded) {
             this._exp -= expNeeded;
             this.levelUp();
+            this.notifyStateChange();
             // 升级后继续检查是否可以再次升级
             this.checkLevelUp();
         }
@@ -151,34 +154,27 @@ export class Character {
 
     /**
      * 角色升级
-     * 不同等级段有不同的属性提升幅度
      */
     private levelUp() {
         this._level++;
 
-        // 1-20级：基础属性提升较多
+        // 根据等级段提升属性
         if (this.level <= 20) {
             this._maxHp += 15;
             this._maxMp += 8;
             this._attack += 3;
             this._defense += 2;
-        }
-        // 21-40级：属性提升中等
-        else if (this.level <= 40) {
+        } else if (this.level <= 40) {
             this._maxHp += 12;
             this._maxMp += 6;
             this._attack += 2;
             this._defense += 1.5;
-        }
-        // 41-60级：属性提升较少
-        else if (this.level <= 60) {
+        } else if (this.level <= 60) {
             this._maxHp += 10;
             this._maxMp += 5;
             this._attack += 1.5;
             this._defense += 1;
-        }
-        // 60级以上：属性提升最少
-        else {
+        } else {
             this._maxHp += 8;
             this._maxMp += 4;
             this._attack += 1;
@@ -190,7 +186,9 @@ export class Character {
         this._mp = this._maxMp;
 
         console.log(`${this.name} 升级到 ${this.level} 级！下一级需要 ${this.calculateExpNeeded()} 经验值`);
-        this.notifyStateChange();
+
+        // 状态变化通知已经在 hp 和 mp 的 setter 中处理
+        this.notifyStateChange();  // 添加通知以确保更新
     }
 
     /**
@@ -317,13 +315,25 @@ export class Character {
 
     // 添加设置回调的方法
     setStateChangeCallback(callback: () => void) {
-        this._onStateChange = callback;
+        this._stateChangeCallbacks.add(callback);
+        return () => {
+            this._stateChangeCallbacks.delete(callback);
+        };
     }
 
-    // 在所有修改状态的方法中调用回调
-    private notifyStateChange() {
-        if (this._onStateChange) {
-            this._onStateChange();
-        }
-    }
+    /**
+     * 通知状态变化的方法
+     * 使用防抖以避免过于频繁的更新
+     */
+    private notifyStateChange = (() => {
+        let timeout: ReturnType<typeof setTimeout>;
+        return () => {
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            timeout = setTimeout(() => {
+                this._stateChangeCallbacks.forEach(callback => callback());
+            }, 16);
+        };
+    })();
 }
