@@ -2,9 +2,8 @@ import { Character } from './character';
 import { GameSystem } from './game-system';
 import { GameMessage, MessageType } from '../constants/game-system';
 import { getSkillById } from '../utils/skills';
+import { Player } from './player';
 
-// 直接使用已存在的 player 实例
-import PLAYER from '../data/character/player';
 
 interface GameSaveData {
     version: string;
@@ -100,7 +99,7 @@ export class SaveSystem {
                 );
             }
 
-            this.restorePlayerState(PLAYER, saveData.player);
+            this.restorePlayerState(Player.getInstance(), saveData.player);
 
             // 恢复游戏消息
             const gameSystem = GameSystem.getInstance();

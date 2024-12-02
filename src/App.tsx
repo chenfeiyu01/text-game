@@ -1,43 +1,63 @@
-import { Button } from 'antd'
+import { useState } from 'react'
 import './App.css'
 import BattleScene from './components/BattleScene'
 import CharacterBaseStatus from './components/CharacterBaseStatus'
-import PLAYER from './data/character/player'
+import StartScreen from './components/StartScreen'
+import CharacterCreation from './components/CharacterCreation'
+import { Player } from './class/player'
 import { SCENES } from './data/maps/scenes'
 import { SaveSystem } from './class/save-system'
-import player from './data/character/player'
+import { Button } from 'antd'
 
-/**
- * App组件 - 游戏主界面
- * 包含战斗演示功能
- */
 function App() {
-  // 计数器状态(未使用)
+  const [gameState, setGameState] = useState<'start' | 'creation' | 'game'>('start');
 
+  const handleStartNewGame = () => {
+    setGameState('creation');
+  };
 
-  // 组件挂载时启动战斗演示
-  /* useEffect(() => {
-    battleDemo();
-  }, []) */
+  const handleLoadGame = () => {
+    const saveSystem = SaveSystem.getInstance();
+    if (saveSystem.loadGame()) {
+      setGameState('game');
+    }
+  };
 
-  // 渲染战斗容器
-  return (
-    <>
-      <CharacterBaseStatus character={PLAYER} />
-      <BattleScene sceneConfig={SCENES.LUOLAN} />
+  const handleCreateCharacter = (player: Player) => {
+    setGameState('game');
+  };
 
-      <div>
-        <Button onClick={() => {
-          const saveSystem = SaveSystem.getInstance();
-          saveSystem.saveGame(player);
-        }}>保存状态</Button>
-        <Button onClick={() => {
-          const saveSystem = SaveSystem.getInstance();
-          saveSystem.loadGame();
-        }}>恢复状态</Button>
-      </div>
-    </>
-  )
+  switch (gameState) {
+    case 'start':
+      return (
+        <StartScreen 
+          onStartNewGame={handleStartNewGame}
+          onLoadGame={handleLoadGame}
+        />
+      );
+    
+    case 'creation':
+      return (
+        <CharacterCreation 
+          onCreateCharacter={handleCreateCharacter}
+          onBack={() => setGameState('start')}
+        />
+      );
+    
+    case 'game':
+      return (
+        <>
+          <CharacterBaseStatus character={Player.getInstance()} />
+          <BattleScene sceneConfig={SCENES.LUOLAN} />
+          <div>
+            <Button onClick={() => {
+              const saveSystem = SaveSystem.getInstance();
+              saveSystem.saveGame(Player.getInstance());
+            }}>保存状态</Button>
+          </div>
+        </>
+      );
+  }
 }
 
-export default App
+export default App;

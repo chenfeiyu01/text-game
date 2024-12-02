@@ -5,7 +5,7 @@ import MessageDisplay from '../MessageDisplay';
 import { Character } from '../../class/character';
 import { SKILL_LIST } from '../../constants/skill-list';
 import { Button } from 'antd';
-import PLAYER from '../../data/character/player';
+import { Player } from '../../class/player';
 import { BattleResult, BattleReward } from '../../constants/battle';
 import MONSTERS from '../../data/character/monsters';
 import { Scene } from '../../constants/scenes';
@@ -30,7 +30,7 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
 
         if (isFirstBattle) {
             // 首次战斗，初始化玩家和第一个敌人
-            currentPlayer = PLAYER;
+            currentPlayer = Player.getInstance();
             currentPlayer.equipSkill(SKILL_LIST[0]);
             currentEnemy = sceneConfig.battles[0].monster;
             battleReward = sceneConfig.battles[0].reward;
