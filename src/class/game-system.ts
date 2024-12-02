@@ -128,7 +128,7 @@ export class GameSystem {
     public dispatchEvent(event: GameEvent) {
         const listeners = this.eventListeners.get(event.type);
         console.log(`正在分发事件 ${event.type}，监听器数量: ${listeners?.size || 0}`);
-        
+
         if (listeners) {
             listeners.forEach(callback => {
                 try {
@@ -189,44 +189,6 @@ export class GameSystem {
         );
     }
 
-    /**
-     * 保存游戏状态
-     * @returns 序列化后的存档字符串
-     */
-    public saveGame(): string {
-        const saveData = {
-            messages: this.messageLog,
-            gameState: Array.from(this.gameState.entries())
-        };
-
-        const saveString = JSON.stringify(saveData);
-        localStorage.setItem('gameSave', saveString);
-
-        this.sendMessage(MessageType.SYSTEM, '游戏已保存');
-        return saveString;
-    }
-
-    /**
-     * 加载游戏存档
-     * @param saveData 可选的存档数据字符串
-     */
-    public loadGame(saveData?: string) {
-        try {
-            const data = saveData || localStorage.getItem('gameSave');
-            if (!data) {
-                throw new Error('没有找到存档数据');
-            }
-
-            const parsedData = JSON.parse(data);
-            this.messageLog = parsedData.messages;
-            this.gameState = new Map(parsedData.gameState);
-
-            this.sendMessage(MessageType.SYSTEM, '游戏已加载');
-            this.dispatchEvent({ type: EventType.GAME_LOAD });
-        } catch (error) {
-            this.handleError('加载存档失败', error);
-        }
-    }
 
     // 性能监控相关
     private performanceMarks: Map<string, number> = new Map();

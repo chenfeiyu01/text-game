@@ -1,3 +1,4 @@
+import { CharacterState } from "../constants/character";
 import { Skill } from "../constants/skill-list";
 
 /**
@@ -10,7 +11,6 @@ export class Character {
     private _exp: number = 0;     // 当前经验值
     private _level: number = 1;   // 当前等级
     private _charge: number = 0;  // 当前充能值
-    private _onStateChange?: () => void;
     private _stateChangeCallbacks: Set<() => void> = new Set();
 
     /**
@@ -336,4 +336,22 @@ export class Character {
             }, 16);
         };
     })();
+
+    /**
+     * 恢复保存的状态
+     */
+    public restoreState(state: CharacterState): void {
+        this._level = state.level;
+        this._exp = state.exp;
+        this._hp = state.hp;
+        this._mp = state.mp;
+        this._attack = state.attack;
+        this._defense = state.defense;
+        this._critRate = state.critRate;
+        this._critDamage = state.critDamage;
+        this._chargeRate = state.chargeRate;
+        
+        this.notifyStateChange();
+    }
 }
+

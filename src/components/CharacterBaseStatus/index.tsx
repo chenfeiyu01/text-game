@@ -15,7 +15,7 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
         const cleanup = character.setStateChangeCallback(() => {
             setUpdateTrigger(prev => prev + 1);
         });
-        
+
         // 使用返回的清理函数
         return cleanup;
     }, [character]);
@@ -26,6 +26,11 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
     return (
         <div className="character-base-status">
             <h3>{character.name}</h3>
+            <p>攻击力: {character.attack}</p>
+            <p>防御力: {character.defense}</p>
+            <p>暴击率: {(character.critRate * 100).toFixed(1)}%</p>
+            <p>暴击伤害: {(character.critDamage * 100).toFixed(1)}%</p>
+            <p>充能效率: {(character.chargeRate * 100).toFixed(1)}%</p>
             <div className="level-info">
                 <p>等级: {character.level}</p>
                 <div className="exp-progress">
@@ -36,15 +41,6 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
                     />
                 </div>
             </div>
-            <p>攻击力: {character.attack}</p>
-            <p>防御力: {character.defense}</p>
-            <p>暴击率: {(character.critRate * 100).toFixed(1)}%</p>
-            <p>暴击伤害: {(character.critDamage * 100).toFixed(1)}%</p>
-            <p>充能效率: {(character.chargeRate * 100).toFixed(1)}%</p>
-
-            <p>测试：{updateTrigger}</p>
-
-            <p>test：{PLAYER.exp}</p>
         </div>
     );
 };
