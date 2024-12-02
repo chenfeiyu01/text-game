@@ -1,4 +1,4 @@
-import { GearItem, GearItemId, ItemRarity, ItemType } from "../../constants/item";
+import { GearItem, GearItemId, GearSlot, ItemRarity, ItemType } from "../../constants/item";
 import { GameSystem } from "../../class/game-system";
 import { MessageType } from "../../constants/game-system";
 
@@ -10,7 +10,7 @@ export const GEARS: Record<GearItemId, GearItem> = {
         type: ItemType.GEAR,
         rarity: ItemRarity.COMMON,
         stackable: false,
-        slot: 'weapon',
+        slot: GearSlot.WEAPON,
         stats: {
             attack: 5,
             critRate: 0.05
@@ -23,7 +23,7 @@ export const GEARS: Record<GearItemId, GearItem> = {
         type: ItemType.GEAR,
         rarity: ItemRarity.COMMON,
         stackable: false,
-        slot: 'weapon',
+        slot: GearSlot.WEAPON,
         stats: {
             attack: 10,
             critRate: 0.08,
