@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Character } from '../../class/human';
+import { Character } from '../../class/character';
 import './index.scss';
 
 interface BattleStatusProps {

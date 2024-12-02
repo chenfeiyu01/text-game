@@ -1,4 +1,4 @@
-import { Character } from '../../class/human';
+import { Character } from '../../class/character';
 import MONSTERS from '../character/monsters';
 import { Scene } from '../../constants/scenes';
 

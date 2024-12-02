@@ -1,10 +1,10 @@
 /**
  * 导入所需的类型和类
  */
-import { BattleLog, BattleResult } from "../constants/battle";
+import { BattleLog, BattleResult, BattleReward } from "../constants/battle";
 import { MessageType } from "../constants/game-system";
 import { GameSystem } from "./game-system";
-import { Character } from "./human";
+import { Character } from "./character";
 
 /**
  * 战斗系统类
@@ -15,19 +15,23 @@ export class BattleSystem {
     private currentRound: number = 0;  // 当前回合数
     private battleLogs: BattleLog[] = [];  // 战斗日志记录
     private isPlayerTurn: boolean = true;  // 是否为玩家回合
+    private battleReward?: BattleReward;  // 新增：战斗奖励
 
     /**
      * 构造函数
      * @param player 玩家角色
      * @param enemy 敌方角色
      * @param onBattleUpdate 战斗更新回调函数
+     * @param reward 战斗奖励配置
      */
     constructor(
         private player: Character,
         private enemy: Character,
-        private onBattleUpdate?: (log: BattleLog) => void
+        private onBattleUpdate?: (log: BattleLog) => void,
+        private reward?: BattleReward  // 新增：接收奖励配置
     ) {
         this.gameSystem = GameSystem.getInstance();
+        this.battleReward = reward;
     }
 
     private static instance: BattleSystem;
@@ -198,15 +202,33 @@ export class BattleSystem {
             `战斗结束！${winner.name} 获胜！`
         );
 
-        if (winner === this.player) {
+        if (winner === this.player && this.battleReward) {
             // 获得经验值
-            const expGained = this.enemy.level * 10;
-            this.player.gainExp(expGained);
+            this.player.gainExp(this.battleReward.exp);
 
+            // 发送经验值奖励消息
             this.gameSystem.sendMessage(
                 MessageType.REWARD,
-                `获得 ${expGained} 点经验值！`
+                `获得 ${this.battleReward.exp} 点经验值！`
             );
+
+            // 发送金币奖励消息
+            if (this.battleReward?.gold && this.battleReward.gold > 0) {
+                this.gameSystem.sendMessage(
+                    MessageType.REWARD,
+                    `获得 ${this.battleReward.gold} 金币！`
+                );
+            }
+
+            // 发送物品奖励消息
+            if (this.battleReward.items?.length) {
+                this.battleReward.items.forEach(itemId => {
+                    this.gameSystem.sendMessage(
+                        MessageType.REWARD,
+                        `获得物品：${itemId}！`  // 这里可以根据itemId获取物品名称
+                    );
+                });
+            }
         }
     }
 

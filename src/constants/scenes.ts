@@ -1,4 +1,4 @@
-import { Character } from "../class/human";
+import { Character } from "../class/character";
 
 // 奖励类型定义
 export interface Reward {

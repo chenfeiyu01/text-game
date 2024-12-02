@@ -1,4 +1,4 @@
-import { Character } from "../class/human";
+import { Character } from "../class/character";
 
 // types.ts
 export interface Skill {

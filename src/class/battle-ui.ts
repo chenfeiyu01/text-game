@@ -1,6 +1,6 @@
 import { BattleLog } from "../constants/battle";
 import { GameMessage } from "../constants/game-system";
-import { Character } from "./human";
+import { Character } from "./character";
 
 // 创建一个简单的UI组件来显示战斗信息
 export class BattleUI {

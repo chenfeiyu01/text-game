@@ -16,3 +16,9 @@ export interface BattleLog {
     isCrit: boolean;
     isDefeated: boolean;
 }
+
+export interface BattleReward {
+    exp: number;
+    gold?: number;
+    items?: string[];
+}

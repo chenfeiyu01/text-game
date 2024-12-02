@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Character } from '../../class/human';
+import { Character } from '../../class/character';
 import './index.scss';
 
 interface CharacterBaseStatusProps {
@@ -15,7 +15,7 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
         });
 
         return () => {
-            character.setStateChangeCallback(() => {});
+            character.setStateChangeCallback(() => { });
         };
     }, [character]);
 
@@ -27,6 +27,8 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
             <p>暴击率: {(character.critRate * 100).toFixed(1)}%</p>
             <p>暴击伤害: {(character.critDamage * 100).toFixed(1)}%</p>
             <p>充能效率: {(character.chargeRate * 100).toFixed(1)}%</p>
+            <p>经验值: {character.exp}/{character.expNeeded}</p>
+            <p>当前等级: {character.level}</p>
         </div>
     );
 };

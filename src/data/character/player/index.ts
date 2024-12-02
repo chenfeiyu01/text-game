@@ -1,4 +1,4 @@
-import { Character } from '../../../class/human';
+import { Character } from '../../../class/character';
 
 // 玩家初始属性配置
 const PLAYER_CONFIG = {

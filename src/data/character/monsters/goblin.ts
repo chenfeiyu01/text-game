@@ -1,4 +1,4 @@
-import { Character } from "../../../class/human";
+import { Character } from "../../../class/character";
 
 /**
  * 哥布林怪物
