@@ -1,6 +1,6 @@
 import { CharacterState } from "../constants/character";
 import { MessageType } from "../constants/game-system";
-import { GearStats } from "../constants/item";
+import { GearStats, GearItem, GearSlot } from "../constants/item";
 import { Skill } from "../constants/skill-list";
 import { GameSystem } from "./game-system";
 import { Inventory } from './inventory';
@@ -22,6 +22,13 @@ export class Character {
         duration: number;
         attribute: keyof GearStats;
     }> = new Map();
+    private _equippedItems: Partial<Record<GearSlot, GearItem>> = {};
+
+    // 基础属性（不受装备影响的初始值）
+    protected baseAttack: number;
+    protected baseDefense: number;
+    protected baseCritRate: number;
+    protected baseCritDamage: number;
 
     /**
      * 构造函数
@@ -53,16 +60,21 @@ export class Character {
         this.name = name;
         this._maxHp = maxHp;
         this._maxMp = maxMp;
-        this._attack = attack;
-        this._defense = defense;
-        this._critRate = critRate;
-        this._critDamage = critDamage;
+        this.baseAttack = attack;
+        this.baseDefense = defense;
+        this.baseCritRate = critRate;
+        this.baseCritDamage = critDamage;
         this._chargeRate = chargeRate;
         this._equippedSkill = equippedSkill;
 
         this._hp = maxHp;
         this._mp = maxMp;
         this._inventory = new Inventory();
+
+        this._attack = this.baseAttack;
+        this._defense = this.baseDefense;
+        this._critRate = this.baseCritRate;
+        this._critDamage = this.baseCritDamage;
     }
 
     public readonly name: string;
@@ -101,7 +113,35 @@ export class Character {
     get inventory(): Inventory {
         return this._inventory;
     }
+    get equippedItems(): Readonly<Partial<Record<GearSlot, GearItem>>> {
+        return this._equippedItems;
+    }
 
+    /**
+     * 获取指定槽位的装备
+     * @param slot 装备槽位
+     * @returns 装备物品，如果槽位为空则返回 undefined
+     */
+    getEquippedItem(slot: GearSlot): GearItem | undefined {
+        return this._equippedItems[slot];
+    }
+
+    /**
+     * 检查指定槽位是否已装备物品
+     * @param slot 装备槽位
+     * @returns 是否已装备
+     */
+    hasEquippedItem(slot: GearSlot): boolean {
+        return !!this._equippedItems[slot];
+    }
+
+    /**
+     * 获取所有已装备物品的列表
+     * @returns 已装备物品的数组
+     */
+    getAllEquippedItems(): GearItem[] {
+        return Object.values(this._equippedItems).filter((item): item is GearItem => !!item);
+    }
 
     /**
      * 设置生命值，确保在0到最大生命值之间
@@ -407,6 +447,63 @@ export class Character {
                     MessageType.COMBAT,
                     `${id.split('_')[0]} 效果已结束`
                 );
+            }
+        }
+    }
+
+    equipItem(item: GearItem): boolean {
+        // 检查物品是否存在于背包中
+        if (!this._inventory.hasItem(item.id)) {
+            console.log('背包中没有此物品！');
+            return false;
+        }
+
+        const oldItem = this._equippedItems[item.slot];
+        if (oldItem) {
+            // 将原装备放回背包
+            this._inventory.addItem(oldItem);
+        }
+
+        // 从背包中移除新装备
+        this._inventory.removeItem(item.id);
+        
+        // 装备新物品
+        this._equippedItems[item.slot] = item;
+        this.updateAttributes();
+        
+        console.log(`成功装备 ${item.name}`);
+        this.notifyStateChange();
+        return true;
+    }
+
+    unequipItem(slot: GearSlot): boolean {
+        const item = this._equippedItems[slot];
+        if (item) {
+            // 将物品放回背包
+            this._inventory.addItem(item);
+            delete this._equippedItems[slot];
+            this.updateAttributes();
+            this.notifyStateChange();
+            console.log(`成功卸下 ${item.name}`);
+            return true;
+        }
+        return false;
+    }
+
+    private updateAttributes(): void {
+        // Reset attributes to base values
+        this._attack = this.baseAttack;
+        this._defense = this.baseDefense;
+        this._critRate = this.baseCritRate;
+        this._critDamage = this.baseCritDamage;
+
+        // Add attributes from equipped items
+        for (const item of Object.values(this._equippedItems)) {
+            if (item) {
+                this._attack += item.stats.attack || 0;
+                this._defense += item.stats.defense || 0;
+                this._critRate += item.stats.critRate || 0;
+                this._critDamage += item.stats.critDamage || 0;
             }
         }
     }

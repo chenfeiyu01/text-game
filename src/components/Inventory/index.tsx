@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Tabs, List, Tag, Typography, Button, Tooltip, message } from 'antd';
 import { Player } from '../../class/player';
-import { GearItem, InventoryItem, isGearItem, ItemType } from '../../constants/item';
+import { GearItem, InventoryItem, ItemType, isGearItem } from '../../constants/item';
 import { ExperimentOutlined, ThunderboltOutlined, InboxOutlined, GoldOutlined } from '@ant-design/icons';
 import './index.scss';
 
@@ -45,6 +45,14 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
         return items.filter(item => item.item.type === type);
     };
 
+    const handleEquipItem = (item: InventoryItem) => {
+        const player = Player.getInstance();
+        if (isGearItem(item.item)) {
+            player.equipItem(item.item);
+            message.success(`装备了 ${item.item.name}`);
+        }
+    };
+
     const handleUseItem = (item: InventoryItem) => {
         const player = Player.getInstance();
 
@@ -52,13 +60,10 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
             if (player.inventory.removeItem(item.item.id, 1)) {
                 message.success(`使用了 ${item.item.name}`);
             }
-        } else if (item.item.type === ItemType.GEAR) {
-            message.info(`装备了 ${item.item.name}`);
         }
     };
 
     const renderItemStats = (item: GearItem) => {
-        console.log(item);
         return (
             <div className="gear-stats">
                 {item.stats.attack && (
@@ -110,7 +115,7 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
                         <Button
                             type="link"
                             size="small"
-                            onClick={() => handleUseItem(inventoryItem)}
+                            onClick={() => isGearItem(inventoryItem.item) ? handleEquipItem(inventoryItem) : handleUseItem(inventoryItem)}
                         >
                             {isGearItem(inventoryItem.item) ? '装备' : '使用'}
                         </Button>
@@ -160,4 +165,4 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
     );
 };
 
-export default Inventory; 
+export default Inventory;

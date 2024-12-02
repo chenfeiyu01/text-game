@@ -141,17 +141,30 @@ export interface GearEffect {
     effect: (character: Character) => void;
 }
 
-/** 装备物品接口 */
+/** 装备槽位枚举 */
+/** 装备槽位枚举 */
+export enum GearSlot {
+    /** 武器槽位 */
+    WEAPON = 'weapon',
+    /** 护甲槽位 */
+    ARMOR = 'armor',
+    /** 饰品槽位 */
+    ACCESSORY = 'accessory'
+}
+
+/** 
+ * 装备物品接口
+ * @description 定义了装备类物品的基本属性和效果
+ */
 export interface GearItem extends Item {
+    /** 物品类型为装备 */
     type: ItemType.GEAR;
-    /** 装备位置 */
-    slot: 'weapon' | 'armor' | 'accessory';
-    /** 基础属性加成 */
+    /** 装备槽位 */
+    slot: GearSlot;
+    /** 装备基础属性 */
     stats: GearStats;
-    /** 特殊效果 */
+    /** 装备特殊效果列表 */
     effects?: GearEffect[];
-    /** 装备等级需求 */
-    levelReq?: number;
 }
 
 /** 类型保护函数 */
