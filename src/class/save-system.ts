@@ -24,7 +24,7 @@ interface GameSaveData {
         chargeRate: number;
         equippedSkillId?: string;
         inventory?: {
-            items: [ItemId, { item: Item, quantity: number }][];
+            items: { [key in ItemId]: { item: Item, quantity: number } };
             gold: number;
         };
     };
@@ -70,10 +70,12 @@ export class SaveSystem {
                 chargeRate: player.chargeRate,
                 equippedSkillId: player.equippedSkill?.id,
                 inventory: {
-                    items: player.inventory.getItems().map(item => [
-                        item.item.id,
-                        { item: item.item, quantity: item.quantity }
-                    ]),
+                    items: Object.fromEntries(
+                        player.inventory.getItems().map(item => [
+                            item.item.id,
+                            { item: item.item, quantity: item.quantity }
+                        ])
+                    ) as Record<ItemId, { item: Item; quantity: number }>,
                     gold: player.inventory.gold
                 }
             },
@@ -155,7 +157,7 @@ export class SaveSystem {
 
         // 恢复背包数据
         if (savedState.inventory) {
-            savedState.inventory.items.forEach(([id, item]) => {
+            Object.entries(savedState.inventory.items).forEach(([id, item]) => {
                 player.inventory.addItem(item.item, item.quantity);
             });
             player.inventory.addGold(savedState.inventory.gold);

@@ -33,4 +33,36 @@
     .item-quantity {
         color: #666;
     }
+
+    .inventory-item {
+        .item-basic {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gear-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 4px;
+            padding-left: 8px;
+            border-left: 2px solid #f0f0f0;
+
+            .ant-typography {
+                font-size: 12px;
+                line-height: 1.2;
+            }
+
+            .gear-effect {
+                color: #faad14;
+            }
+        }
+
+        .gear-slot {
+            margin-left: 4px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    }
 } 

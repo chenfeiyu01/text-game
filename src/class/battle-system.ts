@@ -7,6 +7,7 @@ import { GameSystem } from "./game-system";
 import { Character } from "./character";
 import { Player } from "./player";
 import { getItemById } from "../utils/items";
+import { isGearItem } from "../constants/item";
 
 /**
  * 战斗系统类
@@ -91,27 +92,21 @@ export class BattleSystem {
         const canUseSkill = this.player.charge >= 100 &&
             this.player.mp >= (this.player.equippedSkill?.manaCost || 0);
 
-        let damage = 0;
-        let action = '';
-        let isCrit = false;
         if (canUseSkill && this.player.equippedSkill) {
             // 使用技能
             this.player.useSkill();
             const damageResult = this.player.calculateDamage(this.player.equippedSkill.damage);
             const result = this.enemy.takeDamage(damageResult.damage);
-            damage = result.damage;
-            isCrit = damageResult.isCrit;
-
-            action = `使用技能「${this.player.equippedSkill.name}」`;
-            this.recordBattleAction(action, damage, this.player, this.enemy, isCrit);
+            this.recordBattleAction(
+                `使用技能「${this.player.equippedSkill.name}」`, 
+                result.damage, 
+                this.player, 
+                this.enemy, 
+                damageResult.isCrit
+            );
         } else {
             // 普通攻击
-            const damageResult = this.player.attackTarget(this.enemy);
-            damage = damageResult.damage;
-            isCrit = damageResult.isCrit;
-
-            action = isCrit ? "造成暴击" : "普通攻击";
-            this.recordBattleAction(action, damage, this.player, this.enemy, isCrit);
+            this.handleAttack(this.player, this.enemy);
         }
     }
 
@@ -120,10 +115,7 @@ export class BattleSystem {
      * 处理敌方的攻击行为
      */
     private async performEnemyTurn() {
-        const damageResult = this.enemy.attackTarget(this.player);
-        const damage = damageResult.damage;
-        const isCrit = damageResult.isCrit;
-        this.recordBattleAction("普通攻击", damage, this.enemy, this.player, isCrit);
+        this.handleAttack(this.enemy, this.player);
     }
 
     /**
@@ -239,7 +231,7 @@ export class BattleSystem {
     }
 
     /**
-     * 获取战斗总结
+     * 获取战斗结
      * @returns 包含所有战斗日志的字符串
      */
     public getBattleSummary(): string {
@@ -251,6 +243,40 @@ export class BattleSystem {
                     `${log.defender}: ${log.defenderHp}HP`;
             })
             .join('\n\n');
+    }
+
+    private handleAttack(attacker: Character, defender: Character): void {
+        const isCritical = Math.random() < attacker.critRate;
+        let damage = attacker.attack * (1 + (isCritical ? attacker.critDamage : 0));
+        damage = Math.max(1, damage - defender.defense);
+
+        defender.takeDamage(damage);
+
+        // 发送战斗消息
+        this.gameSystem.sendMessage(
+            MessageType.COMBAT,
+            `${attacker.name} 对 ${defender.name} 造成了 ${damage.toFixed(0)} 点${isCritical ? '暴击' : ''}伤害`
+        );
+
+        // 如果是暴击且攻击者是玩家，触发装备效果
+        if (isCritical && attacker instanceof Player) {
+            const equippedItems = attacker.inventory.getItems()
+                .filter(item => isGearItem(item.item) && item.item.slot === 'weapon');
+            
+            equippedItems.forEach(({ item }) => {
+                if (isGearItem(item) && item.effects) {
+                    item.effects.forEach(effect => {
+                        if (effect.type === 'onHit' && effect.condition === 'isCritical') {
+                            effect?.effect?.(attacker);
+                        }
+                    });
+                }
+            });
+        }
+
+        // 更新效果持续时间
+        attacker.updateEffects();
+        defender.updateEffects();
     }
 }
 

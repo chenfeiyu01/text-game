@@ -1,3 +1,5 @@
+import { Character } from "../class/character";
+
 /**
  * 物品类型枚举
  * @enum {string}
@@ -107,4 +109,52 @@ export enum ItemRarity {
     LEGENDARY = 'legendary', 
     /** 史诗品质 */
     EPIC = 'epic'          
+}
+
+/** 装备基础属性 */
+export interface GearStats {
+    /** 攻击力 */
+    attack?: number;
+    /** 防御力 */
+    defense?: number;
+    /** 最大生命值 */
+    maxHp?: number;
+    /** 最大魔法值 */
+    maxMp?: number;
+    /** 暴击率 */
+    critRate?: number;
+    /** 暴击伤害 */
+    critDamage?: number;
+    /** 充能速率 */
+    chargeRate?: number;
+}
+
+/** 装备特殊效果 */
+export interface GearEffect {
+    /** 效果描述 */
+    description: string;
+    /** 效果触发条件 */
+    condition?: string;
+    /** 效果类型 */
+    type: 'passive' | 'active' | 'onHit' | 'onDamaged';
+    /** 效果实现函数 */
+    effect: (character: Character) => void;
+}
+
+/** 装备物品接口 */
+export interface GearItem extends Item {
+    type: ItemType.GEAR;
+    /** 装备位置 */
+    slot: 'weapon' | 'armor' | 'accessory';
+    /** 基础属性加成 */
+    stats: GearStats;
+    /** 特殊效果 */
+    effects?: GearEffect[];
+    /** 装备等级需求 */
+    levelReq?: number;
+}
+
+/** 类型保护函数 */
+export function isGearItem(item: Item): item is GearItem {
+    return item.type === ItemType.GEAR;
 }

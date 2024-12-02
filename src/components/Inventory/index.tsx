@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Card, List, Tag, Typography, Button, Tooltip, message } from 'antd';
+import { Modal, Tabs, List, Tag, Typography, Button, Tooltip, message } from 'antd';
 import { Player } from '../../class/player';
-import { InventoryItem, ItemType } from '../../constants/item';
+import { GearItem, InventoryItem, isGearItem, ItemType } from '../../constants/item';
+import { ExperimentOutlined, ThunderboltOutlined, InboxOutlined, GoldOutlined } from '@ant-design/icons';
 import './index.scss';
 
 const { Text } = Typography;
+const { TabPane } = Tabs;
 
 interface InventoryProps {
     visible: boolean;
@@ -27,7 +29,7 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
     useEffect(() => {
         const player = Player.getInstance();
         const inventory = player.inventory;
-        
+
         setItems(inventory.getItems());
         setGold(inventory.gold);
 
@@ -39,78 +41,121 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
         return cleanup;
     }, []);
 
+    const filterItemsByType = (type: ItemType) => {
+        return items.filter(item => item.item.type === type);
+    };
+
     const handleUseItem = (item: InventoryItem) => {
         const player = Player.getInstance();
-        
-        if (item.item.type === 'consumable') {
+
+        if (item.item.type === ItemType.CONSUMABLE) {
             if (player.inventory.removeItem(item.item.id, 1)) {
-                // 处理消耗品效果
                 message.success(`使用了 ${item.item.name}`);
             }
         } else if (item.item.type === ItemType.GEAR) {
-            // 装备逻辑
             message.info(`装备了 ${item.item.name}`);
-        } else {
-            message.info(`这个物品不能使用`);
         }
     };
 
-    const handleDiscardItem = (item: InventoryItem) => {
-        Modal.confirm({
-            title: '丢弃物品',
-            content: `确定要丢弃 ${item.item.name} 吗？`,
-            onOk() {
-                const player = Player.getInstance();
-                if (player.inventory.removeItem(item.item.id, 1)) {
-                    message.success(`丢弃了 ${item.item.name}`);
-                }
-            }
-        });
+    const renderItemStats = (item: GearItem) => {
+        console.log(item);
+        return (
+            <div className="gear-stats">
+                {item.stats.attack && (
+                    <Text type="secondary">攻击力 +{item.stats.attack}</Text>
+                )}
+                {item.stats.defense && (
+                    <Text type="secondary">防御力 +{item.stats.defense}</Text>
+                )}
+                {item.stats.critRate && (
+                    <Text type="secondary">暴击率 +{(item.stats.critRate * 100).toFixed(1)}%</Text>
+                )}
+                {item.stats.critDamage && (
+                    <Text type="secondary">暴击伤害 +{(item.stats.critDamage * 100).toFixed(1)}%</Text>
+                )}
+                {item.effects?.map((effect, index) => (
+                    <Text key={index} type="warning" className="gear-effect">
+                        {effect.description}
+                    </Text>
+                ))}
+            </div>
+        );
     };
+
+    const renderItemList = (filteredItems: InventoryItem[]) => (
+        <List
+            className="inventory-list"
+            dataSource={filteredItems}
+            renderItem={(inventoryItem) => (
+                <List.Item className="inventory-item">
+                    <div className="item-content">
+                        <div className="item-basic">
+                            <Tooltip title={inventoryItem.item.description}>
+                                <Tag color={getRarityColor(inventoryItem.item.rarity)}>
+                                    {inventoryItem.item.name}
+                                    {isGearItem(inventoryItem.item) && (
+                                        <span className="gear-slot">
+                                            ({inventoryItem.item.slot})
+                                        </span>
+                                    )}
+                                </Tag>
+                            </Tooltip>
+                            {inventoryItem.item.stackable && (
+                                <Text className="item-quantity">x{inventoryItem.quantity}</Text>
+                            )}
+                        </div>
+                        {isGearItem(inventoryItem.item) && renderItemStats(inventoryItem.item)}
+                    </div>
+                    <div className="item-actions">
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => handleUseItem(inventoryItem)}
+                        >
+                            {isGearItem(inventoryItem.item) ? '装备' : '使用'}
+                        </Button>
+                    </div>
+                </List.Item>
+            )}
+        />
+    );
 
     return (
         <Modal
-            title="背包"
+            title={
+                <div className="inventory-header">
+                    <span>背包</span>
+                    <span className="gold-display">
+                        <GoldOutlined /> {gold} 金币
+                    </span>
+                </div>
+            }
             open={visible}
             onCancel={onClose}
             footer={null}
             width={600}
             className="inventory-modal"
         >
-            <div className="gold-display">
-                <Text>金币: {gold}</Text>
-            </div>
-            <List
-                dataSource={items}
-                renderItem={(inventoryItem) => (
-                    <List.Item
-                        actions={[
-                            <Button 
-                                size="small" 
-                                onClick={() => handleUseItem(inventoryItem)}
-                            >
-                                使用
-                            </Button>,
-                            <Button 
-                                size="small" 
-                                danger 
-                                onClick={() => handleDiscardItem(inventoryItem)}
-                            >
-                                丢弃
-                            </Button>
-                        ]}
-                    >
-                        <div className="item-entry">
-                            <Tooltip title={inventoryItem.item.description}>
-                                <Tag color={getRarityColor(inventoryItem.item.rarity)}>
-                                    {inventoryItem.item.name}
-                                </Tag>
-                            </Tooltip>
-                            <Text className="item-quantity">x{inventoryItem.quantity}</Text>
-                        </div>
-                    </List.Item>
-                )}
-            />
+            <Tabs defaultActiveKey="gear">
+                <TabPane
+                    tab={<><ThunderboltOutlined /> 装备</>}
+                    key="gear"
+                >
+                    {renderItemList(filterItemsByType(ItemType.GEAR))}
+                </TabPane>
+                <TabPane
+                    tab={<><ExperimentOutlined /> 消耗品</>}
+                    key="consumable"
+                >
+                    {renderItemList(filterItemsByType(ItemType.CONSUMABLE))}
+                </TabPane>
+                <TabPane
+                    tab={<><InboxOutlined /> 材料</>}
+                    key="material"
+                >
+                    {renderItemList(filterItemsByType(ItemType.MATERIAL))}
+                </TabPane>
+            </Tabs>
         </Modal>
     );
 };

@@ -1,5 +1,8 @@
 import { CharacterState } from "../constants/character";
+import { MessageType } from "../constants/game-system";
+import { GearStats } from "../constants/item";
 import { Skill } from "../constants/skill-list";
+import { GameSystem } from "./game-system";
 import { Inventory } from './inventory';
 
 /**
@@ -14,6 +17,11 @@ export class Character {
     private _charge: number = 0;  // 当前充能值
     private _stateChangeCallbacks: Set<() => void> = new Set();
     protected _inventory: Inventory;
+    private _temporaryEffects: Map<string, {
+        value: number;
+        duration: number;
+        attribute: keyof GearStats;
+    }> = new Map();
 
     /**
      * 构造函数
@@ -74,7 +82,15 @@ export class Character {
     get maxMp(): number { return this._maxMp; }
     get exp(): number { return this._exp; }
     get level(): number { return this._level; }
-    get attack(): number { return this._attack; }
+    get attack(): number {
+        let baseAttack = this._attack;
+        this._temporaryEffects.forEach(effect => {
+            if (effect.attribute === 'attack') {
+                baseAttack += effect.value;
+            }
+        });
+        return baseAttack;
+    }
     get defense(): number { return this._defense; }
     get critRate(): number { return this._critRate; }
     get critDamage(): number { return this._critDamage; }
@@ -358,6 +374,41 @@ export class Character {
         this._chargeRate = state.chargeRate;
         
         this.notifyStateChange();
+    }
+
+    // 获取实际属性值（包含临时效果）
+    public getEffectiveAttribute(attribute: keyof GearStats): number {
+        let baseValue = this[attribute] || 0;
+        this._temporaryEffects.forEach(effect => {
+            if (effect.attribute === attribute) {
+                baseValue += effect.value;
+            }
+        });
+        return baseValue;
+    }
+
+    // 添加临时效果
+    public addTemporaryEffect(
+        id: string,
+        attribute: keyof GearStats,
+        value: number,
+        duration: number
+    ): void {
+        this._temporaryEffects.set(id, { value, duration, attribute });
+    }
+
+    // 在每回合结束时调用
+    public updateEffects(): void {
+        for (const [id, effect] of this._temporaryEffects.entries()) {
+            effect.duration--;
+            if (effect.duration <= 0) {
+                this._temporaryEffects.delete(id);
+                GameSystem.getInstance().sendMessage(
+                    MessageType.COMBAT,
+                    `${id.split('_')[0]} 效果已结束`
+                );
+            }
+        }
     }
 }
 
