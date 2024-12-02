@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { GameSystem } from '../../class/game-system';
 import { GameMessage, MessageType, EventType, GameEvent } from '../../constants/game-system';
+// @ts-ignore
 import { FixedSizeList } from 'react-window';
 import './index.scss';
 import BattleMessage from '../battleMessage';
@@ -53,7 +54,7 @@ const MessageDisplay: React.FC = () => {
                 itemCount={messages.length}
                 itemSize={50}
             >
-                {({ index, style }) => {
+                {({ index, style }: { index: number, style: React.CSSProperties }) => {
                     const msg = messages[index];
                     // 如果是战斗日志类型的消息
                     if (msg.type === MessageType.COMBAT) {

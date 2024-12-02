@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Character } from '../../class/character';
 import { Progress } from 'antd';
 import './index.scss';
-import PLAYER from '../../data/character/player';
 
 interface CharacterBaseStatusProps {
     character: Character;
