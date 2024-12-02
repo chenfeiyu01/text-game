@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { GameSystem } from '../../class/game-system';
 import { GameMessage, MessageType, EventType, GameEvent } from '../../constants/game-system';
 import { FixedSizeList } from 'react-window';
-import { BattleUI } from '../../class/battle-ui';
 import './index.scss';
 import BattleMessage from '../battleMessage';
 

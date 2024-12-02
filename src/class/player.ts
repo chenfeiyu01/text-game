@@ -1,5 +1,6 @@
 import { Character } from './character';
 import { Skill } from '../constants/skill-list';
+import { Inventory } from './inventory';
 
 interface PlayerConfig {
     name: string;

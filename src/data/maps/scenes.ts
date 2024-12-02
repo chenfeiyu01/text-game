@@ -1,6 +1,7 @@
 import { Character } from '../../class/character';
 import MONSTERS from '../character/monsters';
 import { Scene } from '../../constants/scenes';
+import { ItemId } from '../../constants/item';
 
 // 场景配置
 export const SCENES: Record<string, Scene> = {
@@ -21,7 +22,7 @@ export const SCENES: Record<string, Scene> = {
                 reward: {
                     exp: 100,
                     gold: 20,
-                    items: ['POTION_SMALL']
+                    items: [ItemId.Consumable.HEALTH_POTION]
                 }
             }
         ],
@@ -30,7 +31,7 @@ export const SCENES: Record<string, Scene> = {
             reward: {
                 exp: 300,
                 gold: 100,
-                items: ['WEAPON_RARE', 'ARMOR_RARE']
+                items: [ItemId.Gear.IRON_SWORD]
             }
         }
     },

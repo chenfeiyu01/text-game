@@ -5,6 +5,8 @@ import { BattleLog, BattleResult, BattleReward } from "../constants/battle";
 import { MessageType } from "../constants/game-system";
 import { GameSystem } from "./game-system";
 import { Character } from "./character";
+import { Player } from "./player";
+import { getItemById } from "../utils/items";
 
 /**
  * 战斗系统类
@@ -178,8 +180,7 @@ export class BattleSystem {
 
     /**
      * 结束战斗
-     * 处理战斗结算，包括经验值奖励等
-     * @param result 战斗结果
+     * @param winner 获胜者
      */
     private endBattle(winner: Character) {
         console.log('走到了endBattle', winner)
@@ -203,31 +204,35 @@ export class BattleSystem {
         );
 
         if (winner === this.player && this.battleReward) {
-            // 获得经验值
-            console.log('获得经验值 battleReward', this.battleReward)
-            this.player.gainExp(this.battleReward.exp);
-
-            // 发送经验值奖励消息
-            this.gameSystem.sendMessage(
-                MessageType.REWARD,
-                `获得 ${this.battleReward.exp} 点经验值！`
-            );
-
-            // 发送金币奖励消息
-            if (this.battleReward?.gold && this.battleReward.gold > 0) {
+            const player = Player.getInstance();
+            
+            // 获得金币
+            if (this.battleReward.gold) {
+                player.inventory.addGold(this.battleReward.gold);
                 this.gameSystem.sendMessage(
                     MessageType.REWARD,
                     `获得 ${this.battleReward.gold} 金币！`
                 );
             }
 
-            // 发送物品奖励消息
+            // 获得经验值
+            this.player.gainExp(this.battleReward.exp);
+            this.gameSystem.sendMessage(
+                MessageType.REWARD,
+                `获得 ${this.battleReward.exp} 点经验值！`
+            );
+
+            // 获得物品
             if (this.battleReward.items?.length) {
                 this.battleReward.items.forEach(itemId => {
-                    this.gameSystem.sendMessage(
-                        MessageType.REWARD,
-                        `获得物品：${itemId}！`  // 这里可以根据itemId获取物品名称
-                    );
+                    const item = getItemById(itemId);
+                    if (item) {
+                        player.inventory.addItem(item);
+                        this.gameSystem.sendMessage(
+                            MessageType.REWARD,
+                            `获得物品：${item.name}！`
+                        );
+                    }
                 });
             }
         }

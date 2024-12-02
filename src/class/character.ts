@@ -1,5 +1,6 @@
 import { CharacterState } from "../constants/character";
 import { Skill } from "../constants/skill-list";
+import { Inventory } from './inventory';
 
 /**
  * 角色类
@@ -12,6 +13,7 @@ export class Character {
     private _level: number = 1;   // 当前等级
     private _charge: number = 0;  // 当前充能值
     private _stateChangeCallbacks: Set<() => void> = new Set();
+    protected _inventory: Inventory;
 
     /**
      * 构造函数
@@ -52,6 +54,7 @@ export class Character {
 
         this._hp = maxHp;
         this._mp = maxMp;
+        this._inventory = new Inventory();
     }
 
     public readonly name: string;
@@ -79,6 +82,9 @@ export class Character {
     get charge(): number { return this._charge; }
     get equippedSkill(): Skill | undefined { return this._equippedSkill; }
     get expNeeded(): number { return this.calculateExpNeeded(); }
+    get inventory(): Inventory {
+        return this._inventory;
+    }
 
 
     /**

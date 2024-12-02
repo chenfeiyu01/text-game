@@ -3,6 +3,7 @@ import { GameSystem } from './game-system';
 import { GameMessage, MessageType } from '../constants/game-system';
 import { getSkillById } from '../utils/skills';
 import { Player } from './player';
+import { Item, ItemId } from '../constants/item';
 
 
 interface GameSaveData {
@@ -22,6 +23,10 @@ interface GameSaveData {
         critDamage: number;
         chargeRate: number;
         equippedSkillId?: string;
+        inventory?: {
+            items: [ItemId, { item: Item, quantity: number }][];
+            gold: number;
+        };
     };
     messages: GameMessage[];
     // 可以根据需要添加其他需要保存的游戏数据
@@ -63,7 +68,14 @@ export class SaveSystem {
                 critRate: player.critRate,
                 critDamage: player.critDamage,
                 chargeRate: player.chargeRate,
-                equippedSkillId: player.equippedSkill?.id
+                equippedSkillId: player.equippedSkill?.id,
+                inventory: {
+                    items: player.inventory.getItems().map(item => [
+                        item.item.id,
+                        { item: item.item, quantity: item.quantity }
+                    ]),
+                    gold: player.inventory.gold
+                }
             },
             messages: gameSystem.getRecentMessages(100) // 保存最近100条消息
         };
@@ -91,19 +103,22 @@ export class SaveSystem {
 
             const saveData: GameSaveData = JSON.parse(saveDataString);
 
-            // 版本检查
-            if (saveData.version !== this.CURRENT_VERSION) {
-                GameSystem.getInstance().sendMessage(
-                    MessageType.ERROR,
-                    '存档版本不匹配，可能会出现兼容性问题'
-                );
-            }
+            // 初始化玩家实例
+            Player.initializePlayer({
+                name: saveData.player.name,
+                maxHp: saveData.player.maxHp,
+                maxMp: saveData.player.maxMp,
+                attack: saveData.player.attack,
+                defense: saveData.player.defense,
+                critRate: saveData.player.critRate,
+                critDamage: saveData.player.critDamage,
+                chargeRate: saveData.player.chargeRate
+            });
 
+            // 恢复玩家状态
             this.restorePlayerState(Player.getInstance(), saveData.player);
 
-            // 恢复游戏消息
-            const gameSystem = GameSystem.getInstance();
-            gameSystem.sendMessage(MessageType.SYSTEM, '游戏数据已加载');
+            GameSystem.getInstance().sendMessage(MessageType.SYSTEM, '游戏数据已加载');
             return true;
         } catch (error) {
             GameSystem.getInstance().sendMessage(MessageType.ERROR, '加载游戏失败');
@@ -138,6 +153,13 @@ export class SaveSystem {
             }
         }
 
+        // 恢复背包数据
+        if (savedState.inventory) {
+            savedState.inventory.items.forEach(([id, item]) => {
+                player.inventory.addItem(item.item, item.quantity);
+            });
+            player.inventory.addGold(savedState.inventory.gold);
+        }
     }
 
     /**
