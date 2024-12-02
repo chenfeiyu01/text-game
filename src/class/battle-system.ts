@@ -153,7 +153,8 @@ export class BattleSystem {
         const critText = isCrit ? "【暴击】" : "";
         this.gameSystem.sendMessage(
             MessageType.COMBAT,
-            `[回合${this.currentRound}] ${attacker.name} ${action}，${critText}对 ${defender.name} 造成 ${damage} 点伤害！`
+            `[回合${this.currentRound}] ${attacker.name} ${action}，${critText}对 ${defender.name} 造成 ${damage} 点伤害！`,
+            log
         );
 
         if (this.onBattleUpdate) {

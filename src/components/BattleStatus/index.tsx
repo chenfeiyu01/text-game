@@ -26,11 +26,6 @@ const CharacterStatus: React.FC<{ character: Character }> = ({ character }) => {
             <p>HP: {character.hp}/{character.maxHp}</p>
             <p>MP: {character.mp}/{character.maxMp}</p>
             <p>充能: {character.charge.toFixed(1)}%</p>
-            <p>攻击力: {character.attack}</p>
-            <p>防御力: {character.defense}</p>
-            <p>暴击率: {(character.critRate * 100).toFixed(1)}%</p>
-            <p>暴击伤害: {(character.critDamage * 100).toFixed(1)}%</p>
-            <p>充能效率: {(character.chargeRate * 100).toFixed(1)}%</p>
             <p>装备技能: {character.equippedSkill?.name || '无'}</p>
         </div>
     );

@@ -2,7 +2,9 @@ import { useEffect, useState, useRef } from 'react';
 import { GameSystem } from '../../class/game-system';
 import { GameMessage, MessageType, EventType, GameEvent } from '../../constants/game-system';
 import { FixedSizeList } from 'react-window';
+import { BattleUI } from '../../class/battle-ui';
 import './index.scss';
+import BattleMessage from '../battleMessage';
 
 const MessageDisplay: React.FC = () => {
     const [messages, setMessages] = useState<GameMessage[]>([]);
@@ -18,7 +20,7 @@ const MessageDisplay: React.FC = () => {
         const handleMessageUpdate = (event: GameEvent) => {
             const newMessages = gameSystem.getRecentMessages();
             setMessages(newMessages);
-            
+
             // 使用 requestAnimationFrame 确保在下一帧渲染后滚动
             requestAnimationFrame(() => {
                 if (newMessages.length > 0) {
@@ -42,6 +44,7 @@ const MessageDisplay: React.FC = () => {
         }
     }, [messages]);
 
+    console.log('messages is ', messages);
     return (
         <div className="message-display">
             <FixedSizeList
@@ -53,14 +56,24 @@ const MessageDisplay: React.FC = () => {
             >
                 {({ index, style }) => {
                     const msg = messages[index];
+                    // 如果是战斗日志类型的消息
+                    if (msg.type === MessageType.COMBAT) {
+                        return (
+                            <div style={style}>
+                                <BattleMessage msg={msg} />
+                            </div>
+                        );
+                    }
+
+                    // 其他类型的消息保持原样
                     return (
                         <div
                             style={style}
                             className={`message ${getMessageClass(msg.type)}`}
                         >
-                            <span className="timestamp">
+                            {/* <span className="timestamp">
                                 {new Date(msg.timestamp).toLocaleTimeString()}
-                            </span>
+                            </span> */}
                             <span className="content">{msg.content}</span>
                         </div>
                     );

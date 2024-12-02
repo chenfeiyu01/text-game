@@ -1,12 +1,8 @@
-import { useEffect, useState } from 'react'
 import './App.css'
-import { Character } from './class/human'
-import { SKILL_LIST } from './constants/skill-list'
-import { BattleUI } from './class/battle-ui'
-import { BattleSystem } from './class/battle-system'
-import MessageDisplay from './components/MessageDisplay'
-import BattleStatus from './components/BattleStatus'
 import BattleScene from './components/BattleScene'
+import CharacterBaseStatus from './components/CharacterBaseStatus'
+import PLAYER from './data/character/player'
+import { SCENES } from './data/maps/scenes'
 
 /**
  * App组件 - 游戏主界面
@@ -24,7 +20,8 @@ function App() {
   // 渲染战斗容器
   return (
     <>
-      <BattleScene />
+      <CharacterBaseStatus character={PLAYER} />
+      <BattleScene sceneConfig={SCENES.LUOLAN} />
     </>
   )
 }

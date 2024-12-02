@@ -1,9 +1,11 @@
-import PIGLET from "./piglet";
-import SLIME from "./slime";
+import { PIGLET_CONFIG } from "./piglet";
+import { SLIME_CONFIG } from "./slime";
+import { GOBLIN_CONFIG } from "./goblin";
 
 const MONSTERS = {
-    SLIME,
-    PIGLET,
+    SLIME: SLIME_CONFIG,
+    PIGLET: PIGLET_CONFIG,
+    GOBLIN: GOBLIN_CONFIG
 }
 
 export default MONSTERS;

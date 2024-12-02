@@ -32,27 +32,3 @@
   padding: 5px;
   border-bottom: 1px solid #eee;
 }
-
-.message-normal {
-  color: #333;
-}
-
-.message-crit {
-  color: #cd3737;
-  font-weight: bold;
-}
-
-.message-skill {
-  color: #4ecdc4;
-  font-weight: bold;
-}
-
-.message-defeat {
-  color: #ffd93d;
-  font-weight: bold;
-}
-
-.round {
-  color: #95a5a6;
-  font-size: 0.9em;
-}

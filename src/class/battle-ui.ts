@@ -1,4 +1,5 @@
 import { BattleLog } from "../constants/battle";
+import { GameMessage } from "../constants/game-system";
 import { Character } from "./human";
 
 // 创建一个简单的UI组件来显示战斗信息
@@ -62,10 +63,10 @@ export class BattleUI {
     public addBattleLog(log: BattleLog) {
         const logEntry = document.createElement('div');
         logEntry.className = 'log-entry';
-        
+
         // 回合信息
         const roundInfo = `<p class="round">回合 ${log.round}</p>`;
-        
+
         // 根据不同情况设置不同的消息类型
         let messageClass = 'message-normal';
         if (log.isCrit) {
@@ -77,16 +78,17 @@ export class BattleUI {
         if (log.isDefeated) {
             messageClass = 'message-defeat';
         }
-        
+
         const message = `<p class="${messageClass}">
             ${log.attacker} ${log.action}，
             造成 ${log.damage} 点伤害！
             ${log.isCrit ? '【暴击】' : ''}
             ${log.isDefeated ? `${log.defender}被击败了！` : ''}
         </p>`;
-        
+
         logEntry.innerHTML = roundInfo + message;
         this.logContainer.appendChild(logEntry);
         this.logContainer.scrollTop = this.logContainer.scrollHeight;
     }
+
 }
