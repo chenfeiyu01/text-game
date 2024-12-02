@@ -1,0 +1,85 @@
+.skill-panel {
+    padding: 16px;
+
+    .skill-item {
+        padding: 12px;
+        border: 1px solid #f0f0f0;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+            background: #fafafa;
+        }
+
+        &.selected {
+            background: #e6f7ff;
+            border-color: #91d5ff;
+        }
+
+        &.learned {
+            opacity: 0.7;
+            background: #f5f5f5;
+            cursor: default;
+
+            .skill-name::after {
+                content: ' (已学习)';
+                color: #52c41a;
+                font-size: 12px;
+            }
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .skill-name {
+                font-size: 16px;
+                font-weight: 500;
+                color: #1890ff;
+            }
+
+            .skill-cost {
+                color: #faad14;
+                font-weight: 500;
+            }
+        }
+
+        .skill-info {
+            .skill-description {
+                color: #666;
+                margin-bottom: 8px;
+            }
+
+            .skill-requirements {
+                display: flex;
+                gap: 16px;
+                color: #999;
+                font-size: 12px;
+
+                span {
+                    &::before {
+                        content: '•';
+                        margin-right: 4px;
+                        color: #1890ff;
+                    }
+                }
+            }
+        }
+
+        .ant-btn {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+
+            &:disabled {
+                opacity: 0.5;
+            }
+        }
+
+        &:hover .ant-btn {
+            opacity: 1;
+        }
+    }
+} 

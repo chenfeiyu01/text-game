@@ -8,7 +8,8 @@ export const CONSUMABLES: Record<ConsumableItemId, Item> = {
         type: ItemType.CONSUMABLE,
         rarity: ItemRarity.COMMON,
         stackable: true,
-        maxStack: 99
+        maxStack: 99,
+        price: 10
     },
     [ConsumableItemId.MANA_POTION]: {
         id: ConsumableItemId.MANA_POTION,
@@ -17,6 +18,7 @@ export const CONSUMABLES: Record<ConsumableItemId, Item> = {
         type: ItemType.CONSUMABLE,
         rarity: ItemRarity.COMMON,
         stackable: true,
-        maxStack: 99
+        maxStack: 99,
+        price: 10
     }
 }

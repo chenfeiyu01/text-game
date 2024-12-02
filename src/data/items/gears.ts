@@ -14,7 +14,9 @@ export const GEARS: Record<GearItemId, GearItem> = {
         stats: {
             attack: 5,
             critRate: 0.05
-        }
+        },
+        isEnhanceable: true,
+        price: 10
     },
     [GearItemId.IRON_SWORD]: {
         id: GearItemId.IRON_SWORD,
@@ -29,6 +31,8 @@ export const GEARS: Record<GearItemId, GearItem> = {
             critRate: 0.08,
             critDamage: 0.2
         },
+        isEnhanceable: true,
+        price: 20,
         effects: [{
             description: '每次暴击后增加10%攻击力，持续3回合',
             type: 'onHit',

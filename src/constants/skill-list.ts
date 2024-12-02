@@ -20,6 +20,10 @@ export interface Skill {
     description: string;
     /** 技能效果函数 */
     effect?: (character: Character) => void;
+    /** 学习需求等级 */
+    requiredLevel: number;
+    /** 学习费用 */
+    cost: number;
 }
 
 /**
@@ -34,7 +38,9 @@ export const SKILL_LIST: Skill[] = [
         damage: 50,
         manaCost: 30,
         chargeCost: 100,
-        description: '发射一个火球，造成范围伤害'
+        description: '发射一个火球，造成范围伤害',
+        requiredLevel: 1,
+        cost: 0
     },
     {
         id: 'heal',
@@ -45,7 +51,8 @@ export const SKILL_LIST: Skill[] = [
         description: '恢复生命值',
         effect: (character: Character) => {
             character.hp = Math.min(character.maxHp, character.hp + 50);
-        }
+        },
+        requiredLevel: 2,
+        cost: 10
     },
-    // 可以添加更多技能
 ];

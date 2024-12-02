@@ -9,9 +9,9 @@ export enum ItemType {
     /** 装备类物品 */
     GEAR = 'gear',
     /** 消耗品 */
-    CONSUMABLE = 'consumable',  
+    CONSUMABLE = 'consumable',
     /** 材料 */
-    MATERIAL = 'material'       
+    MATERIAL = 'material'
 }
 
 
@@ -22,19 +22,23 @@ export enum ItemType {
  */
 export interface Item {
     /** 物品唯一标识符 */
-    id: ItemId;           
+    id: ItemId;
     /** 物品名称 */
-    name: string;         
+    name: string;
     /** 物品描述 */
-    description: string;  
+    description: string;
     /** 物品类型 */
-    type: ItemType;        
+    type: ItemType;
     /** 物品稀有度 */
-    rarity: ItemRarity;      
+    rarity: ItemRarity;
     /** 是否可堆叠 */
-    stackable: boolean;  
+    stackable: boolean;
     /** 最大堆叠数量 */
-    maxStack?: number;   
+    maxStack?: number;
+    /** 物品价格 */
+    price: number;
+    /** 是否可强化 */
+    isEnhanceable?: boolean;
 }
 
 /**
@@ -44,9 +48,9 @@ export interface Item {
  */
 export interface InventoryItem {
     /** 物品对象 */
-    item: Item;          
+    item: Item;
     /** 物品数量 */
-    quantity: number;    
+    quantity: number;
 }
 
 /**
@@ -102,13 +106,13 @@ export type ItemId = ConsumableItemId | GearItemId | MaterialItemId;
  */
 export enum ItemRarity {
     /** 普通品质 */
-    COMMON = 'common',      
+    COMMON = 'common',
     /** 稀有品质 */
-    RARE = 'rare',         
+    RARE = 'rare',
     /** 传说品质 */
-    LEGENDARY = 'legendary', 
+    LEGENDARY = 'legendary',
     /** 史诗品质 */
-    EPIC = 'epic'          
+    EPIC = 'epic'
 }
 
 /** 装备基础属性 */
@@ -165,9 +169,93 @@ export interface GearItem extends Item {
     stats: GearStats;
     /** 装备特殊效果列表 */
     effects?: GearEffect[];
+    /** 当前强化等级 */
+    enhanceLevel: number;
 }
 
 /** 类型保护函数 */
 export function isGearItem(item: Item): item is GearItem {
     return item.type === ItemType.GEAR;
 }
+
+// 强化等级区间的成功率配置
+const ENHANCE_LEVEL_RANGES = [
+    { min: 1, max: 3, rate: 1.00 },    // 1-3级：100%
+    { min: 4, max: 6, rate: 0.70 },    // 4-6级：70%
+    { min: 7, max: 9, rate: 0.40 },    // 7-9级：40%
+] as const;
+
+// 10级以上的成功率计算
+function calculateHighLevelSuccessRate(level: number): number {
+    if (level < 10) return 0;
+
+    const baseRate = 0.35; // 10级的基础成功率
+    const reduction = (level - 9) * 0.05; // 每级降低5%
+    const minRate = 0.05; // 最低成功率
+
+    return Math.max(baseRate - reduction, minRate);
+}
+
+// 获取强化成功率
+export function getEnhanceSuccessRate(level: number): number {
+    // 查找等级区间的固定成功率
+    const rangeConfig = ENHANCE_LEVEL_RANGES.find(
+        range => level >= range.min && level <= range.max
+    );
+
+    if (rangeConfig) {
+        return rangeConfig.rate;
+    }
+
+    // 10级以上使用递减公式
+    return calculateHighLevelSuccessRate(level);
+}
+
+// 强化装备
+export function enhanceGear(item: GearItem): {
+    success: boolean;
+    stats?: GearItem['stats'];
+} {
+
+    const successRate = getEnhanceSuccessRate(item.enhanceLevel);
+    const success = Math.random() <= successRate;
+
+    if (!success) {
+        return { success: false };
+    }
+
+    // 保存原始属性用于计算提升
+    const baseStats = { ...item.stats };
+
+    // 计算新属性
+    const newStats: GearItem['stats'] = {};
+    for (const [key, value] of Object.entries(baseStats)) {
+        if (value && ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE]) {
+            const growth = value * ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE];
+            newStats[key as keyof GearItem['stats']] = value + growth;
+        }
+    }
+
+    // 更新装备属性和等级
+    item.stats = newStats;
+    item.enhanceLevel += 1;
+
+    return {
+        success: true,
+        stats: newStats
+    };
+}
+
+// 强化费用计算
+export function calculateEnhanceCost(item: GearItem): number {
+    const baseCost = item.price || 1000;
+    return Math.floor(baseCost * (1 + item.enhanceLevel * 0.5));
+}
+
+// 强化属性成长系数
+export const ENHANCE_GROWTH_RATE = {
+    attack: 0.05,      // 每级增加基础攻击力的5%
+    defense: 0.05,     // 每级增加基础防御力的5%
+    critRate: 0.05,    // 每级增加基础暴击率的5%
+    critDamage: 0.08,  // 每级增加基础暴击伤害的8%
+} as const;
