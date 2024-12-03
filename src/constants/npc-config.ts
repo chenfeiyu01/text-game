@@ -79,7 +79,7 @@ export const NPC_CONFIGS = {
                 id: 'default',
                 text: '哼，你这装备看起来不怎么样。想要在这个危险的世界生存下去，就得让装备变得更强。我可以帮你强化装备，但要记住，强化是一门严谨的手艺，需要耐心和勇气。你准备好了吗？',
                 options: [
-                    { text: '让我看看强化装备' },
+                    { text: '帮我强化装备' },
                     { text: '改天再来' }
                 ]
             }
@@ -97,8 +97,11 @@ export const NPC_CONFIGS = {
         dialogs: {
             default: {
                 id: 'default',
-                text: '',
-                options: [{ text: '再见' }]
+                text: '万千气象，皆为道法。千年修行，不过一瞬。你能寻到此处，想必与这一脉...有些因果。',
+                options: [
+                    { text: '拜师学艺' },
+                    { text: '改天再来' }
+                ]
             }
         },
         defaultDialogId: 'default',

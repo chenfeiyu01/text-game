@@ -5,6 +5,7 @@ import { NpcFunction } from '../../constants/npc';
 import { ShopPanel } from '../ShopPanel';
 import { EnhancePanel } from '../EnhancePanel';
 import { SkillPanel } from '../SkillPanel';
+import './index.scss';
 
 interface NpcDialogProps {
     npc: Npc;
@@ -17,8 +18,8 @@ export const NpcDialog: React.FC<NpcDialogProps> = ({
     visible,
     onClose
 }) => {
-
-    const [currentPanel, setCurrentPanel] = useState<NpcFunction | null>(null);
+    // 根据 NPC 的第一个功能直接显示对应面板
+    const currentPanel = npc.functions[0];
 
     const renderFunctionPanel = () => {
         switch (currentPanel) {
@@ -45,9 +46,9 @@ export const NpcDialog: React.FC<NpcDialogProps> = ({
         >
             <div className="npc-dialog">
                 <div className="dialog-content">
-                    <p>{dialog.text}</p>
+                    <p className='dialog-text'>{dialog.text}</p>
                     <div className="dialog-options">
-                        {dialog.options?.map((option, index) => (
+                        {/* {dialog.options?.map((option, index) => (
                             <Button
                                 key={index}
                                 onClick={() => {
@@ -61,36 +62,13 @@ export const NpcDialog: React.FC<NpcDialogProps> = ({
                             >
                                 {option.text}
                             </Button>
-                        ))}
+                        ))} */}
                     </div>
                 </div>
-                <div className="function-buttons">
-                    {npc.functions.map(func => (
-                        <Button
-                            key={func}
-                            onClick={() => setCurrentPanel(func)}
-                        >
-                            {getFunctionName(func)}
-                        </Button>
-                    ))}
+                <div className="function-panel">
+                    {renderFunctionPanel()}
                 </div>
-                {currentPanel && (
-                    <div className="function-panel">
-                        {renderFunctionPanel()}
-                    </div>
-                )}
             </div>
         </Modal>
     );
 };
-
-function getFunctionName(func: NpcFunction): string {
-    switch (func) {
-        case NpcFunction.SHOP: return '商店';
-        case NpcFunction.ENHANCE: return '强化';
-        case NpcFunction.SKILL: return '学习技能';
-        case NpcFunction.QUEST: return '任务';
-        case NpcFunction.STORAGE: return '仓库';
-        default: return '';
-    }
-} 
