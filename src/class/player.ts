@@ -39,6 +39,6 @@ export class Player extends Character {
 
     learnSkill(skill: Skill): void {
         this._skills.add(skill.id);
-        this.notifyStateChange();
+        this.updateState();
     }
 }

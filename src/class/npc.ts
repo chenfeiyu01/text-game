@@ -148,6 +148,7 @@ export class EnhanceNpc extends Npc {
         const result = enhanceGear(item.item);
 
         if (result.success) {
+            player.inventory.update();
             return {
                 success: true,
                 message: `强化成功！${item.item.name}提升至+${item.item.enhanceLevel}级`,

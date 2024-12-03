@@ -80,4 +80,9 @@ export class Inventory {
     private notifyUpdate(): void {
         this.updateCallbacks.forEach(callback => callback());
     }
+
+    /** 触发更新 */
+    public update(): void {
+        this.notifyUpdate();
+    }
 } 

@@ -1,3 +1,134 @@
 .enhance-panel {
-    padding: 16px;
+    display: flex;
+    gap: 24px;
+    height: 400px;
+
+    .equipment-list {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 12px;
+
+        .equipment-card {
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
+                transform: translateX(4px);
+            }
+
+            &.selected {
+                border-color: #1890ff;
+                background: #e6f7ff;
+            }
+
+            .item-name {
+                font-size: 16px;
+                font-weight: 500;
+                color: #1890ff;
+                margin-bottom: 8px;
+
+                .enhance-level {
+                    margin-left: 8px;
+                    color: #52c41a;
+                }
+            }
+
+            .item-stats {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+
+                .stat-item {
+                    display: flex;
+                    justify-content: space-between;
+                    color: #666;
+                    font-size: 13px;
+                }
+            }
+        }
+    }
+
+    .enhance-details {
+        width: 300px;
+        border-left: 1px solid #f0f0f0;
+        padding-left: 24px;
+        display: flex;
+        flex-direction: column;
+
+        .preview-section {
+            flex: 1;
+
+            h3 {
+                margin-bottom: 16px;
+                color: #1890ff;
+            }
+
+            .success-rate {
+                margin-bottom: 20px;
+
+                span {
+                    display: block;
+                    margin-bottom: 8px;
+                    color: #666;
+                }
+            }
+
+            .cost {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                padding: 12px;
+                background: #fffbe6;
+                border-radius: 4px;
+
+                .gold {
+                    color: #faad14;
+                    font-weight: 500;
+                }
+            }
+
+            .stats-preview {
+                .preview-stat {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 12px;
+                    padding: 8px 12px;
+                    background: #fafafa;
+                    border-radius: 4px;
+
+                    .stat-name {
+                        color: #666;
+                    }
+
+                    .stat-change {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+
+                        .current {
+                            color: #666;
+                        }
+
+                        .arrow {
+                            color: #1890ff;
+                        }
+
+                        .after {
+                            color: #52c41a;
+                            font-weight: 500;
+                        }
+                    }
+                }
+            }
+        }
+
+        .enhance-button {
+            width: 100%;
+            height: 40px;
+            margin-top: auto;
+        }
+    }
 } 

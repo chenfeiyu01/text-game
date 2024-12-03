@@ -180,7 +180,7 @@ export function isGearItem(item: Item): item is GearItem {
 
 // 强化等级区间的成功率配置
 const ENHANCE_LEVEL_RANGES = [
-    { min: 1, max: 3, rate: 1.00 },    // 1-3级：100%
+    { min: 0, max: 3, rate: 1.00 },    // 0-3级：100%
     { min: 4, max: 6, rate: 0.70 },    // 4-6级：70%
     { min: 7, max: 9, rate: 0.40 },    // 7-9级：40%
 ] as const;
@@ -212,14 +212,23 @@ export function getEnhanceSuccessRate(level: number): number {
 }
 
 // 强化装备
+/**
+ * 强化装备函数
+ * @param item 要强化的装备
+ * @returns 强化结果对象,包含是否成功和新的属性值
+ */
 export function enhanceGear(item: GearItem): {
+    /** 是否强化成功 */
     success: boolean;
+    /** 强化后的新属性 */
     stats?: GearItem['stats'];
 } {
-
+    // 获取当前强化等级的成功率
     const successRate = getEnhanceSuccessRate(item.enhanceLevel);
+    // 根据成功率判定是否强化成功
     const success = Math.random() <= successRate;
 
+    // 强化失败直接返回
     if (!success) {
         return { success: false };
     }
@@ -227,13 +236,23 @@ export function enhanceGear(item: GearItem): {
     // 保存原始属性用于计算提升
     const baseStats = { ...item.stats };
 
-    // 计算新属性
+    // 计算强化后的新属性
     const newStats: GearItem['stats'] = {};
     for (const [key, value] of Object.entries(baseStats)) {
-        if (value && ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE]) {
-            const growth = value * ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE];
-            newStats[key as keyof GearItem['stats']] = value + growth;
-        }
+        if (!value) continue;
+        
+        // 根据属性类型计算成长值
+        const growth = value * ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE];
+        // 设置最小成长值,百分比属性最小0.001,整数属性最小1
+        const minGrowth = key === 'critRate' || key === 'critDamage' ? 0.001 : 1;
+        
+        // 根据属性类型设置精度
+        newStats[key as keyof GearItem['stats']] = value + Math.max(
+            minGrowth,
+            key === 'critRate' || key === 'critDamage' 
+                ? Math.round(growth * 1000) / 1000  // 百分比属性保留3位小数
+                : Math.ceil(growth)                 // 整数属性向上取整
+        );
     }
 
     // 更新装备属性和等级
@@ -246,13 +265,17 @@ export function enhanceGear(item: GearItem): {
     };
 }
 
-// 强化费用计算
+/**
+ * 计算装备强化费用
+ * @param item 要强化的装备
+ * @returns 强化所需金币数量
+ */
 export function calculateEnhanceCost(item: GearItem): number {
     const baseCost = item.price || 1000;
     return Math.floor(baseCost * (1 + item.enhanceLevel * 0.5));
 }
 
-// 强化属性成长系数
+/** 各属性的强化成长系数配置 */
 export const ENHANCE_GROWTH_RATE = {
     attack: 0.05,      // 每级增加基础攻击力的5%
     defense: 0.05,     // 每级增加基础防御力的5%

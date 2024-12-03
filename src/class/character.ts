@@ -581,4 +581,9 @@ export class Character {
             }
         }
     }
+
+    /** 通知状态变化 */
+    protected updateState(): void {
+        this.notifyStateChange();
+    }
 }
