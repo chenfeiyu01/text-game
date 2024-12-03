@@ -49,8 +49,11 @@ export const NPC_CONFIGS = {
         dialogs: {
             default: {
                 id: 'default',
-                text: '欢迎光临！需要些什么吗？',
-                options: [{ text: '再见' }]
+                text: '欢迎光临小店！我这里应有尽有,从针头线脑到锅碗瓢盆,就连你爷爷小时候用过的东西我这都能找到~嘿嘿,不过价格可能会让你的钱包瘦一点点。要不要看看?',
+                options: [
+                    { text: '让我看看你的商品' },
+                    { text: '下次再来' }
+                ]
             }
         },
         defaultDialogId: 'default',
@@ -74,8 +77,11 @@ export const NPC_CONFIGS = {
         dialogs: {
             default: {
                 id: 'default',
-                text: '想要强化装备吗？',
-                options: [{ text: '再见' }]
+                text: '哼，你这装备看起来不怎么样。想要在这个危险的世界生存下去，就得让装备变得更强。我可以帮你强化装备，但要记住，强化是一门严谨的手艺，需要耐心和勇气。你准备好了吗？',
+                options: [
+                    { text: '让我看看强化装备' },
+                    { text: '改天再来' }
+                ]
             }
         },
         defaultDialogId: 'default',
@@ -91,7 +97,7 @@ export const NPC_CONFIGS = {
         dialogs: {
             default: {
                 id: 'default',
-                text: '想要学习新技能吗？',
+                text: '',
                 options: [{ text: '再见' }]
             }
         },

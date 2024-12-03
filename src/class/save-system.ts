@@ -23,6 +23,7 @@ interface GameSaveData {
         critDamage: number;
         chargeRate: number;
         equippedSkillId?: string;
+        skills: Set<string>;
         inventory?: {
             items: { [key in ItemId]: { item: Item, quantity: number } };
             gold: number;
@@ -49,7 +50,7 @@ export class SaveSystem {
     /**
      * 保存游戏数据
      */
-    public saveGame(player: Character): void {
+    public saveGame(player: Player): void {
         const gameSystem = GameSystem.getInstance();
 
         const saveData: GameSaveData = {
@@ -69,6 +70,7 @@ export class SaveSystem {
                 critDamage: player.critDamage,
                 chargeRate: player.chargeRate,
                 equippedSkillId: player.equippedSkill?.id,
+                skills: player.skills,
                 inventory: {
                     items: Object.fromEntries(
                         player.inventory.getItems().map(item => [

@@ -11,9 +11,9 @@ interface SkillPanelProps {
 
 export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
     const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null);
+    const [updateTrigger, setUpdateTrigger] = useState(0);
     const player = Player.getInstance();
     const availableSkills = npc.getAvailableSkills();
-    console.log('availableSkills', availableSkills);
 
     const handleLearnSkill = (skillId: string) => {
         const skill = availableSkills.find(s => s.id === skillId);
@@ -39,6 +39,7 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
         if (npc.teachSkill(player, skillId)) {
             message.success(`成功学习技能：${skill.name}`);
             setSelectedSkillId(null);
+            setUpdateTrigger(prev => prev + 1);
         } else {
             player.inventory.addGold(skill.cost);
             message.error('学习失败');
@@ -102,7 +103,6 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
                                         player.inventory.getGold() < skill.cost
                                     }
                                     onClick={(e) => {
-                                        console.log('已经学会的技能', player.skills);
                                         e.stopPropagation();
                                         handleLearnSkill(skill.id);
                                     }}
