@@ -16,7 +16,8 @@ export const GEARS: Record<GearItemId, GearItem> = {
             critRate: 0.05
         },
         isEnhanceable: true,
-        price: 10
+        price: 10,
+        enhanceLevel: 0
     },
     [GearItemId.IRON_SWORD]: {
         id: GearItemId.IRON_SWORD,
@@ -26,6 +27,7 @@ export const GEARS: Record<GearItemId, GearItem> = {
         rarity: ItemRarity.COMMON,
         stackable: false,
         slot: GearSlot.WEAPON,
+        enhanceLevel: 0,
         stats: {
             attack: 10,
             critRate: 0.08,
@@ -41,7 +43,7 @@ export const GEARS: Record<GearItemId, GearItem> = {
                 const baseAttack = character.attack;
                 const bonusAttack = Math.floor(baseAttack * 0.1);
                 const effectId = `iron_sword_crit_${Date.now()}`;
-                
+
                 character.addTemporaryEffect(
                     effectId,
                     'attack',

@@ -16,11 +16,9 @@ interface PlayerConfig {
 
 export class Player extends Character {
     private static instance: Player;
-    private _money: number = 0;
+    /** 已学习的技能集合 */
     private _skills: Set<string> = new Set();
 
-    get money(): number { return this._money; }
-    set money(value: number) { this._money = Math.max(0, value); }
     get skills(): Set<string> { return this._skills; }
 
     private constructor(config: PlayerConfig) {

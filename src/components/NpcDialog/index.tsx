@@ -18,7 +18,6 @@ export const NpcDialog: React.FC<NpcDialogProps> = ({
     onClose
 }) => {
 
-    console.log('npc issisiis  ', npc);
     const [currentPanel, setCurrentPanel] = useState<NpcFunction | null>(null);
 
     const renderFunctionPanel = () => {

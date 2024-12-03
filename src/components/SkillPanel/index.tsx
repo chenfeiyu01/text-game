@@ -19,25 +19,28 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
         const skill = availableSkills.find(s => s.id === skillId);
         if (!skill) return;
 
-        if (player.level < skill.requiredLevel) {
-            message.error(`等级不足，需要等级 ${skill.requiredLevel}`);
-            return;
-        }
-
-        if (player.money < skill.cost) {
-            message.error(`金币不足，需要 ${skill.cost} 金币`);
-            return;
-        }
 
         if (player.skills.has(skillId)) {
             message.error('已学习该技能');
             return;
         }
 
+        if (player.level < skill.requiredLevel) {
+            message.error(`等级不足，需要等级 ${skill.requiredLevel}`);
+            return;
+        }
+
+        if (!player.inventory.removeGold(skill.cost)) {
+            message.error(`金币不足，需要 ${skill.cost} 金币`);
+            return;
+        }
+
+
         if (npc.teachSkill(player, skillId)) {
             message.success(`成功学习技能：${skill.name}`);
             setSelectedSkillId(null);
         } else {
+            player.inventory.addGold(skill.cost);
             message.error('学习失败');
         }
     };
@@ -49,7 +52,7 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
         if (player.level < skill.requiredLevel) {
             return `需要等级：${skill.requiredLevel}`;
         }
-        if (player.money < skill.cost) {
+        if (player.inventory.getGold() < skill.cost) {
             return `需要金币：${skill.cost}`;
         }
         return null;
@@ -62,9 +65,8 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
                 dataSource={availableSkills}
                 renderItem={skill => (
                     <List.Item
-                        className={`skill-item ${selectedSkillId === skill.id ? 'selected' : ''} ${
-                            player.skills.has(skill.id) ? 'learned' : ''
-                        }`}
+                        className={`skill-item ${selectedSkillId === skill.id ? 'selected' : ''} ${player.skills.has(skill.id) ? 'learned' : ''
+                            }`}
                         onClick={() => setSelectedSkillId(skill.id)}
                     >
                         <List.Item.Meta
@@ -86,18 +88,21 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
                             }
                         />
                         {!player.skills.has(skill.id) && (
-                            <Tooltip 
-                                title={getDisabledReason(skill)} 
+                            <Tooltip
+                                title={getDisabledReason(skill)}
                                 placement="top"
                                 open={getDisabledReason(skill) ? undefined : false}
                             >
                                 <Button
                                     type="primary"
+                                    className='learn-skill-button'
                                     disabled={
+                                        player.skills.has(skill.id) ||
                                         player.level < skill.requiredLevel ||
-                                        player.money < skill.cost
+                                        player.inventory.getGold() < skill.cost
                                     }
                                     onClick={(e) => {
+                                        console.log('已经学会的技能', player.skills);
                                         e.stopPropagation();
                                         handleLearnSkill(skill.id);
                                     }}

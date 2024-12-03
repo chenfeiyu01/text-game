@@ -44,7 +44,6 @@ const MessageDisplay: React.FC = () => {
         }
     }, [messages]);
 
-    console.log('messages is ', messages);
     return (
         <div className="message-display">
             <FixedSizeList

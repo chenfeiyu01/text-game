@@ -13,7 +13,11 @@ export class Inventory {
         this.notifyUpdate();
     }
 
-    spendGold(amount: number): boolean {
+    getGold(): number {
+        return this._gold;
+    }
+
+    removeGold(amount: number): boolean {
         if (this._gold >= amount) {
             this._gold -= amount;
             this.notifyUpdate();

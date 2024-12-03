@@ -8,41 +8,83 @@ import { Inventory } from './inventory';
 /**
  * 角色类
  * 包含角色的基本属性和战斗相关的方法
+ * 
+ * @description
+ * 主要功能:
+ * - 管理角色基础属性(生命值、魔法值、攻击力等)
+ * - 处理战斗相关逻辑(伤害计算、技能使用等)
+ * - 管理装备系统
+ * - 处理等级和经验值系统
+ * - 管理临时状态效果
  */
 export class Character {
-    private _hp: number;          // 当前生命值
-    private _mp: number;          // 当前魔法值
-    private _exp: number = 0;     // 当前经验值
-    private _level: number = 1;   // 当前等级
-    private _charge: number = 0;  // 当前充能值
+    /** 当前生命值 */
+    private _hp: number;
+    /** 当前魔法值 */
+    private _mp: number;
+    /** 当前经验值 */
+    private _exp: number = 0;
+    /** 当前等级 */
+    private _level: number = 1;
+    /** 当前充能值 */
+    private _charge: number = 0;
+    /** 状态变化回调函数集合 */
     private _stateChangeCallbacks: Set<() => void> = new Set();
+    /** 角色背包系统 */
     protected _inventory: Inventory;
+    /** 临时效果集合 */
     private _temporaryEffects: Map<string, {
+        /** 效果数值 */
         value: number;
+        /** 持续时间 */
         duration: number;
+        /** 影响的属性 */
         attribute: keyof GearStats;
     }> = new Map();
+    /** 已装备的物品 */
     private _equippedItems: Partial<Record<GearSlot, GearItem>> = {};
 
-    // 基础属性（不受装备影响的初始值）
+    /** 基础属性（不受装备影响的初始值） */
+    /** 基础攻击力 */
     protected baseAttack: number;
+    /** 基础防御力 */
     protected baseDefense: number;
+    /** 基础暴击率 */
     protected baseCritRate: number;
+    /** 基础暴击伤害 */
     protected baseCritDamage: number;
 
     /**
      * 构造函数
      * @param config 角色配置对象
+     * @param config.name 角色名称
+     * @param config.maxHp 最大生命值
+     * @param config.maxMp 最大魔法值
+     * @param config.attack 攻击力
+     * @param config.defense 防御力
+     * @param config.critRate 暴击率
+     * @param config.critDamage 暴击伤害
+     * @param config.chargeRate 充能效率
+     * @param config.equippedSkill 已装备的技能
      */
     constructor(config: {
+        /** 角色名称 */
         name: string,
+        /** 最大生命值 */
         maxHp?: number,
+        /** 最大魔法值 */
         maxMp?: number,
+        /** 攻击力 */
         attack?: number,
+        /** 防御力 */
         defense?: number,
+        /** 暴击率 */
         critRate?: number,
+        /** 暴击伤害 */
         critDamage?: number,
+        /** 充能效率 */
         chargeRate?: number,
+        /** 已装备的技能 */
         equippedSkill?: Skill
     }) {
         const {
@@ -77,15 +119,15 @@ export class Character {
         this._critDamage = this.baseCritDamage;
     }
 
-    public readonly name: string;
-    private _maxHp: number;
-    private _maxMp: number;
-    private _attack: number;
-    private _defense: number;
-    private _critRate: number;
-    private _critDamage: number;
-    private _chargeRate: number;
-    private _equippedSkill?: Skill;
+    public readonly name: string;         // 角色名称
+    private _maxHp: number;               // 最大生命值
+    private _maxMp: number;               // 最大魔法值
+    private _attack: number;              // 攻击力
+    private _defense: number;             // 防御力
+    private _critRate: number;            // 暴击率
+    private _critDamage: number;          // 暴击伤害
+    private _chargeRate: number;          // 充能效率
+    private _equippedSkill?: Skill;       // 已装备的技能
 
     // Getters - 属性访问器
     get hp(): number { return this._hp; }
@@ -216,6 +258,7 @@ export class Character {
 
     /**
      * 角色升级
+     * 根据不同等级段提升不同属性值
      */
     private levelUp() {
         this._level++;
@@ -301,7 +344,7 @@ export class Character {
     /**
      * 计算伤害值
      * @param baseDamage 基础伤害值
-     * @returns 计算后的实际伤害值
+     * @returns 计算后的实际伤害值和是否暴击
      */
     calculateDamage(baseDamage: number): { damage: number, isCrit: boolean } {
         const isCrit = Math.random() < this._critRate;
@@ -325,7 +368,7 @@ export class Character {
     /**
      * 受到伤害
      * @param damage 受到的伤害值
-     * @returns {Object} 包含实际伤害值和是否被击败的信息
+     * @returns 包含实际伤害值和是否被击败的信息
      */
     takeDamage(damage: number) {
         const actualDamage = Math.max(1, damage - this._defense);
@@ -343,7 +386,7 @@ export class Character {
     /**
      * 攻击目标
      * @param target 攻击目标
-     * @returns 造成的实际伤害值
+     * @returns 造成的实际伤害值和是否暴击
      */
     attackTarget(target: Character) {
         const { damage, isCrit } = this.calculateDamage(this._attack);
@@ -375,7 +418,11 @@ export class Character {
         `;
     }
 
-    // 添加设置回调的方法
+    /**
+     * 添加状态变化回调函数
+     * @param callback 回调函数
+     * @returns 用于移除回调的函数
+     */
     setStateChangeCallback(callback: () => void) {
         this._stateChangeCallbacks.add(callback);
         return () => {
@@ -401,6 +448,7 @@ export class Character {
 
     /**
      * 恢复保存的状态
+     * @param state 要恢复的角色状态
      */
     public restoreState(state: CharacterState): void {
         this._level = state.level;
@@ -416,7 +464,11 @@ export class Character {
         this.notifyStateChange();
     }
 
-    // 获取实际属性值（包含临时效果）
+    /**
+     * 获取实际属性值（包含临时效果）
+     * @param attribute 属性名
+     * @returns 计算后的属性值
+     */
     public getEffectiveAttribute(attribute: keyof GearStats): number {
         let baseValue = this[attribute] || 0;
         this._temporaryEffects.forEach(effect => {
@@ -427,7 +479,13 @@ export class Character {
         return baseValue;
     }
 
-    // 添加临时效果
+    /**
+     * 添加临时效果
+     * @param id 效果ID
+     * @param attribute 影响的属性
+     * @param value 效果值
+     * @param duration 持续时间
+     */
     public addTemporaryEffect(
         id: string,
         attribute: keyof GearStats,
@@ -437,7 +495,9 @@ export class Character {
         this._temporaryEffects.set(id, { value, duration, attribute });
     }
 
-    // 在每回合结束时调用
+    /**
+     * 在每回合结束时更新效果
+     */
     public updateEffects(): void {
         for (const [id, effect] of this._temporaryEffects.entries()) {
             effect.duration--;
@@ -451,6 +511,11 @@ export class Character {
         }
     }
 
+    /**
+     * 装备物品
+     * @param item 要装备的物品
+     * @returns 是否装备成功
+     */
     equipItem(item: GearItem): boolean {
         // 检查物品是否存在于背包中
         if (!this._inventory.hasItem(item.id)) {
@@ -476,6 +541,11 @@ export class Character {
         return true;
     }
 
+    /**
+     * 卸下装备
+     * @param slot 要卸下的装备槽位
+     * @returns 是否卸下成功
+     */
     unequipItem(slot: GearSlot): boolean {
         const item = this._equippedItems[slot];
         if (item) {
@@ -490,6 +560,10 @@ export class Character {
         return false;
     }
 
+    /**
+     * 更新角色属性
+     * 重新计算所有受装备影响的属性值
+     */
     private updateAttributes(): void {
         // Reset attributes to base values
         this._attack = this.baseAttack;
@@ -508,4 +582,3 @@ export class Character {
         }
     }
 }
-

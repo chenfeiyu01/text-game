@@ -93,9 +93,8 @@ export class ShopNpc extends Npc {
         if (!item) return false;
 
         const totalPrice = this.getBuyPrice(item) * quantity;
-        if (player.money < totalPrice) return false;
+        if (!player.inventory.removeGold(totalPrice)) return false;
 
-        player.money -= totalPrice;
         player.inventory.addItem(item, quantity);
         return true;
     }
@@ -106,7 +105,7 @@ export class ShopNpc extends Npc {
         if (!item) return false;
 
         const totalPrice = this.getSellPrice(item.item) * quantity;
-        player.money += totalPrice;
+        player.inventory.addGold(totalPrice);
         player.inventory.removeItem(itemId, quantity);
         return true;
     }
@@ -139,7 +138,7 @@ export class EnhanceNpc extends Npc {
         }
 
         const cost = calculateEnhanceCost(item.item);
-        if (player.money < cost) {
+        if (!player.inventory.removeGold(cost)) {
             return {
                 success: false,
                 message: '金币不足'
@@ -149,7 +148,6 @@ export class EnhanceNpc extends Npc {
         const result = enhanceGear(item.item);
 
         if (result.success) {
-            player.money -= cost;
             return {
                 success: true,
                 message: `强化成功！${item.item.name}提升至+${item.item.enhanceLevel}级`,
@@ -164,7 +162,6 @@ export class EnhanceNpc extends Npc {
     }
 
     static create(npcId: keyof typeof NPC_CONFIGS) {
-        console.log(npcId);
         const config = NPC_CONFIGS[npcId] as EnhanceNpcConfig;
         if (!config) {
             throw new Error(`Invalid enhance NPC config: ${npcId}`);
@@ -198,11 +195,16 @@ export class SkillTrainerNpc extends Npc {
 
         if (player.skills.has(skillId)) return false;
         if (player.level < skill.requiredLevel) return false;
-        if (player.money < skill.cost) return false;
+        if (!player.inventory.removeGold(skill.cost)) return false;
 
-        player.money -= skill.cost;
-        player.learnSkill(skill);
-        return true;
+        try {
+            player.learnSkill(skill);
+            return true;
+        } catch (error) {
+            // 如果学习失败，退还金币
+            player.inventory.addGold(skill.cost);
+            return false;
+        }
     }
 
     static create(npcId: keyof typeof NPC_CONFIGS) {
@@ -210,6 +212,6 @@ export class SkillTrainerNpc extends Npc {
         if (!config || !config.skills) {
             throw new Error(`Invalid skill trainer NPC config: ${npcId}`);
         }
-        return new SkillTrainerNpc(config, config.skills);
+        return new SkillTrainerNpc(config);
     }
 } 
