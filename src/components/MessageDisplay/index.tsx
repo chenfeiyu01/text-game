@@ -55,6 +55,7 @@ const MessageDisplay: React.FC = () => {
             >
                 {({ index, style }: { index: number, style: React.CSSProperties }) => {
                     const msg = messages[index];
+                    console.log('msg is ', msg);
                     // 如果是战斗日志类型的消息
                     if (msg.type === MessageType.COMBAT) {
                         return (
@@ -63,7 +64,6 @@ const MessageDisplay: React.FC = () => {
                             </div>
                         );
                     }
-
                     // 其他类型的消息保持原样
                     return (
                         <div

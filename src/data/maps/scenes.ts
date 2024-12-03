@@ -31,7 +31,7 @@ export const SCENES: Record<string, Scene> = {
             reward: {
                 exp: 300,
                 gold: 100,
-                items: [ItemId.Gear.IRON_SWORD]
+                items: [ItemId.Gear.IRON_SWORD, ItemId.Gear.FROST_BLADE, ItemId.Gear.THUNDER_BLADE, ItemId.Gear.DRAGON_SWORD]
             }
         }
     },

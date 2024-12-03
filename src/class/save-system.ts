@@ -3,34 +3,14 @@ import { GameSystem } from './game-system';
 import { GameMessage, MessageType } from '../constants/game-system';
 import { getSkillById } from '../utils/skills';
 import { Player } from './player';
-import { Item, ItemId } from '../constants/item';
+import { isGearItem, Item, ItemId } from '../constants/item';
 
 
 interface GameSaveData {
     version: string;
     timestamp: number;
-    player: {
-        name: string;
-        level: number;
-        exp: number;
-        maxHp: number;
-        maxMp: number;
-        hp: number;
-        mp: number;
-        attack: number;
-        defense: number;
-        critRate: number;
-        critDamage: number;
-        chargeRate: number;
-        equippedSkillId?: string;
-        skills: Set<string>;
-        inventory?: {
-            items: { [key in ItemId]: { item: Item, quantity: number } };
-            gold: number;
-        };
-    };
+    player: ReturnType<Player['serialize']>;
     messages: GameMessage[];
-    // 可以根据需要添加其他需要保存的游戏数据
 }
 
 export class SaveSystem {
@@ -56,31 +36,7 @@ export class SaveSystem {
         const saveData: GameSaveData = {
             version: this.CURRENT_VERSION,
             timestamp: Date.now(),
-            player: {
-                name: player.name,
-                level: player.level,
-                exp: player.exp,
-                maxHp: player.maxHp,
-                maxMp: player.maxMp,
-                hp: player.hp,
-                mp: player.mp,
-                attack: player.attack,
-                defense: player.defense,
-                critRate: player.critRate,
-                critDamage: player.critDamage,
-                chargeRate: player.chargeRate,
-                equippedSkillId: player.equippedSkill?.id,
-                skills: player.skills,
-                inventory: {
-                    items: Object.fromEntries(
-                        player.inventory.getItems().map(item => [
-                            item.item.id,
-                            { item: item.item, quantity: item.quantity }
-                        ])
-                    ) as Record<ItemId, { item: Item; quantity: number }>,
-                    gold: player.inventory.gold
-                }
-            },
+            player: player.serialize(),
             messages: gameSystem.getRecentMessages(100) // 保存最近100条消息
         };
 
@@ -134,8 +90,8 @@ export class SaveSystem {
     /**
      * 恢复角色状态
      */
-    private restorePlayerState(player: Character, savedState: GameSaveData['player']): void {
-        // 这里需要在Character类中添加相应的方法来设置这些属性
+    private restorePlayerState(player: Player, savedState: ReturnType<Player['serialize']>): void {
+        // 恢复基础状态
         player.restoreState({
             level: savedState.level,
             exp: savedState.exp,
@@ -148,22 +104,34 @@ export class SaveSystem {
             chargeRate: savedState.chargeRate
         });
 
-        // 如果有已装备的技能，重新装备
+        // 恢复技能
+        savedState.skills.forEach(skillId => {
+            const skill = getSkillById(skillId);
+            if (skill) player.learnSkill(skill);
+        });
+
         if (savedState.equippedSkillId) {
-            // 这里需要一个根据ID获取技能的方法
             const skill = getSkillById(savedState.equippedSkillId);
-            if (skill) {
-                player.equipSkill(skill);
-            }
+            if (skill) player.equipSkill(skill);
         }
 
-        // 恢复背包数据
+        // 恢复背包
         if (savedState.inventory) {
-            Object.entries(savedState.inventory.items).forEach(([id, item]) => {
-                player.inventory.addItem(item.item, item.quantity);
+            Object.entries(savedState.inventory.items).forEach(([id, data]) => {
+                player.inventory.addItem(data.item, data.quantity);
             });
             player.inventory.addGold(savedState.inventory.gold);
         }
+
+        // 恢复装备
+        savedState.equippedItems.forEach(({ slot, itemId }) => {
+            if (itemId) {
+                const item = player.inventory.getItems().find(i => i.item.id === itemId)?.item;
+                if (item && isGearItem(item)) {
+                    player.equipItem(item);
+                }
+            }
+        });
     }
 
     /**

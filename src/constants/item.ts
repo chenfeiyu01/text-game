@@ -1,4 +1,5 @@
 import { Character } from "../class/character";
+import { StatType } from './stats';
 
 /**
  * 物品类型枚举
@@ -72,7 +73,13 @@ export enum GearItemId {
     /** 木剑 */
     WOODEN_SWORD = 'wooden_sword',
     /** 铁剑 */
-    IRON_SWORD = 'iron_sword'
+    IRON_SWORD = 'iron_sword',
+    /** 屠龙宝刀 */
+    DRAGON_SWORD = 'DRAGON_SWORD',
+    /** 霜之哀伤 */
+    FROST_BLADE = 'frost_blade',
+    /** 雷鸣剑 */
+    THUNDER_BLADE = 'thunder_blade'
 }
 
 /**
@@ -117,20 +124,13 @@ export enum ItemRarity {
 
 /** 装备基础属性 */
 export interface GearStats {
-    /** 攻击力 */
-    attack?: number;
-    /** 防御力 */
-    defense?: number;
-    /** 最大生命值 */
-    maxHp?: number;
-    /** 最大魔法值 */
-    maxMp?: number;
-    /** 暴击率 */
-    critRate?: number;
-    /** 暴击伤害 */
-    critDamage?: number;
-    /** 充能速率 */
-    chargeRate?: number;
+    [StatType.ATTACK]?: number;
+    [StatType.DEFENSE]?: number;
+    [StatType.MAX_HP]?: number;
+    [StatType.MAX_MP]?: number;
+    [StatType.CRIT_RATE]?: number;
+    [StatType.CRIT_DAMAGE]?: number;
+    [StatType.CHARGE_RATE]?: number;
 }
 
 /** 装备特殊效果 */
@@ -242,7 +242,8 @@ export function enhanceGear(item: GearItem): {
         if (!value) continue;
         
         // 根据属性类型计算成长值
-        const growth = value * ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE];
+        const growthRate = ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE] || 0;
+        const growth = value * growthRate;
         // 设置最小成长值,百分比属性最小0.001,整数属性最小1
         const minGrowth = key === 'critRate' || key === 'critDamage' ? 0.001 : 1;
         
@@ -275,10 +276,46 @@ export function calculateEnhanceCost(item: GearItem): number {
     return Math.floor(baseCost * (1 + item.enhanceLevel * 0.5));
 }
 
-/** 各属性的强化成长系数配置 */
-export const ENHANCE_GROWTH_RATE = {
-    attack: 0.05,      // 每级增加基础攻击力的5%
-    defense: 0.05,     // 每级增加基础防御力的5%
-    critRate: 0.05,    // 每级增加基础暴击率的5%
-    critDamage: 0.08,  // 每级增加基础暴击伤害的8%
+/**
+ * 可强化属性的成长率配置
+ * @description 定义了每种可强化属性的成长系数
+ */
+export const ENHANCE_GROWTH_RATE: Partial<Record<StatType, number>> = {
+    [StatType.ATTACK]: 0.05,
+    [StatType.DEFENSE]: 0.05,
+    [StatType.CRIT_RATE]: 0.05,
+    [StatType.CRIT_DAMAGE]: 0.08
 } as const;
+
+/**
+ * 判断属性是否可以强化
+ * @param statType 属性类型
+ * @returns 是否可以强化
+ */
+export function isEnhanceableStat(statType: StatType): boolean {
+    return statType in ENHANCE_GROWTH_RATE;
+}
+
+/**
+ * 获取物品稀有度对应的颜色
+ * @description 不同稀有度对应的颜色值
+ * common: 白色 - 普通
+ * rare: 蓝色 - 稀有
+ * epic: 紫色 - 史诗
+ * legendary: 橙色 - 传说
+ */
+export const RARITY_COLORS = {
+    [ItemRarity.COMMON]: '#FFFFFF',    // 白色
+    [ItemRarity.RARE]: '#0088FF',      // 蓝色
+    [ItemRarity.EPIC]: '#9932CC',      // 紫色
+    [ItemRarity.LEGENDARY]: '#FF8C00', // 橙色
+} as const;
+
+/**
+ * 获取物品稀有度对应的颜色
+ * @param rarity 物品稀有度
+ * @returns 对应的颜色代码
+ */
+export function getRarityColor(rarity: ItemRarity): string {
+    return RARITY_COLORS[rarity] || RARITY_COLORS[ItemRarity.COMMON];
+}

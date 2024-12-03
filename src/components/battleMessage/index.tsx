@@ -12,7 +12,7 @@ const BattleMessage: React.FC<{ msg: GameMessage }> = ({ msg }) => {
     // 构建消息样式和内容
     let messageClass = 'message-normal';
     let roundContent = null;
-
+debugger
     // 判断消息类型优先级：击败 > 暴击 > 技能 > 普通
     if (battleLog.isDefeated) {
         messageClass = 'message-defeat';

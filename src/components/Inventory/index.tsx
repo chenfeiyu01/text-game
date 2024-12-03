@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Tabs, List, Tag, Typography, Button, Tooltip, message } from 'antd';
 import { Player } from '../../class/player';
-import { GearItem, InventoryItem, ItemType, isGearItem } from '../../constants/item';
+import { GearItem, InventoryItem, ItemType, isGearItem, getRarityColor } from '../../constants/item';
 import { ExperimentOutlined, ThunderboltOutlined, InboxOutlined, GoldOutlined } from '@ant-design/icons';
+import { StatType, getStatDisplay } from '../../constants/stats';
 import './index.scss';
 
 const { Text } = Typography;
@@ -12,15 +13,6 @@ interface InventoryProps {
     visible: boolean;
     onClose: () => void;
 }
-
-const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-        case 'legendary': return '#ff7f50';
-        case 'epic': return '#9370db';
-        case 'rare': return '#4169e1';
-        default: return '#90ee90';
-    }
-};
 
 const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
     const [items, setItems] = useState<InventoryItem[]>([]);
@@ -66,18 +58,14 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
     const renderItemStats = (item: GearItem) => {
         return (
             <div className="gear-stats">
-                {item.stats.attack && (
-                    <Text type="secondary">攻击力 +{item.stats.attack}</Text>
-                )}
-                {item.stats.defense && (
-                    <Text type="secondary">防御力 +{item.stats.defense}</Text>
-                )}
-                {item.stats.critRate && (
-                    <Text type="secondary">暴击率 +{(item.stats.critRate * 100).toFixed(1)}%</Text>
-                )}
-                {item.stats.critDamage && (
-                    <Text type="secondary">暴击伤害 +{(item.stats.critDamage * 100).toFixed(1)}%</Text>
-                )}
+                {Object.entries(item.stats).map(([key, value]) => {
+                    if (!value) return null;
+                    return (
+                        <Text key={key} type="secondary">
+                            {getStatDisplay(key as StatType, value)}
+                        </Text>
+                    );
+                })}
                 {item.effects?.map((effect, index) => (
                     <Text key={index} type="warning" className="gear-effect">
                         {effect.description}
@@ -96,13 +84,18 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
                     <div className="item-content">
                         <div className="item-basic">
                             <Tooltip title={inventoryItem.item.description}>
-                                <Tag color={getRarityColor(inventoryItem.item.rarity)}>
-                                    {inventoryItem.item.name}
+                                <Tag className='item-tag' color={'rgba(0, 0, 0, 0.5)'} style={{ color: getRarityColor(inventoryItem.item.rarity) }}>
                                     {isGearItem(inventoryItem.item) && (
-                                        <span className="gear-slot">
-                                            ({inventoryItem.item.slot})
-                                        </span>
+                                        <>
+                                            {inventoryItem.item.enhanceLevel > 0 && (
+                                                <span className="enhance-level">
+                                                    +{inventoryItem.item.enhanceLevel}
+                                                </span>
+                                            )}
+                                        </>
                                     )}
+                                    {' '}
+                                    {inventoryItem.item.name}
                                 </Tag>
                             </Tooltip>
                             {inventoryItem.item.stackable && (

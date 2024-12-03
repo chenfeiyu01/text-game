@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { EnhanceNpc } from '../../class/npc';
 import { Player } from '../../class/player';
 import { Button, Card, message, Progress, Tooltip } from 'antd';
-import { calculateEnhanceCost, ENHANCE_GROWTH_RATE, GearItem, isGearItem, ItemId } from '../../constants/item';
+import { calculateEnhanceCost, ENHANCE_GROWTH_RATE, GearItem, isEnhanceableStat, isGearItem, ItemId } from '../../constants/item';
 import { getEnhanceSuccessRate } from '../../constants/item';
+import { StatType, getStatName, formatStatValue } from '../../constants/stats';
 import './index.scss';
 
 interface EnhancePanelProps {
@@ -53,8 +54,8 @@ export const EnhancePanel: React.FC<EnhancePanelProps> = ({ npc }) => {
                                 {Object.entries(gearItem.stats).map(([key, value]) => (
                                     value ? (
                                         <div key={key} className="stat-item">
-                                            <span>{getStatName(key)}</span>
-                                            <span>{formatStatValue(value)}</span>
+                                            <span>{getStatName(key as StatType)}</span>
+                                            <span>{formatStatValue(key as StatType, value)}</span>
                                         </div>
                                     ) : null
                                 ))}
@@ -82,15 +83,17 @@ export const EnhancePanel: React.FC<EnhancePanelProps> = ({ npc }) => {
                             </div>
                             <div className="stats-preview">
                                 {Object.entries(selectedItem.stats).map(([key, value]) => {
-                                    if (!value) return null;
-                                    const growth = value * ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE];
+                                    const statType = key as StatType;
+                                    if (!value || !isEnhanceableStat(statType)) return null;
+                                    const growthRate = ENHANCE_GROWTH_RATE[statType] || 0;
+                                    const growth = value * growthRate;
                                     return (
                                         <div key={key} className="preview-stat">
-                                            <span className="stat-name">{getStatName(key)}</span>
+                                            <span className="stat-name">{getStatName(statType)}</span>
                                             <div className="stat-change">
-                                                <span className="current">{formatStatValue(value)}</span>
+                                                <span className="current">{formatStatValue(statType, value)}</span>
                                                 <span className="arrow">→</span>
-                                                <span className="after">{formatStatValue(value + growth)}</span>
+                                                <span className="after">{formatStatValue(statType, value + growth)}</span>
                                             </div>
                                         </div>
                                     );
@@ -118,22 +121,4 @@ export const EnhancePanel: React.FC<EnhancePanelProps> = ({ npc }) => {
             </div>
         </div>
     );
-};
-
-function getStatName(key: string): string {
-    const statNames: Record<string, string> = {
-        attack: '攻击力',
-        defense: '防御力',
-        critRate: '暴击率',
-        critDamage: '暴击伤害'
-    };
-    return statNames[key] || key;
-}
-
-function formatStatValue(value: number): string {
-    console.log('value', value);
-    if (value < 1) {
-        return `${(value * 100).toFixed(1)}%`;
-    }
-    return Math.round(value).toString();
-} 
+}; 

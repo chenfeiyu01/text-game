@@ -35,27 +35,63 @@ export const GEARS: Record<GearItemId, GearItem> = {
         },
         isEnhanceable: true,
         price: 20,
-        effects: [{
-            description: '每次暴击后增加10%攻击力，持续3回合',
-            type: 'onHit',
-            condition: 'isCritical',
-            effect: (character) => {
-                const baseAttack = character.attack;
-                const bonusAttack = Math.floor(baseAttack * 0.1);
-                const effectId = `iron_sword_crit_${Date.now()}`;
-
-                character.addTemporaryEffect(
-                    effectId,
-                    'attack',
-                    bonusAttack,
-                    3
-                );
-
-                GameSystem.getInstance().sendMessage(
-                    MessageType.COMBAT,
-                    `铁剑效果触发：攻击力提升${bonusAttack}点，持续3回合`
-                );
-            }
-        }]
+        effects: []
+    },
+    [GearItemId.DRAGON_SWORD]: {
+        id: GearItemId.DRAGON_SWORD,
+        name: '屠龙宝刀',
+        description: '传说中能够斩杀恶龙的神兵利器，蕴含着强大的力量',
+        type: ItemType.GEAR,
+        rarity: ItemRarity.LEGENDARY,
+        stackable: false,
+        slot: GearSlot.WEAPON,
+        enhanceLevel: 0,
+        stats: {
+            attack: 50,
+            critRate: 0.15,
+            critDamage: 0.5,
+            chargeRate: 0.2
+        },
+        isEnhanceable: true,
+        price: 1000,
+        effects: []
+    },
+    [GearItemId.FROST_BLADE]: {
+        id: GearItemId.FROST_BLADE,
+        name: '霜之哀伤',
+        description: '寒冰铸就的魔剑，能够冻结敌人的灵魂',
+        type: ItemType.GEAR,
+        rarity: ItemRarity.EPIC,
+        stackable: false,
+        slot: GearSlot.WEAPON,
+        enhanceLevel: 0,
+        stats: {
+            attack: 35,
+            critRate: 0.12,
+            critDamage: 0.4,
+            maxMp: 100
+        },
+        isEnhanceable: true,
+        price: 500,
+        effects: []
+    },
+    [GearItemId.THUNDER_BLADE]: {
+        id: GearItemId.THUNDER_BLADE,
+        name: '雷鸣剑',
+        description: '蕴含雷电之力的魔剑，能够造成连锁伤害',
+        type: ItemType.GEAR,
+        rarity: ItemRarity.RARE,
+        stackable: false,
+        slot: GearSlot.WEAPON,
+        enhanceLevel: 0,
+        stats: {
+            attack: 25,
+            critRate: 0.1,
+            critDamage: 0.3,
+            chargeRate: 0.1
+        },
+        isEnhanceable: true,
+        price: 200,
+        effects: []
     }
 };
