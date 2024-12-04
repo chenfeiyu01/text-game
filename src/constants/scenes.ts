@@ -43,3 +43,7 @@ export interface Scene {
     /** Boss战斗 */
     boss: BattleEncounter;
 }
+
+export enum ESCENES {
+    LUOLAN = 'luolan',
+}

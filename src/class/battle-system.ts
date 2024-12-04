@@ -7,7 +7,7 @@ import { GameSystem } from "./game-system";
 import { Character } from "./character";
 import { Player } from "./player";
 import { getItemById } from "../utils/items";
-import { isGearItem } from "../constants/item";
+import { isGearItem, getRarityColor } from "../constants/item";
 
 /**
  * 战斗系统类
@@ -98,10 +98,10 @@ export class BattleSystem {
             const damageResult = this.player.calculateDamage(this.player.equippedSkill.damage);
             const result = this.enemy.takeDamage(damageResult.damage);
             this.recordBattleAction(
-                `使用技能「${this.player.equippedSkill.name}」`, 
-                result.damage, 
-                this.player, 
-                this.enemy, 
+                `使用技能「${this.player.equippedSkill.name}」`,
+                result.damage,
+                this.player,
+                this.enemy,
                 damageResult.isCrit
             );
         } else {
@@ -192,12 +192,23 @@ export class BattleSystem {
         // 同时发送到游戏系统的消息系统
         this.gameSystem.sendMessage(
             MessageType.COMBAT,
-            `战斗结束！${winner.name} 获胜！`
+            `战斗结束！${winner.name} 获胜！`,
+            {
+                isDefeated: true,
+                round: this.currentRound,
+                action: `${winner.name} 获胜！`,
+                damage: 0,
+                attacker: winner.name,
+                defender: winner === this.player ? this.enemy.name : this.player.name,
+                attackerHp: winner.hp,
+                defenderHp: winner === this.player ? this.enemy.hp : this.player.hp,
+                isCrit: false
+            }
         );
 
         if (winner === this.player && this.battleReward) {
             const player = Player.getInstance();
-            
+
             // 获得金币
             if (this.battleReward.gold) {
                 player.inventory.addGold(this.battleReward.gold);
@@ -220,10 +231,7 @@ export class BattleSystem {
                     const item = getItemById(itemId);
                     if (item) {
                         player.inventory.addItem(item);
-                        this.gameSystem.sendMessage(
-                            MessageType.REWARD,
-                            `获得物品：${item.name}！`
-                        );
+                        this.gameSystem.sendItemMessage(item, 1);
                     }
                 });
             }
@@ -255,14 +263,25 @@ export class BattleSystem {
         // 发送战斗消息
         this.gameSystem.sendMessage(
             MessageType.COMBAT,
-            `${attacker.name} 对 ${defender.name} 造成了 ${damage.toFixed(0)} 点${isCritical ? '暴击' : ''}伤害`
+            `${attacker.name} 对 ${defender.name} 造成了 ${damage.toFixed(0)} 点${isCritical ? '暴击' : ''}伤害`,
+            {
+                damage,
+                isCrit: isCritical,
+                attacker: attacker.name,
+                defender: defender.name,
+                attackerHp: attacker.hp,
+                defenderHp: defender.hp,
+                isDefeated: defender.hp <= 0,
+                round: this.currentRound,
+                action: `${attacker.name} 对 ${defender.name} 造成了 ${damage.toFixed(0)} 点${isCritical ? '暴击' : ''}伤害`
+            }
         );
 
         // 如果是暴击且攻击者是玩家，触发装备效果
         if (isCritical && attacker instanceof Player) {
             const equippedItems = attacker.inventory.getItems()
                 .filter(item => isGearItem(item.item) && item.item.slot === 'weapon');
-            
+
             equippedItems.forEach(({ item }) => {
                 if (isGearItem(item) && item.effects) {
                     item.effects.forEach(effect => {

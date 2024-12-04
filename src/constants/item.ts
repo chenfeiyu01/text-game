@@ -71,15 +71,15 @@ export enum ConsumableItemId {
  */
 export enum GearItemId {
     /** 木剑 */
-    WOODEN_SWORD = 'wooden_sword',
+    WOODEN_SWORD = 'WOODEN_SWORD',
     /** 铁剑 */
-    IRON_SWORD = 'iron_sword',
+    IRON_SWORD = 'IRON_SWORD',
     /** 屠龙宝刀 */
     DRAGON_SWORD = 'DRAGON_SWORD',
     /** 霜之哀伤 */
-    FROST_BLADE = 'frost_blade',
+    FROST_BLADE = 'FROST_BLADE',
     /** 雷鸣剑 */
-    THUNDER_BLADE = 'thunder_blade'
+    THUNDER_BLADE = 'THUNDER_BLADE'
 }
 
 /**
@@ -312,10 +312,30 @@ export const RARITY_COLORS = {
 } as const;
 
 /**
+ * 物品稀有度对应的antd标签颜色
+ * @description 不同稀有度对应的颜色值
+ */
+export const RARITY_TAG_COLORS = {
+    [ItemRarity.COMMON]: 'default',    // 白色
+    [ItemRarity.RARE]: 'blue',      // 蓝色
+    [ItemRarity.EPIC]: 'purple',      // 紫色
+    [ItemRarity.LEGENDARY]: 'warning', // 橙色
+} as const;
+
+/**
  * 获取物品稀有度对应的颜色
  * @param rarity 物品稀有度
  * @returns 对应的颜色代码
  */
 export function getRarityColor(rarity: ItemRarity): string {
     return RARITY_COLORS[rarity] || RARITY_COLORS[ItemRarity.COMMON];
+}
+
+/**
+ * 获取物品稀有度对应的antd标签颜色
+ * @param rarity 物品稀有度
+ * @returns 对应的颜色代码
+ */
+export function getRarityTagColor(rarity: ItemRarity): string {
+    return RARITY_TAG_COLORS[rarity] || RARITY_TAG_COLORS[ItemRarity.COMMON];
 }

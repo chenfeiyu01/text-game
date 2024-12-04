@@ -13,6 +13,7 @@ import { Character } from './class/character'
 import { InboxOutlined } from '@ant-design/icons'
 import { NpcDialog } from './components/NpcDialog'
 import { ShopNpc, EnhanceNpc, SkillTrainerNpc } from './class/npc'
+import { ESCENES } from './constants/scenes'
 
 function App() {
   const [gameState, setGameState] = useState<'start' | 'creation' | 'game'>('start');
@@ -107,7 +108,7 @@ function App() {
             visible={isInventoryVisible}
             onClose={() => setIsInventoryVisible(false)}
           />
-          <BattleScene sceneConfig={SCENES.LUOLAN} />
+          <BattleScene sceneConfig={SCENES[ESCENES.LUOLAN]} />
           <Button onClick={() => {
             const saveSystem = SaveSystem.getInstance();
             saveSystem.saveGame(Player.getInstance());

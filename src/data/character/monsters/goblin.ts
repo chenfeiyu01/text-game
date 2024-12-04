@@ -1,5 +1,5 @@
 import { Character } from "../../../class/character";
-
+import { CharacterConfig } from "../../../class/character";
 /**
  * 哥布林怪物
  * 基础属性:
@@ -8,7 +8,7 @@ import { Character } from "../../../class/character";
  * - 中等攻击力
  * - 中等暴击率
  */
-export const GOBLIN_CONFIG = {
+export const GOBLIN_CONFIG: CharacterConfig = {
     name: "哥布林",
     maxHp: 100,
     maxMp: 60,

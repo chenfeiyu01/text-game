@@ -1,5 +1,5 @@
 import { Character } from "../../../class/character";
-
+import { CharacterConfig } from "../../../class/character";
 /**
  * 小野猪怪物
  * 基础属性:
@@ -8,7 +8,7 @@ import { Character } from "../../../class/character";
  * - 中等攻击力
  * - 较高暴击率
  */
-export const PIGLET_CONFIG = {
+export const PIGLET_CONFIG: CharacterConfig = {
     name: "小野猪",
     maxHp: 80,
     maxMp: 50,

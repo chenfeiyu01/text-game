@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Tabs, List, Tag, Typography, Button, Tooltip, message } from 'antd';
 import { Player } from '../../class/player';
-import { GearItem, InventoryItem, ItemType, isGearItem, getRarityColor } from '../../constants/item';
+import { GearItem, InventoryItem, ItemType, isGearItem, getRarityColor, getRarityTagColor } from '../../constants/item';
 import { ExperimentOutlined, ThunderboltOutlined, InboxOutlined, GoldOutlined } from '@ant-design/icons';
 import { StatType, getStatDisplay } from '../../constants/stats';
 import './index.scss';
@@ -84,7 +84,7 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
                     <div className="item-content">
                         <div className="item-basic">
                             <Tooltip title={inventoryItem.item.description}>
-                                <Tag className='item-tag' color={'rgba(0, 0, 0, 0.5)'} style={{ color: getRarityColor(inventoryItem.item.rarity) }}>
+                                <Tag className='item-tag' bordered={false} color={getRarityTagColor(inventoryItem.item.rarity)}>
                                     {isGearItem(inventoryItem.item) && (
                                         <>
                                             {inventoryItem.item.enhanceLevel > 0 && (

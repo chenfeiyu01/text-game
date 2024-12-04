@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Character } from '../../class/character';
 import { Progress, Modal, Button, Tabs, Tooltip } from 'antd';
-import { GearSlot, GearItem } from '../../constants/item';
+import { GearSlot, GearItem, getRarityColor } from '../../constants/item';
+import { StatType, STAT_CONFIG, formatStatValue } from '../../constants/stats';
 import './index.scss';
 
 interface CharacterBaseStatusProps {
     character: Character;
 }
 
-// 装备槽位的中文映射
+/**
+ * 装备槽位显示名称
+ */
 const GEAR_SLOT_NAMES: Record<GearSlot, string> = {
     weapon: '武器',
     armor: '护甲',
     accessory: '饰品'
-};
-
-// 属性的中文映射
-const STAT_NAMES: Record<string, string> = {
-    attack: '攻击力',
-    defense: '防御力',
-    critRate: '暴击率',
-    critDamage: '暴击伤害'
-};
+} as const;
 
 const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) => {
     const [updateTrigger, setUpdateTrigger] = useState(0);
@@ -34,39 +29,52 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
         return cleanup;
     }, [character]);
 
-    // 计算经验值百分比
-    const expPercentage = Math.floor((character.exp / character.expNeeded) * 100);
-
     // 渲染装备属性
     const renderGearStats = (stats: GearItem['stats']) => {
         return Object.entries(stats).map(([key, value]) => {
             if (!value) return null;
-            const statName = STAT_NAMES[key];
-            const formattedValue = key.includes('crit') 
-                ? `+${(value * 100).toFixed(1)}%`
-                : `+${value}`;
+            const statType = key as StatType;
             
             return (
                 <div key={key} className="stat-item">
-                    <span className="stat-name">{statName}</span>
-                    <span className="stat-value">{formattedValue}</span>
+                    <span className="stat-name">{STAT_CONFIG[statType].name}</span>
+                    <span className="stat-value">+{formatStatValue(statType, value)}</span>
                 </div>
             );
         });
+    };
+
+    // 渲染基础属性面板
+    const renderBaseStats = () => {
+        const statsToShow = [
+            StatType.ATTACK,
+            StatType.DEFENSE,
+            StatType.CRIT_RATE,
+            StatType.CRIT_DAMAGE,
+            StatType.CHARGE_RATE
+        ];
+
+        return statsToShow.map(statType => (
+            <p key={statType}>
+                <span>{STAT_CONFIG[statType].name}</span>
+                <span>{formatStatValue(statType, character[statType])}</span>
+            </p>
+        ));
     };
 
     const renderGearSlot = (slot: GearSlot) => {
         const equippedItem = character.getEquippedItem(slot);
         return (
             <div className="gear-slot" key={slot}>
-                {/* <div className="slot-name">{GEAR_SLOT_NAMES[slot]}</div> */}
                 <div className={`slot-content ${equippedItem ? 'equipped' : 'empty'}`}>
                     {equippedItem ? (
                         <div className="item-info">
-                            <Tooltip title="装备等级：1" placement="top">
+                            <Tooltip title={`装备等级：${equippedItem.enhanceLevel || 0}`} placement="top">
                                 <div className="item-name">
-                                    <span>{equippedItem.name}</span>
-                                    <span className="item-level">Lv.1</span>
+                                    <span style={{ color: getRarityColor(equippedItem.rarity) }}>
+                                        {equippedItem.name}
+                                    </span>
+                                    <span className="item-level">+{equippedItem.enhanceLevel || 0}</span>
                                 </div>
                             </Tooltip>
                             <div className="item-stats">
@@ -90,6 +98,44 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
         );
     };
 
+    const renderSkillSlot = () => {
+        const equippedSkill = character.equippedSkill;
+        return (
+            <div className="gear-slot skill-slot">
+                <div className={`slot-content ${equippedSkill ? 'equipped' : 'empty'}`}>
+                    {equippedSkill ? (
+                        <div className="item-info">
+                            <div className="item-name">
+                                <span>{equippedSkill.name}</span>
+                            </div>
+                            <div className="item-stats">
+                                <div className="stat-item">
+                                    <span>魔法消耗</span>
+                                    <span>{equippedSkill.manaCost}</span>
+                                </div>
+                                <div className="stat-item">
+                                    <span>充能消耗</span>
+                                    <span>{equippedSkill.chargeCost}%</span>
+                                </div>
+                            </div>
+                            <Button 
+                                size="small" 
+                                onClick={() => character.equipSkill(undefined)}
+                                className="unequip-btn"
+                            >
+                                卸下
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="empty-slot">
+                            <span>未装备技能</span>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
     const items = [
         {
             key: '1',
@@ -100,32 +146,13 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
                         <p>等级: {character.level}</p>
                         <div className="exp-progress">
                             <Progress
-                                percent={expPercentage}
+                                percent={Math.floor((character.exp / character.expNeeded) * 100)}
                                 size="small"
                                 format={() => `${character.exp}/${character.expNeeded}`}
                             />
                         </div>
                     </div>
-                    <p>
-                        <span>攻击力</span>
-                        <span>{character.attack}</span>
-                    </p>
-                    <p>
-                        <span>防御力</span>
-                        <span>{character.defense}</span>
-                    </p>
-                    <p>
-                        <span>暴击率</span>
-                        <span>{(character.critRate * 100).toFixed(1)}%</span>
-                    </p>
-                    <p>
-                        <span>暴击伤害</span>
-                        <span>{(character.critDamage * 100).toFixed(1)}%</span>
-                    </p>
-                    <p>
-                        <span>充能效率</span>
-                        <span>{(character.chargeRate * 100).toFixed(1)}%</span>
-                    </p>
+                    {renderBaseStats()}
                 </div>
             ),
         },
@@ -135,6 +162,7 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
             children: (
                 <div className="gear-panel">
                     {Object.values(GearSlot).map(slot => renderGearSlot(slot))}
+                    {renderSkillSlot()}
                 </div>
             ),
         },

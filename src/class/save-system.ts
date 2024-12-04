@@ -78,6 +78,9 @@ export class SaveSystem {
             // 恢复玩家状态
             this.restorePlayerState(Player.getInstance(), saveData.player);
 
+            // 恢复消息历史
+            GameSystem.getInstance().restoreMessages(saveData.messages);
+
             GameSystem.getInstance().sendMessage(MessageType.SYSTEM, '游戏数据已加载');
             return true;
         } catch (error) {

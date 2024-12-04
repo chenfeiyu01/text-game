@@ -5,6 +5,28 @@ import { Skill } from "../constants/skill-list";
 import { GameSystem } from "./game-system";
 import { Inventory } from './inventory';
 
+// 在文件顶部添加导出接口
+export interface CharacterConfig {
+    /** 角色名称 */
+    name: string;
+    /** 最大生命值 */
+    maxHp?: number;
+    /** 最大魔法值 */
+    maxMp?: number;
+    /** 攻击力 */
+    attack?: number;
+    /** 防御力 */
+    defense?: number;
+    /** 暴击率 */
+    critRate?: number;
+    /** 暴击伤害 */
+    critDamage?: number;
+    /** 充能效率 */
+    chargeRate?: number;
+    /** 已装备的技能 */
+    equippedSkill?: Skill;
+}
+
 /**
  * 角色类
  * 包含角色的基本属性和战斗相关的方法
@@ -67,26 +89,7 @@ export class Character {
      * @param config.chargeRate 充能效率
      * @param config.equippedSkill 已装备的技能
      */
-    constructor(config: {
-        /** 角色名称 */
-        name: string,
-        /** 最大生命值 */
-        maxHp?: number,
-        /** 最大魔法值 */
-        maxMp?: number,
-        /** 攻击力 */
-        attack?: number,
-        /** 防御力 */
-        defense?: number,
-        /** 暴击率 */
-        critRate?: number,
-        /** 暴击伤害 */
-        critDamage?: number,
-        /** 充能效率 */
-        chargeRate?: number,
-        /** 已装备的技能 */
-        equippedSkill?: Skill
-    }) {
+    constructor(config: CharacterConfig) {
         const {
             name,
             maxHp = 100,
@@ -127,7 +130,7 @@ export class Character {
     private _critRate: number;            // 暴击率
     private _critDamage: number;          // 暴击伤害
     private _chargeRate: number;          // 充能效率
-    private _equippedSkill?: Skill;       // 已装备的技能
+    private _equippedSkill?: Skill | undefined;       // 已装备的技能
 
     // Getters - 属性访问器
     get hp(): number { return this._hp; }
@@ -205,7 +208,7 @@ export class Character {
      * 装备技能
      * @param skill 要装备的技能对象
      */
-    equipSkill(skill: Skill) {
+    equipSkill(skill: Skill | undefined) {
         this._equippedSkill = skill;
         this.notifyStateChange();
     }
@@ -371,8 +374,8 @@ export class Character {
      * @returns 包含实际伤害值和是否被击败的信息
      */
     takeDamage(damage: number) {
-        const actualDamage = Math.max(1, damage - this._defense);
-        const finalDamage = Math.min(this._hp, actualDamage);
+        // const actualDamage = Math.max(1, damage - this._defense);
+        const finalDamage = Math.min(this._hp, damage);
         this.hp -= finalDamage;
         this.addCharge(finalDamage);
         this.notifyStateChange();

@@ -1,7 +1,9 @@
 /**
  * 导入游戏系统所需的类型和枚举
  */
+import { BattleLog } from "../constants/battle";
 import { EventType, GameEvent, GameMessage, MessageType } from "../constants/game-system";
+import { getRarityColor, Item } from "../constants/item";
 
 /**
  * 事件回调函数的类型定义
@@ -14,7 +16,8 @@ export type EventCallback = (event: GameEvent) => void;
  */
 export class GameSystem {
     private static instance: GameSystem;                                   // 单例实例
-    private messageLog: GameMessage[] = [];                               // 消息日志
+    private messages: GameMessage[] = [];                               // 消息日志
+    private messageCallbacks: Set<() => void> = new Set();               // 消息更新回调函数集合
     private eventListeners: Map<EventType, Set<EventCallback>> = new Map(); // 事件监听器映射
     private gameState: Map<string, any> = new Map();                     // 游戏状态存储
     private debugMode: boolean = false;                                   // 调试模式标志
@@ -41,7 +44,7 @@ export class GameSystem {
      * @param content 消息内容
      * @param data 可选的附加数据
      */
-    public sendMessage(type: MessageType, content: string, data?: any) {
+    public sendMessage(type: MessageType, content: string, data?: BattleLog) {
         const message: GameMessage = {
             type,
             content,
@@ -49,13 +52,13 @@ export class GameSystem {
             data
         };
 
-        this.messageLog.push(message);
-        this.logMessage(message);
+        this.messages.push(message);
+        this.notifyMessageUpdate();
 
         // 触发消息更新事件
         this.dispatchEvent({
             type: EventType.MESSAGE_UPDATED,
-            data: { message, allMessages: this.messageLog }
+            data: { message, allMessages: this.messages }
         });
 
         if (type === MessageType.ERROR) {
@@ -90,7 +93,7 @@ export class GameSystem {
      * @returns 消息数组
      */
     public getRecentMessages(count?: number, type?: MessageType): GameMessage[] {
-        let messages = [...this.messageLog];
+        let messages = [...this.messages];
         if (type) {
             messages = messages.filter(msg => msg.type === type);
         }
@@ -224,5 +227,50 @@ export class GameSystem {
         }
 
         return duration;
+    }
+
+    /**
+     * 恢复消息历史
+     * @param messages 消息历史
+     */
+    public restoreMessages(messages: GameMessage[]): void {
+        this.messages = [...messages];
+        this.notifyMessageUpdate();
+    }
+
+    /**
+     * 清空消息
+     */
+    public clearMessages(): void {
+        this.messages = [];
+        this.notifyMessageUpdate();
+    }
+
+    /**
+     * 添加消息更新回调
+     * @param callback 回调函数
+     * @returns 移除回调的函数
+     */
+    public onMessageUpdate(callback: () => void): () => void {
+        this.messageCallbacks.add(callback);
+        return () => this.messageCallbacks.delete(callback);
+    }
+
+    /**
+     * 通知消息更新
+     */
+    private notifyMessageUpdate(): void {
+        this.messageCallbacks.forEach(callback => callback());
+    }
+
+    /**
+     * 发送物品获得消息
+     * @param item 获得的物品
+     * @param quantity 物品数量，默认为1
+     */
+    public sendItemMessage(item: Item, quantity: number = 1): void {
+        const itemText = `<span style="color: ${getRarityColor(item.rarity)}">${item.name}</span>`;
+        const quantityText = quantity > 1 ? ` x${quantity}` : '';
+        this.sendMessage(MessageType.REWARD, `获得物品：${itemText}${quantityText}！`);
     }
 }

@@ -55,7 +55,6 @@ const MessageDisplay: React.FC = () => {
             >
                 {({ index, style }: { index: number, style: React.CSSProperties }) => {
                     const msg = messages[index];
-                    console.log('msg is ', msg);
                     // 如果是战斗日志类型的消息
                     if (msg.type === MessageType.COMBAT) {
                         return (
@@ -73,7 +72,7 @@ const MessageDisplay: React.FC = () => {
                             {/* <span className="timestamp">
                                 {new Date(msg.timestamp).toLocaleTimeString()}
                             </span> */}
-                            <span className="content">{msg.content}</span>
+                            <span className="content" dangerouslySetInnerHTML={{ __html: msg.content }}></span>
                         </div>
                     );
                 }}
