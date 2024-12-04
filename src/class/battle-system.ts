@@ -7,7 +7,7 @@ import { GameSystem } from "./game-system";
 import { Character } from "./character";
 import { Player } from "./player";
 import { getItemById } from "../utils/items";
-import { isGearItem } from "../constants/item";
+import { GearSlot, isGearItem } from "../constants/item";
 import { DropSystem } from './drop-system';
 import { Monsters } from "../constants/monsters";
 
@@ -281,7 +281,7 @@ export class BattleSystem {
         // 如果是暴击且攻击者是玩家，触发装备效果
         if (isCritical && attacker instanceof Player) {
             const equippedItems = attacker.inventory.getItems()
-                .filter(item => isGearItem(item.item) && item.item.slot === 'weapon');
+                .filter(item => isGearItem(item.item) && item.item.slot === GearSlot.WEAPON);
 
             equippedItems.forEach(({ item }) => {
                 if (isGearItem(item) && item.effects) {

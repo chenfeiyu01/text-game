@@ -8,11 +8,11 @@ import { StatType } from './stats';
  */
 export enum ItemType {
     /** 装备类物品 */
-    GEAR = 'gear',
+    GEAR = 'GEAR',
     /** 消耗品 */
-    CONSUMABLE = 'consumable',
+    CONSUMABLE = 'CONSUMABLE',
     /** 材料 */
-    MATERIAL = 'material'
+    MATERIAL = 'MATERIAL'
 }
 
 
@@ -60,9 +60,9 @@ export interface InventoryItem {
  */
 export enum ConsumableItemId {
     /** 生命药水 */
-    HEALTH_POTION = 'health_potion',
+    HEALTH_POTION = 'HEALTH_POTION',
     /** 魔法药水 */
-    MANA_POTION = 'mana_potion'
+    MANA_POTION = 'MANA_POTION'
 }
 
 /**
@@ -70,6 +70,7 @@ export enum ConsumableItemId {
  * @enum {string}
  */
 export enum GearItemId {
+    /** 武器 */
     /** 木剑 */
     WOODEN_SWORD = 'WOODEN_SWORD',
     /** 铁剑 */
@@ -79,7 +80,20 @@ export enum GearItemId {
     /** 霜之哀伤 */
     FROST_BLADE = 'FROST_BLADE',
     /** 雷鸣剑 */
-    THUNDER_BLADE = 'THUNDER_BLADE'
+    THUNDER_BLADE = 'THUNDER_BLADE',
+
+
+    /** 防具 */
+    /** 学徒布甲 */
+    APPRENTICE_CLOTH = 'APPRENTICE_CLOTH',
+    /** 猎人皮甲 */
+    HUNTERS_LEATHER = 'HUNTERS_LEATHER',
+    /** 铁甲 */
+    GUARD_ARMOR = 'GUARD_ARMOR',
+    /** 秘银甲 */
+    RUNIC_LEATHER = 'RUNIC_LEATHER',
+    /** 月光守护甲 */
+    MOONLIGHT_GUARD = 'MOONLIGHT_GUARD'
 }
 
 /**
@@ -113,13 +127,13 @@ export type ItemId = ConsumableItemId | GearItemId | MaterialItemId;
  */
 export enum ItemRarity {
     /** 普通品质 */
-    COMMON = 'common',
-    /** 稀有品质 */
-    RARE = 'rare',
+    COMMON = 'COMMON',
+    /** 珍贵品质 */
+    RARE = 'RARE',
     /** 传说品质 */
-    LEGENDARY = 'legendary',
+    LEGENDARY = 'LEGENDARY',
     /** 史诗品质 */
-    EPIC = 'epic'
+    EPIC = 'EPIC'
 }
 
 /** 装备基础属性 */
@@ -149,11 +163,11 @@ export interface GearEffect {
 /** 装备槽位枚举 */
 export enum GearSlot {
     /** 武器槽位 */
-    WEAPON = 'weapon',
+    WEAPON = 'WEAPON',
     /** 护甲槽位 */
-    ARMOR = 'armor',
+    ARMOR = 'ARMOR',
     /** 饰品槽位 */
-    ACCESSORY = 'accessory'
+    ACCESSORY = 'ACCESSORY'
 }
 
 /** 
@@ -169,6 +183,8 @@ export interface GearItem extends Item {
     stats: GearStats;
     /** 装备特殊效果列表 */
     effects?: GearEffect[];
+    /** 装备要求等级 */
+    requiredLevel: number;
     /** 当前强化等级 */
     enhanceLevel: number;
 }

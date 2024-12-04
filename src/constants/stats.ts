@@ -3,13 +3,20 @@
  * @description 定义所有可能的装备属性类型
  */
 export enum StatType {
-    ATTACK = 'attack',           // 攻击力
-    DEFENSE = 'defense',         // 防御力
-    MAX_HP = 'maxHp',           // 最大生命值
-    MAX_MP = 'maxMp',           // 最大魔法值
-    CRIT_RATE = 'critRate',     // 暴击率
-    CRIT_DAMAGE = 'critDamage', // 暴击伤害
-    CHARGE_RATE = 'chargeRate', // 充能效率
+    /** 攻击力 */
+    ATTACK = 'ATTACK',
+    /** 防御力 */
+    DEFENSE = 'DEFENSE',
+    /** 最大生命值 */
+    MAX_HP = 'MAX_HP',
+    /** 最大魔法值 */
+    MAX_MP = 'MAX_MP', 
+    /** 暴击率 */
+    CRIT_RATE = 'CRIT_RATE',
+    /** 暴击伤害 */
+    CRIT_DAMAGE = 'CRIT_DAMAGE',
+    /** 充能效率 */
+    CHARGE_RATE = 'CHARGE_RATE',
 }
 
 /**

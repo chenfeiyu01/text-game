@@ -26,13 +26,13 @@ export const MONSTER_DROPS: Record<Monsters, DropRule[]> = {
         },
         /**
          * 木剑掉落规则
-         * - 基础掉落概率50%
-         * - 每次掉落1-3个
+         * - 基础掉落概率20%
+         * - 每次掉落1个
          */
         {
             itemId: ItemId.Gear.WOODEN_SWORD,
             type: DropItemType.NORMAL,
-            baseChance: 0.5,
+            baseChance: 0.2,
             minQuantity: 1,
             maxQuantity: 1
         },
