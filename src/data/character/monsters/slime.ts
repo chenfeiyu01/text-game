@@ -1,5 +1,6 @@
 import { Character } from "../../../class/character";
 import { CharacterConfig } from "../../../class/character";
+import { Monster, Monsters } from "../../../constants/monsters";
 /**
  * 史莱姆怪物
  * 基础属性:
@@ -11,7 +12,8 @@ import { CharacterConfig } from "../../../class/character";
  * - 普通暴击伤害
  * - 普通充能效率
  */
-export const SLIME_CONFIG: CharacterConfig = {
+export const SLIME_CONFIG: Monster = {
+    id: Monsters.SLIME,
     name: "史莱姆",
     maxHp: 50,
     maxMp: 30,

@@ -23,7 +23,7 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
     const [isFirstBattle, setIsFirstBattle] = React.useState(true);
     const [isBossBattle, setIsBossBattle] = React.useState(false);
 
-    const startBattle = async () => {
+    const startBattle = async (enemy: Character) => {
         let currentPlayer: Character;
         let currentEnemy: Character;
         let battleReward: BattleReward;
@@ -57,7 +57,8 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
             (log) => {
                 // 处理战斗日志
             },
-            battleReward
+            battleReward,
+            sceneConfig.id
         );
 
         const result = await battle.startBattle();
@@ -86,7 +87,7 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
                 <p>当前进度: {isBossBattle ? 'Boss战' : `${currentEnemyIndex + 1}/${sceneConfig.battles.length + 1}`}</p>
             </div>
 
-            <Button onClick={startBattle}>
+            <Button onClick={() => startBattle(enemy!)}>
                 {getBattleButtonText()}
             </Button>
 

@@ -1,6 +1,7 @@
 import { CharacterState } from "../constants/character";
 import { MessageType } from "../constants/game-system";
 import { GearStats, GearItem, GearSlot } from "../constants/item";
+import { Monsters } from "../constants/monsters";
 import { Skill } from "../constants/skill-list";
 import { GameSystem } from "./game-system";
 import { Inventory } from './inventory';
@@ -9,6 +10,8 @@ import { Inventory } from './inventory';
 export interface CharacterConfig {
     /** 角色名称 */
     name: string;
+    /** 角色ID */
+    id?: Monsters;
     /** 最大生命值 */
     maxHp?: number;
     /** 最大魔法值 */
@@ -80,6 +83,7 @@ export class Character {
      * 构造函数
      * @param config 角色配置对象
      * @param config.name 角色名称
+     * @param config.id 角色ID
      * @param config.maxHp 最大生命值
      * @param config.maxMp 最大魔法值
      * @param config.attack 攻击力
@@ -92,6 +96,7 @@ export class Character {
     constructor(config: CharacterConfig) {
         const {
             name,
+            id,
             maxHp = 100,
             maxMp = 100,
             attack = 10,
@@ -103,6 +108,7 @@ export class Character {
         } = config;
 
         this.name = name;
+        this.id = id;
         this._maxHp = maxHp;
         this._maxMp = maxMp;
         this.baseAttack = attack;
@@ -123,6 +129,7 @@ export class Character {
     }
 
     public readonly name: string;         // 角色名称
+    public readonly id?: Monsters;         // 角色ID
     private _maxHp: number;               // 最大生命值
     private _maxMp: number;               // 最大魔法值
     private _attack: number;              // 攻击力

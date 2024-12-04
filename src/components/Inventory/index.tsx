@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Tabs, List, Tag, Typography, Button, Tooltip, message } from 'antd';
 import { Player } from '../../class/player';
-import { GearItem, InventoryItem, ItemType, isGearItem, getRarityColor, getRarityTagColor } from '../../constants/item';
+import { GearItem, InventoryItem, ItemType, isGearItem, getRarityTagColor } from '../../constants/item';
 import { ExperimentOutlined, ThunderboltOutlined, InboxOutlined, GoldOutlined } from '@ant-design/icons';
 import { StatType, getStatDisplay } from '../../constants/stats';
 import './index.scss';

@@ -269,7 +269,7 @@ export class GameSystem {
      * @param quantity 物品数量，默认为1
      */
     public sendItemMessage(item: Item, quantity: number = 1): void {
-        const itemText = `<span style="color: ${getRarityColor(item.rarity)}">${item.name}</span>`;
+        const itemText = `<span style="background-color: rgba(0,0,0,0.3);color: ${getRarityColor(item.rarity)}">${item.name}</span>`;
         const quantityText = quantity > 1 ? ` x${quantity}` : '';
         this.sendMessage(MessageType.REWARD, `获得物品：${itemText}${quantityText}！`);
     }

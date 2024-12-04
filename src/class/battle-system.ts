@@ -7,7 +7,9 @@ import { GameSystem } from "./game-system";
 import { Character } from "./character";
 import { Player } from "./player";
 import { getItemById } from "../utils/items";
-import { isGearItem, getRarityColor } from "../constants/item";
+import { isGearItem } from "../constants/item";
+import { DropSystem } from './drop-system';
+import { Monsters } from "../constants/monsters";
 
 /**
  * 战斗系统类
@@ -19,6 +21,7 @@ export class BattleSystem {
     private battleLogs: BattleLog[] = [];  // 战斗日志记录
     private isPlayerTurn: boolean = true;  // 是否为玩家回合
     private battleReward?: BattleReward;  // 新增：战斗奖励
+    private dropSystem: DropSystem;
 
     /**
      * 构造函数
@@ -26,15 +29,18 @@ export class BattleSystem {
      * @param enemy 敌方角色
      * @param onBattleUpdate 战斗更新回调函数
      * @param reward 战斗奖励配置
+     * @param sceneId 场景ID
      */
     constructor(
         private player: Character,
         private enemy: Character,
         private onBattleUpdate?: (log: BattleLog) => void,
-        private reward?: BattleReward  // 新增：接收奖励配置
+        private reward?: BattleReward,
+        private sceneId?: string  // 添加场景ID参数
     ) {
         this.gameSystem = GameSystem.getInstance();
         this.battleReward = reward;
+        this.dropSystem = DropSystem.getInstance();
     }
 
     private static instance: BattleSystem;
@@ -206,35 +212,30 @@ export class BattleSystem {
             }
         );
 
-        if (winner === this.player && this.battleReward) {
-            const player = Player.getInstance();
+        if (winner === this.player) {
+            // 处理基础奖励
+            if (this.battleReward) {
+                const player = Player.getInstance();
 
-            // 获得金币
-            if (this.battleReward.gold) {
-                player.inventory.addGold(this.battleReward.gold);
+                // 获得金币
+                if (this.battleReward.gold) {
+                    player.inventory.addGold(this.battleReward.gold);
+                    this.gameSystem.sendMessage(
+                        MessageType.REWARD,
+                        `获得 ${this.battleReward.gold} 金币！`
+                    );
+                }
+
+                // 获得经验值
+                this.player.gainExp(this.battleReward.exp);
                 this.gameSystem.sendMessage(
                     MessageType.REWARD,
-                    `获得 ${this.battleReward.gold} 金币！`
+                    `获得 ${this.battleReward.exp} 点经验值！`
                 );
             }
 
-            // 获得经验值
-            this.player.gainExp(this.battleReward.exp);
-            this.gameSystem.sendMessage(
-                MessageType.REWARD,
-                `获得 ${this.battleReward.exp} 点经验值！`
-            );
-
-            // 获得物品
-            if (this.battleReward.items?.length) {
-                this.battleReward.items.forEach(itemId => {
-                    const item = getItemById(itemId);
-                    if (item) {
-                        player.inventory.addItem(item);
-                        this.gameSystem.sendItemMessage(item, 1);
-                    }
-                });
-            }
+            // 处理掉落物品
+            this.handleDrops();
         }
     }
 
@@ -296,6 +297,28 @@ export class BattleSystem {
         // 更新效果持续时间
         attacker.updateEffects();
         defender.updateEffects();
+    }
+
+    private handleDrops() {
+        if (!this.sceneId) return;
+
+        const drops = this.dropSystem.calculateDrops({
+            sceneId: this.sceneId,
+            monsterId: this.enemy.id as Monsters,
+            playerLevel: this.player.level,
+            luck: 1  // 可以从玩家属性中获取幸运值
+        });
+
+        console.log('drops 掉落物品', drops)
+
+        // 将掉落物品添加到玩家背包
+        drops.forEach(itemId => {
+            const item = getItemById(itemId);
+            if (item) {
+                this.player.inventory.addItem(item);
+                this.gameSystem.sendItemMessage(item, 1);
+            }
+        });
     }
 }
 

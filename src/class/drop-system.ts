@@ -31,6 +31,7 @@ export class DropSystem {
         
         if (!monsterDrops) return drops;
 
+        debugger
         monsterDrops.forEach(rule => {
             if (!this.checkDropCondition(rule, playerLevel)) return;
 
