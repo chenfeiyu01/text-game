@@ -1,0 +1,68 @@
+.scene-selector {
+    .scene-card {
+        margin-bottom: 16px;
+        transition: all 0.3s;
+
+        &.available {
+            &:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        &.locked {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    }
+
+    .scene-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .scene-content {
+        .scene-description {
+            color: #666;
+            margin-bottom: 16px;
+            min-height: 60px;
+        }
+
+        .scene-info {
+            border-top: 1px solid #f0f0f0;
+            padding-top: 12px;
+
+            .rewards {
+                display: flex;
+                justify-content: space-between;
+                color: #666;
+                margin-bottom: 8px;
+            }
+
+            .level-warning {
+                color: #ff4d4f;
+                text-align: center;
+                font-weight: bold;
+            }
+        }
+    }
+}
+
+.ant-modal-content {
+    .ant-modal-header {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 16px 24px;
+        
+        .ant-modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    }
+
+    .ant-modal-body {
+        padding: 24px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+} 

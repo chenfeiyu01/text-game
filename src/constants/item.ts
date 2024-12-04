@@ -59,10 +59,14 @@ export interface InventoryItem {
  * @enum {string}
  */
 export enum ConsumableItemId {
-    /** 生命药水 */
-    HEALTH_POTION = 'HEALTH_POTION',
-    /** 魔法药水 */
-    MANA_POTION = 'MANA_POTION'
+    /** 1级生命药水 */
+    HEALTH_POTION_1 = 'HEALTH_POTION_1',
+    /** 1级魔法药水 */
+    MANA_POTION_1 = 'MANA_POTION_1',
+    /** 命运硬币 */
+    FATE_COIN = 'FATE_COIN',
+    /** 战士药剂 */
+    WARRIORS_POTION = 'WARRIORS_POTION'
 }
 
 /**
@@ -75,13 +79,19 @@ export enum GearItemId {
     WOODEN_SWORD = 'WOODEN_SWORD',
     /** 铁剑 */
     IRON_SWORD = 'IRON_SWORD',
-    /** 屠龙宝刀 */
-    DRAGON_SWORD = 'DRAGON_SWORD',
-    /** 霜之哀伤 */
-    FROST_BLADE = 'FROST_BLADE',
-    /** 雷鸣剑 */
-    THUNDER_BLADE = 'THUNDER_BLADE',
-
+    /** 精铁剑 */
+    STEEL_SWORD = 'STEEL_SWORD',
+    /** 秘银剑 */
+    RUNIC_SWORD = 'RUNIC_SWORD',
+    /** 精钢剑 */
+    FINE_STEEL_SWORD = 'FINE_STEEL_SWORD',
+    /** 骑士剑 */
+    KNIGHTS_SWORD = 'KNIGHTS_SWORD',
+    /** 统帅之刃 */
+    COMMANDER_BLADE = 'COMMANDER_BLADE',
+    /** 屠龙剑 */
+    DRAGON_SLAYER = 'DRAGON_SLAYER',
+    
 
     /** 防具 */
     /** 学徒布甲 */
@@ -93,7 +103,27 @@ export enum GearItemId {
     /** 秘银甲 */
     RUNIC_LEATHER = 'RUNIC_LEATHER',
     /** 月光守护甲 */
-    MOONLIGHT_GUARD = 'MOONLIGHT_GUARD'
+    MOONLIGHT_GUARD = 'MOONLIGHT_GUARD',
+    /** 铁匠精制甲 */
+    BLACKSMITH_CHAINMAIL = 'BLACKSMITH_CHAINMAIL',
+    /** 异纹护甲 */
+    OTHERWORLD_ARMOR = 'OTHERWORLD_ARMOR',
+    /** 王国卫甲 */
+    ROYAL_GUARD_ARMOR = 'ROYAL_GUARD_ARMOR',
+
+    /** 饰品 */
+    /** 铜戒指 */
+    COPPER_RING = 'COPPER_RING',
+    /** 学徒项链 */
+    APPRENTICE_NECKLACE = 'APPRENTICE_NECKLACE',
+    /** 魔力指环 */
+    MANA_RING = 'MANA_RING',
+    /** 战士臂环 */
+    WARRIORS_BAND = 'WARRIORS_BAND',
+    /** 龙心吊坠 */
+    DRAGON_HEART_PENDANT = 'DRAGON_HEART_PENDANT',
+    /** 天界皇冠 */
+    CELESTIAL_CROWN = 'CELESTIAL_CROWN'
 }
 
 /**
@@ -138,13 +168,28 @@ export enum ItemRarity {
 
 /** 装备基础属性 */
 export interface GearStats {
+    /** 攻击力 */
     [StatType.ATTACK]?: number;
+    /** 防御力 */
     [StatType.DEFENSE]?: number;
+    /** 最大生命值 */
     [StatType.MAX_HP]?: number;
+    /** 最大魔法值 */
     [StatType.MAX_MP]?: number;
+    /** 暴击率 */
     [StatType.CRIT_RATE]?: number;
+    /** 暴击伤害 */
     [StatType.CRIT_DAMAGE]?: number;
+    /** 充能速率 */
     [StatType.CHARGE_RATE]?: number;
+    /** 伤害加成 */
+    [StatType.BONUS_DAMAGE]?: number;
+    /** 法术亲和 */
+    [StatType.SPELL_AFFINITY]?: number;
+    /** 最终减伤 */
+    [StatType.DAMAGE_REDUCTION]?: number;
+    /** 魔法抗性 */
+    [StatType.MAGIC_RESISTANCE]?: number;
 }
 
 /** 装备特殊效果 */
@@ -154,9 +199,9 @@ export interface GearEffect {
     /** 效果触发条件 */
     condition?: string;
     /** 效果类型 */
-    type: 'passive' | 'active' | 'onHit' | 'onDamaged';
+    type: EffectTriggerType;
     /** 效果实现函数 */
-    effect: (character: Character) => void;
+    effect: (character: Character, ...args: any[]) => void;
 }
 
 /** 装备槽位枚举 */
@@ -260,7 +305,7 @@ export function enhanceGear(item: GearItem): {
         // 根据属性类型计算成长值
         const growthRate = ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE] || 0;
         const growth = value * growthRate;
-        // 设置最小成长值,百分比属性最小0.001,整数属性最小1
+        // 设置最小成长��,百分比属性最小0.001,整数属性最小1
         const minGrowth = key === 'critRate' || key === 'critDamage' ? 0.001 : 1;
         
         // 根据属性类型设置精度
@@ -300,7 +345,9 @@ export const ENHANCE_GROWTH_RATE: Partial<Record<StatType, number>> = {
     [StatType.ATTACK]: 0.05,
     [StatType.DEFENSE]: 0.05,
     [StatType.CRIT_RATE]: 0.05,
-    [StatType.CRIT_DAMAGE]: 0.08
+    [StatType.CRIT_DAMAGE]: 0.08,
+    [StatType.BONUS_DAMAGE]: 0.03,    // 每级提升3%的追加伤害
+    [StatType.SPELL_AFFINITY]: 0.03,  // 每级提升3%的法术亲和
 } as const;
 
 /**
@@ -354,4 +401,53 @@ export function getRarityColor(rarity: ItemRarity): string {
  */
 export function getRarityTagColor(rarity: ItemRarity): string {
     return RARITY_TAG_COLORS[rarity] || RARITY_TAG_COLORS[ItemRarity.COMMON];
+}
+
+/**
+ * 特殊效果类型枚举
+ * @enum {string}
+ */
+export enum EffectTriggerType {
+    PASSIVE = 'passive',      // 被动效果
+    ACTIVE = 'active',        // 主动效果
+    ON_HIT = 'onHit',        // 攻击时触发
+    ON_DAMAGED = 'onDamaged', // 受伤时触发
+    ON_SPELL = 'onSpell'      // 施放法术时触发
+}
+
+/** 消耗品效果类型 */
+export enum ConsumableEffectType {
+    /** 恢复生命值 */
+    HEAL_HP = 'HEAL_HP',
+    /** 恢复魔法值 */
+    HEAL_MP = 'HEAL_MP',
+    /** 增加攻击力 */
+    BUFF_ATTACK = 'BUFF_ATTACK',
+    /** 增加防御力 */
+    BUFF_DEFENSE = 'BUFF_DEFENSE',
+    /** 增加暴击率 */
+    BUFF_CRIT_RATE = 'BUFF_CRIT_RATE',
+    /** 随机效果 */
+    RANDOM_EFFECT = 'RANDOM_EFFECT'
+}
+
+/** 消耗品效果 */
+export interface ConsumableEffect {
+    /** 效果类型 */
+    type: ConsumableEffectType;
+    /** 效果数值 */
+    value: number;
+    /** 效果持续时间(回合数)，不填则为立即效果 */
+    duration?: number;
+    /** 是否为百分比加成 */
+    isPercentage?: boolean;
+}
+
+/** 消耗品接口 */
+export interface ConsumableItem extends Item {
+    type: ItemType.CONSUMABLE;
+    /** 使用效果 */
+    effects: ConsumableEffect[];
+    /** 使用冷却时间（回合） */
+    cooldown?: number;
 }

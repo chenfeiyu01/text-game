@@ -42,8 +42,13 @@ export interface Scene {
     battles: BattleEncounter[];
     /** Boss战斗 */
     boss: BattleEncounter;
+    /** 等级范围 */
+    levelRange: { min: number, max: number };
 }
 
 export enum ESCENES {
-    LUOLAN = 'luolan',
+    MAPLE_FOREST = 'MAPLE_FOREST',     // 枫叶林
+    DARKVINE_VALLEY = 'DARKVINE_VALLEY', // 黑藤谷
+    DARK_SWAMP = 'DARK_SWAMP',         // 幽暗沼泽
+    ANCIENT_RUINS = 'ANCIENT_RUINS',   // 古树遗迹
 }

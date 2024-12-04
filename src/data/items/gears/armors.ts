@@ -37,6 +37,40 @@ export const COMMON_ARMORS: Record<string, GearItem> = {
         price: 50,
         enhanceLevel: 0
     },
+    [GearItemId.BLACKSMITH_CHAINMAIL]: {
+        id: GearItemId.BLACKSMITH_CHAINMAIL,
+        name: '铁匠精制甲',
+        description: '由城市铁匠精心打造的链甲，采用改良工艺。每个环扣都经过特殊的淬火处理，既保证了强度又减轻了重量。精湛的工艺使得这件护甲能够均匀地分散冲击力，是冒险者中层装备的标配。',
+        type: ItemType.GEAR,
+        rarity: ItemRarity.COMMON,
+        stackable: false,
+        slot: GearSlot.ARMOR,
+        requiredLevel: 15,
+        stats: {
+            [StatType.DEFENSE]: 25,
+            [StatType.MAX_HP]: 180,
+        },
+        isEnhanceable: true,
+        price: 150,
+        enhanceLevel: 0
+    },
+    [GearItemId.ROYAL_GUARD_ARMOR]: {
+        id: GearItemId.ROYAL_GUARD_ARMOR,
+        name: '王国卫甲',
+        description: '王国军队的制式装备，采用精钢打造。这种护甲的设计图纸被严格保管在王国铁匠铺中，每一件都需要经过严格的品质检验。装甲的胸口处印有王国的徽记，象征着使用者的地位与责任。',
+        type: ItemType.GEAR,
+        rarity: ItemRarity.COMMON,
+        stackable: false,
+        slot: GearSlot.ARMOR,
+        requiredLevel: 20,
+        stats: {
+            [StatType.DEFENSE]: 35,
+            [StatType.MAX_HP]: 300,
+        },
+        isEnhanceable: true,
+        price: 400,
+        enhanceLevel: 0
+    },
 };
 
 /** 稀有品质护甲 */
@@ -79,6 +113,25 @@ export const RARE_ARMORS: Record<string, GearItem> = {
         price: 100,
         enhanceLevel: 0
     },
+    [GearItemId.OTHERWORLD_ARMOR]: {
+        id: GearItemId.OTHERWORLD_ARMOR,
+        name: '异纹护甲',
+        description: '表面带有神秘纹路的护甲，这些纹路似乎能吸收部分伤害。护甲表面的纹路会随着使用者的动作而流动，仿佛有生命一般。研究者认为这种设计来自另一个世界，但究竟是敌是友仍无从得知。',
+        type: ItemType.GEAR,
+        rarity: ItemRarity.RARE,
+        stackable: false,
+        slot: GearSlot.ARMOR,
+        requiredLevel: 15,
+        stats: {
+            [StatType.DEFENSE]: 30,
+            [StatType.MAX_HP]: 250,
+            [StatType.CRIT_RATE]: 0.02,
+            [StatType.CRIT_DAMAGE]: 0.02
+        },
+        isEnhanceable: true,
+        price: 300,
+        enhanceLevel: 0
+    },
 };
 
 /** 史诗品质护甲 */
@@ -93,9 +146,11 @@ export const EPIC_ARMORS: Record<string, GearItem> = {
         slot: GearSlot.ARMOR,
         requiredLevel: 15,
         stats: {
-            [StatType.DEFENSE]: 20,
-            [StatType.MAX_HP]: 200,
+            [StatType.DEFENSE]: 30,
+            [StatType.MAX_HP]: 250,
             [StatType.MAX_MP]: 30,
+            [StatType.CRIT_RATE]: 0.04,
+            [StatType.CRIT_DAMAGE]: 0.04,
             [StatType.CHARGE_RATE]: 0.1
         },
         isEnhanceable: true,
@@ -109,7 +164,7 @@ export const EPIC_ARMORS: Record<string, GearItem> = {
 
 /** 传说品质护甲 */
 export const LEGENDARY_ARMORS: Record<string, GearItem> = {
-    [GearItemId.CELESTIAL_PLATE]: {
+    /* [GearItemId.CELESTIAL_PLATE]: {
         id: GearItemId.CELESTIAL_PLATE,
         name: '天界战甲',
         description: '传说中天界战士所穿的铠甲，蕴含神圣之力',
@@ -126,7 +181,7 @@ export const LEGENDARY_ARMORS: Record<string, GearItem> = {
         isEnhanceable: true,
         price: 1000,
         enhanceLevel: 0
-    }
+    } */
 };
 
 /** 所有护甲数据 */

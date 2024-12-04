@@ -10,6 +10,7 @@ import { getItemById } from "../utils/items";
 import { GearSlot, isGearItem } from "../constants/item";
 import { DropSystem } from './drop-system';
 import { Monsters } from "../constants/monsters";
+import { StatType } from "../constants/stats";
 
 /**
  * 战斗系统类
@@ -241,7 +242,7 @@ export class BattleSystem {
 
     /**
      * 获取战斗结
-     * @returns 包含所有战斗日志的字符串
+     * @returns 包含所有战斗日志的字�����
      */
     public getBattleSummary(): string {
         return this.battleLogs
@@ -255,16 +256,55 @@ export class BattleSystem {
     }
 
     private handleAttack(attacker: Character, defender: Character): void {
+        // 计算暴击
         const isCritical = Math.random() < attacker.critRate;
+        
+        // 基础伤害计算
         let damage = attacker.attack * (1 + (isCritical ? attacker.critDamage : 0));
-        damage = Math.max(1, damage - defender.defense);
+        
+        
+        // 计算追加伤害加成
+        const bonusDamage = attacker.stats?.[StatType.BONUS_DAMAGE] || 0;
+        damage *= (1 + bonusDamage);
+        
+        // 如果是技能伤害，计算法术亲和加成
+        if (attacker.equippedSkill && attacker.isUsingSkill) {
+            const spellAffinity = attacker.stats?.[StatType.SPELL_AFFINITY] || 0;
+            damage *= (1 + spellAffinity);
+        }
 
-        defender.takeDamage(damage);
+        /**
+         * 这里将伤害计算放在前面，是为了削弱防御力对伤害的影响
+         */
+        // 应用防御力减伤
+        damage = Math.max(1, damage - defender.defense);
+        
+        // 如果是技能伤害，应用魔法抗性
+        if (attacker.isUsingSkill) {
+            const magicResistance = defender.stats?.[StatType.MAGIC_RESISTANCE] || 0;
+            damage *= (1 - magicResistance);
+        }
+        
+        // 应用最终减伤（对所有伤害生效）
+        const damageReduction = defender.stats?.[StatType.DAMAGE_REDUCTION] || 0;
+        damage *= (1 - damageReduction);
+        
+        // 确保最小伤害为1
+        damage = Math.max(1, damage);
+        
+        // 造成伤害
+        const result = defender.takeDamage(damage);
+
+        // 构建战斗消息
+        let actionMessage = `${attacker.name} 对 ${defender.name} 造成了 ${damage.toFixed(0)} 点`;
+        if (isCritical) actionMessage += '暴击';
+        if (attacker.isUsingSkill) actionMessage += '技能';
+        actionMessage += '伤害';
 
         // 发送战斗消息
         this.gameSystem.sendMessage(
             MessageType.COMBAT,
-            `${attacker.name} 对 ${defender.name} 造成了 ${damage.toFixed(0)} 点${isCritical ? '暴击' : ''}伤害`,
+            actionMessage,
             {
                 damage,
                 isCrit: isCritical,
@@ -274,11 +314,11 @@ export class BattleSystem {
                 defenderHp: defender.hp,
                 isDefeated: defender.hp <= 0,
                 round: this.currentRound,
-                action: `${attacker.name} 对 ${defender.name} 造成了 ${damage.toFixed(0)} 点${isCritical ? '暴击' : ''}伤害`
+                action: actionMessage
             }
         );
 
-        // 如果是暴击且攻击者是玩家，触发装备效果
+        // 处理暴击触发的装备效果
         if (isCritical && attacker instanceof Player) {
             const equippedItems = attacker.inventory.getItems()
                 .filter(item => isGearItem(item.item) && item.item.slot === GearSlot.WEAPON);
@@ -292,6 +332,11 @@ export class BattleSystem {
                     });
                 }
             });
+        }
+
+        // 重置技能使用状态
+        if (attacker.isUsingSkill) {
+            attacker.isUsingSkill = false;
         }
 
         // 更新效果持续时间

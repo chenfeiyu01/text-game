@@ -1,10 +1,11 @@
 import { CharacterState } from "../constants/character";
 import { MessageType } from "../constants/game-system";
-import { GearStats, GearItem, GearSlot } from "../constants/item";
+import { GearStats, GearItem, GearSlot, ConsumableItem, ConsumableEffectType } from "../constants/item";
 import { Monsters } from "../constants/monsters";
 import { Skill } from "../constants/skill-list";
 import { GameSystem } from "./game-system";
 import { Inventory } from './inventory';
+import { StatType } from '../constants/stats';
 
 // 在文件顶部添加导出接口
 export interface CharacterConfig {
@@ -79,6 +80,12 @@ export class Character {
     /** 基础暴击伤害 */
     protected baseCritDamage: number;
 
+    /** 角色属性 */
+    public stats: Partial<Record<StatType, number>> = {};
+    
+    /** 是否正在使用技能 */
+    public isUsingSkill: boolean = false;
+
     /**
      * 构造函数
      * @param config 角色配置对象
@@ -149,7 +156,7 @@ export class Character {
     get attack(): number {
         let baseAttack = this._attack;
         this._temporaryEffects.forEach(effect => {
-            if (effect.attribute === 'attack') {
+            if (effect.attribute === StatType.ATTACK) {
                 baseAttack += effect.value;
             }
         });
@@ -236,7 +243,7 @@ export class Character {
      * 1-20级：基础经验 = 等级 * 100
      * 21-40级：基础经验 = 等级 * 150 * (1 + (等级-20) * 0.1)
      * 41-60级：基础经验 = 等级 * 200 * (1 + (等级-40) * 0.15)
-     * 60级以上：基础经验 = 等级 * 300 * (1 + (等级-60) * 0.2)
+     * 60级以上：基础经��� = 等级 * 300 * (1 + (等级-60) * 0.2)
      */
     private calculateExpNeeded(): number {
         const level = this.level;
@@ -584,10 +591,10 @@ export class Character {
         // Add attributes from equipped items
         for (const item of Object.values(this._equippedItems)) {
             if (item) {
-                this._attack += item.stats.attack || 0;
-                this._defense += item.stats.defense || 0;
-                this._critRate += item.stats.critRate || 0;
-                this._critDamage += item.stats.critDamage || 0;
+                this._attack += item.stats[StatType.ATTACK] || 0;
+                this._defense += item.stats[StatType.DEFENSE] || 0;
+                this._critRate += item.stats[StatType.CRIT_RATE] || 0;
+                this._critDamage += item.stats[StatType.CRIT_DAMAGE] || 0;
             }
         }
     }
@@ -595,5 +602,78 @@ export class Character {
     /** 通知状态变化 */
     protected updateState(): void {
         this.notifyStateChange();
+    }
+
+    /**
+     * 使用消耗品
+     * @param item 要使用的消耗品
+     * @returns 是否使用成功
+     */
+    public useConsumable(item: ConsumableItem): boolean {
+        // 应用每个效果
+        item.effects.forEach(effect => {
+            switch (effect.type) {
+                case ConsumableEffectType.HEAL_HP:
+                    this.hp += effect.value;
+                    GameSystem.getInstance().sendMessage(
+                        MessageType.COMBAT,
+                        `${this.name} 恢复了 ${effect.value} 点生命值`
+                    );
+                    break;
+                    
+                case ConsumableEffectType.HEAL_MP:
+                    this.mp += effect.value;
+                    GameSystem.getInstance().sendMessage(
+                        MessageType.COMBAT,
+                        `${this.name} 恢复了 ${effect.value} 点魔法值`
+                    );
+                    break;
+
+                case ConsumableEffectType.RANDOM_EFFECT:
+                    const isPositive = Math.random() >= 0.5;
+                    if (isPositive) {
+                        // 正面：恢复生命值
+                        const healAmount = effect.value;
+                        this.hp += healAmount;
+                        GameSystem.getInstance().sendMessage(
+                            MessageType.COMBAT,
+                            `命运硬币显示正面！${this.name} 恢复了 ${healAmount} 点生命值`
+                        );
+                    } else {
+                        // 反面：受到伤害
+                        const damageAmount = Math.floor(effect.value * 0.5); // 伤害值为治疗值的一半
+                        this.takeDamage(damageAmount);
+                        GameSystem.getInstance().sendMessage(
+                            MessageType.COMBAT,
+                            `命运硬币显示反面！${this.name} 受到了 ${damageAmount} 点诅咒伤害`
+                        );
+                    }
+                    break;
+
+                case ConsumableEffectType.BUFF_ATTACK:
+                    const attackBuff = effect.isPercentage 
+                        ? this.attack * effect.value 
+                        : effect.value;
+                        
+                    if (effect.duration) {
+                        // 添加临时效果
+                        this.addTemporaryEffect(
+                            `${item.id}_attack`,
+                            StatType.ATTACK,  // 修复之前的错误，使用 StatType
+                            attackBuff,
+                            effect.duration
+                        );
+                        GameSystem.getInstance().sendMessage(
+                            MessageType.COMBAT,
+                            `${this.name} 的攻击力提升了！持续 ${effect.duration} 回合`
+                        );
+                    }
+                    break;
+                    
+                // ... 处理其他效果类型
+            }
+        });
+
+        return true;
     }
 }

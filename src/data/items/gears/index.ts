@@ -7,4 +7,4 @@ export const GEARS: Record<GearItemId, GearItem> = {
     ...WEAPONS,
     ...ARMORS,
     ...ACCESSORIES
-}; 
+} as Record<GearItemId, GearItem>; 

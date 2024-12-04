@@ -17,6 +17,14 @@ export enum StatType {
     CRIT_DAMAGE = 'CRIT_DAMAGE',
     /** 充能效率 */
     CHARGE_RATE = 'CHARGE_RATE',
+    /** 追加伤害 */
+    BONUS_DAMAGE = 'BONUS_DAMAGE',
+    /** 法术亲和 */
+    SPELL_AFFINITY = 'SPELL_AFFINITY',
+    /** 最终减伤 */
+    DAMAGE_REDUCTION = 'DAMAGE_REDUCTION',
+    /** 魔法抗性 */
+    MAGIC_RESISTANCE = 'MAGIC_RESISTANCE',
 }
 
 /**
@@ -50,6 +58,22 @@ export const STAT_CONFIG = {
     },
     [StatType.CHARGE_RATE]: {
         name: '充能效率',
+        format: (value: number) => `${(value * 100).toFixed(1)}%`,
+    },
+    [StatType.BONUS_DAMAGE]: {
+        name: '追加伤害',
+        format: (value: number) => `${(value * 100).toFixed(1)}%`,
+    },
+    [StatType.SPELL_AFFINITY]: {
+        name: '法术亲和',
+        format: (value: number) => `${(value * 100).toFixed(1)}%`,
+    },
+    [StatType.DAMAGE_REDUCTION]: {
+        name: '最终减伤',
+        format: (value: number) => `${(value * 100).toFixed(1)}%`,
+    },
+    [StatType.MAGIC_RESISTANCE]: {
+        name: '魔法抗性',
         format: (value: number) => `${(value * 100).toFixed(1)}%`,
     },
 } as const;

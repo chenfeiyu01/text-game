@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import './App.css'
 import BattleScene from './components/BattleScene'
 import CharacterBaseStatus from './components/CharacterBaseStatus'
@@ -10,10 +10,11 @@ import { SaveSystem } from './class/save-system'
 import { Button } from 'antd'
 import Inventory from './components/Inventory'
 import { Character } from './class/character'
-import { InboxOutlined } from '@ant-design/icons'
+import { InboxOutlined, CompassOutlined } from '@ant-design/icons'
 import { NpcDialog } from './components/NpcDialog'
 import { ShopNpc, EnhanceNpc, SkillTrainerNpc } from './class/npc'
 import { ESCENES } from './constants/scenes'
+import { SceneSelector } from './components/SceneSelector'
 
 function App() {
   const [gameState, setGameState] = useState<'start' | 'creation' | 'game'>('start');
@@ -21,6 +22,9 @@ function App() {
   const [isNpcDialogVisible, setIsNpcDialogVisible] = useState(false);
   const [isEnhanceDialogVisible, setIsEnhanceDialogVisible] = useState(false);
   const [isSkillTrainerDialogVisible, setIsSkillTrainerDialogVisible] = useState(false);
+  const [selectedScene, setSelectedScene] = useState<string>(ESCENES.MAPLE_FOREST);
+  const [isInBattle, setIsInBattle] = useState(false);
+  const [isSceneSelectorVisible, setIsSceneSelectorVisible] = useState(false);
 
   // 使用静态工厂方法创建NPC
   const shopkeeper = ShopNpc.create('SHOP_KEEPER');
@@ -40,6 +44,11 @@ function App() {
 
   const handleCreateCharacter = (character: Character) => {
     setGameState('game');
+  };
+
+  const handleSceneSelect = (sceneId: string) => {
+    setSelectedScene(sceneId);
+    setIsInBattle(true);
   };
 
   switch (gameState) {
@@ -87,7 +96,12 @@ function App() {
           >
             技能
           </Button>
-
+          <Button
+            onClick={() => setIsSceneSelectorVisible(true)}
+            icon={<CompassOutlined />}
+          >
+            选择副本
+          </Button>
 
           <NpcDialog
             npc={shopkeeper}
@@ -108,7 +122,22 @@ function App() {
             visible={isInventoryVisible}
             onClose={() => setIsInventoryVisible(false)}
           />
-          <BattleScene sceneConfig={SCENES[ESCENES.LUOLAN]} />
+          <SceneSelector
+            visible={isSceneSelectorVisible}
+            onClose={() => setIsSceneSelectorVisible(false)}
+            onSceneSelect={handleSceneSelect}
+          />
+          {isInBattle && (
+            <div>
+              <button 
+                className="back-button" 
+                onClick={() => setIsInBattle(false)}
+              >
+                返回主界面
+              </button>
+              <BattleScene sceneConfig={SCENES[selectedScene]} />
+            </div>
+          )}
           <Button onClick={() => {
             const saveSystem = SaveSystem.getInstance();
             saveSystem.saveGame(Player.getInstance());

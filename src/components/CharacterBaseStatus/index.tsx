@@ -13,10 +13,15 @@ interface CharacterBaseStatusProps {
  * 装备槽位显示名称
  */
 const GEAR_SLOT_NAMES: Record<GearSlot, string> = {
-    weapon: '武器',
-    armor: '护甲',
-    accessory: '饰品'
+    [GearSlot.WEAPON]: '武器',
+    [GearSlot.ARMOR]: '护甲',
+    [GearSlot.ACCESSORY]: '饰品'
 } as const;
+
+const getCharacterStatValue = (character: Character, propertyName: string): number => {
+    const value = character[propertyName as keyof Character];
+    return typeof value === 'number' ? value : 0;
+};
 
 const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) => {
     const [updateTrigger, setUpdateTrigger] = useState(0);
@@ -44,6 +49,8 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
         });
     };
 
+
+    // FIXME: 这里基础属性面板的显示需要修复，显示错误了
     // 渲染基础属性面板
     const renderBaseStats = () => {
         const statsToShow = [
@@ -54,12 +61,15 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
             StatType.CHARGE_RATE
         ];
 
-        return statsToShow.map(statType => (
-            <p key={statType}>
-                <span>{STAT_CONFIG[statType].name}</span>
-                <span>{formatStatValue(statType, character[statType])}</span>
-            </p>
-        ));
+        return statsToShow.map(statType => {
+            const propertyName = statType.toLowerCase();
+            return (
+                <p key={statType}>
+                    <span>{STAT_CONFIG[statType].name}</span>
+                    <span>{formatStatValue(statType, getCharacterStatValue(character, propertyName))}</span>
+                </p>
+            );
+        });
     };
 
     const renderGearSlot = (slot: GearSlot) => {

@@ -1,14 +1,8 @@
-import { PIGLET_CONFIG } from "./piglet";
-import { SLIME_CONFIG } from "./slime";
-import { GOBLIN_CONFIG } from "./goblin";
+import { LOW_LEVEL_MONSTERS } from "./lowLevel"
+import { Monsters, Monster } from "../../../constants/monsters";
 
-import { Monsters } from "../../../constants/monsters";
-import { CharacterConfig } from "../../../class/character";
-
-const MONSTERS: Record<Monsters, CharacterConfig> = {
-    [Monsters.SLIME]: SLIME_CONFIG,
-    [Monsters.PIGLET]: PIGLET_CONFIG,
-    [Monsters.GOBLIN]: GOBLIN_CONFIG,
+const MONSTERS: Record<Monsters, Monster> = {
+    ...LOW_LEVEL_MONSTERS
 }
 
 export default MONSTERS;
