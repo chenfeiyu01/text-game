@@ -134,7 +134,7 @@ export const QuestPanel: React.FC<QuestPanelProps> = ({ visible, onClose }) => {
                         type="primary"
                         onClick={() => handleQuestAction(quest)}
                     >
-                        接受任务1
+                        接受任务
                     </Button>
                 );
             case QuestStatus.IN_PROGRESS:

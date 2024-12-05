@@ -9,6 +9,7 @@ import { Player } from '../../class/player';
 import { BattleResult, BattleReward } from '../../constants/battle';
 import MONSTERS from '../../data/character/monsters';
 import { Scene } from '../../constants/scenes';
+import { QuestSystem } from '../../class/quest-system';
 
 
 interface BattleSceneProps {
@@ -77,7 +78,25 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
     const getBattleButtonText = () => {
         if (currentEnemyIndex === 0) return '开始战斗';
         if (currentEnemyIndex >= sceneConfig.battles.length) return `挑战Boss: ${sceneConfig.boss.monster.name}`;
-        return `继续战斗 (剩余${sceneConfig.battles.length - currentEnemyIndex}个敌人, 下一个: ${sceneConfig.battles[currentEnemyIndex].monster.name})`;
+        return `继续战斗 (剩余${sceneConfig.battles.length - currentEnemyIndex}���敌人, 下一个: ${sceneConfig.battles[currentEnemyIndex].monster.name})`;
+    };
+
+    const handleBattleEnd = (result: BattleResult) => {
+        if (result.victory) {
+            // ... 其他战斗结算逻辑
+            
+            // 更新任务进度
+            if (result.monster) {
+                QuestSystem.getInstance().onMonsterKill(result.monster.id);
+            }
+        }
+    };
+
+    const handleBossVictory = () => {
+        // ... 其他BOSS战胜利逻辑
+        
+        // 更新副本通关进度
+        QuestSystem.getInstance().onSceneComplete(sceneConfig.id);
     };
 
     return (

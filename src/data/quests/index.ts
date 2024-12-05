@@ -1,7 +1,7 @@
 import { QuestConfig, QuestType, QuestObjectiveType } from '../../constants/quest';
 import { Monsters } from '../../constants/monsters';
 import { ItemId } from '../../constants/item';
-import { ESCENES } from '../../constants/scenes';
+import { ESCENES, SCENE_NAMES } from '../../constants/scenes';
 import MONSTERS from '../character/monsters';
 import { NpcFunction } from '../../constants/npc';
 
@@ -9,47 +9,61 @@ export const QUESTS: QuestConfig[] = [
     // 新手引导任务链
     {
         id: 'WELCOME_TO_ADVENTURE',
-        title: '冒险的开始',
+        title: '新手的第一步',
         type: QuestType.MAIN,
-        description: '与技能导师对话，了解基本的战斗技巧。',
+        description: '经过半天的跋涉，你来到了镇上的冒险者协会，协会里总是挤满了来自各地的冒险者。看看有什么简单的任务适合你。',
         level: 1,
         objectives: [
             {
-                type: QuestObjectiveType.LEARN_SKILL,
-                target: 'SLASH',
+                type: QuestObjectiveType.KILL_MONSTER,
+                target: Monsters.CORRUPTED_RABBIT,
                 current: 0,
-                required: 1,
-                description: '学习技能：斩击'
+                required: 3,
+                description: `前往${SCENE_NAMES[ESCENES.MAPLE_FOREST]}，消灭3只被${MONSTERS[Monsters.CORRUPTED_RABBIT].name}`
             }
         ],
         reward: {
             exp: 50,
-            gold: 100
+            gold: 100,
+            items: [
+                { id: ItemId.Gear.WOODEN_SWORD, quantity: 1 }
+            ]
         },
         dialogs: {
             start: [
                 {
                     npcId: NpcFunction.SKILL,
-                    text: '欢迎来到冒险者公会！在开始冒险之前，让我教你一些基本的战斗技巧。',
-                    options: [{ text: '请指导我', next: null }]
+                    text: `在协会大厅的任务公告板前，一位面带和善笑容的女性接待员莉娜注意到了你。
+"你是新来的冒险者吧？"莉娜翻看着手中的任务卷轴，"最近连兔子都变得不太正常了。镇子南边的${SCENE_NAMES[ESCENES.MAPLE_FOREST]}里出现了一些异变的兔子，它们的眼睛会发出奇怪的红光，还会主动攻击农民。"
+她取下一张委托书递给你："这个任务很适合初出茅庐的冒险者。需要你去消灭三只${MONSTERS[Monsters.CORRUPTED_RABBIT].name}。别被它们可爱的外表骗了，这些家伙现在可不是普通的食草动物。"`,
+                    options: [{ text: '交给我吧', next: null }]
                 }
             ],
             progress: [
                 {
                     npcId: NpcFunction.SKILL,
-                    text: '学习技能是变强的关键。'
+                    text: '继续努力，完成任务！'
                 }
             ],
             complete: [
                 {
                     npcId: NpcFunction.SKILL,
-                    text: '很好！现在你已经掌握了基本技能。'
+                    text: `"作为菜鸟来说，你的表现还不错嘛。"莉娜接过你递来的证明，仔细检查后点点头。
+"做得很好，这是你的第一份报酬。"她递给你一个小布袋。
+她看了看公告板："要不要继续？协会里还有不少适合新手的委托。"`,
                 }
             ]
         },
         story: {
             title: '踏上冒险之路',
-            content: '你来到了冒险者公会，开始了解这个世界的基本规则。技能导师向你介绍了战斗技巧，这是每个冒险者的必修课。'
+            content: `当你回到冒险者协会时，莉娜正在整理桌上的文件。看到你身上沾着些许尘土和草屑，她露出了理解的微笑。
+"看来你完成任务了？"莉娜放下手中的文件，"这些异变兔子确实比普通的兔子难对付得多。来，让我看看..."
+你向她描述了战斗的经过，她认真地记录在案。
+"干得不错！"莉娜在任务卷轴上盖上了完成的印章，"第一次执行任务就这么顺利，看来你很有冒险者的天赋。"
+她从抽屉里取出一个小袋子："这是你的报酬，50枚铜币。对了，还有这个..."
+莉娜又拿出一枚铜质徽章："这是'见习冒险者'的徽章。虽然只是最基础的等级，但这代表着你正式成为了一名冒险者。继续努力的话，以后还能获得更高级的徽章。"
+她若有所思地补充道："说起来，最近像这样的异变生物越来越多了。不知道是不是和那些奇怪的传闻有关...算了，这些都是协会高层要操心的事。"
+莉娜整理好文件，微笑着说："要不要再接一个任务？协会里还有不少适合新手的委托。"`
         }
     },
     {

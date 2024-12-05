@@ -52,3 +52,13 @@ export enum ESCENES {
     DARK_SWAMP = 'DARK_SWAMP',         // 幽暗沼泽
     ANCIENT_RUINS = 'ANCIENT_RUINS',   // 古树遗迹
 }
+
+/**
+ * 场景名称
+ */
+export const SCENE_NAMES = {
+    [ESCENES.MAPLE_FOREST]: '枫叶林',
+    [ESCENES.DARKVINE_VALLEY]: '黑藤谷',
+    [ESCENES.DARK_SWAMP]: '幽暗沼泽',
+    [ESCENES.ANCIENT_RUINS]: '古树遗迹',
+}

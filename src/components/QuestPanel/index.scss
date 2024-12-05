@@ -20,6 +20,17 @@
     }
 }
 
+.quest-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .quest-level {
+        color: #999;
+        font-size: 12px;
+    }
+}
+
 .item-tooltip {
     min-width: 200px;
     
@@ -65,7 +76,10 @@
         
         .dialog-text {
             margin-bottom: 12px;
-            line-height: 1.5;
+            line-height: 1.8em;
+            text-indent: 2em;
+            white-space: pre-wrap;
+
         }
         
         .ant-btn {

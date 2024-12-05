@@ -87,25 +87,36 @@ export class QuestSystem {
         }
     }
 
-    public updateQuestProgress(questId: string, type: QuestObjectiveType, target: string, amount: number = 1): void {
-        const quest = QUESTS.find(q => q.id === questId);
-        if (!quest) return;
+    public updateQuestProgress(type: QuestObjectiveType, target: string, amount: number = 1) {
+        // 遍历所有进行中的任务
+        this.questProgress.forEach((progress, questId) => {
+            if (progress.status !== QuestStatus.IN_PROGRESS) return;
 
-        const progress = this.questProgress.get(questId);
-        if (progress?.status !== QuestStatus.IN_PROGRESS) return;
+            const quest = QUESTS.find(q => q.id === questId);
+            if (!quest) return;
 
-        quest.objectives.forEach((objective, index) => {
-            if (objective.type === type && objective.target === target) {
-                const current = progress.objectives[index].current + amount;
-                progress.objectives[index].current = Math.min(current, objective.required);
-
-                if (this.checkQuestComplete(questId)) {
-                    progress.status = QuestStatus.COMPLETE;
-                    GameSystem.getInstance().sendMessage(
-                        MessageType.QUEST,
-                        `任务可以提交：${quest.title}`
+            // 更新匹配的目标进度
+            quest.objectives.forEach((objective, index) => {
+                if (objective.type === type && objective.target === target) {
+                    const currentProgress = progress.objectives[index];
+                    currentProgress.current = Math.min(
+                        currentProgress.current + amount,
+                        objective.required
                     );
                 }
+            });
+
+            // 检查是否所有目标都完成了
+            const allCompleted = progress.objectives.every(
+                (obj, idx) => obj.current >= quest.objectives[idx].required
+            );
+
+            if (allCompleted) {
+                progress.status = QuestStatus.COMPLETE;
+                GameSystem.getInstance().sendMessage(
+                    MessageType.QUEST,
+                    `任务可以提交：${quest.title}`
+                );
             }
         });
     }
@@ -164,5 +175,14 @@ export class QuestSystem {
                 questId
             });
         }
+    }
+
+    // 在 BattleScene 中调用
+    public onSceneComplete(sceneId: string) {
+        this.updateQuestProgress(QuestObjectiveType.COMPLETE_DUNGEON, sceneId);
+    }
+
+    public onMonsterKill(monsterId: string) {
+        this.updateQuestProgress(QuestObjectiveType.KILL_MONSTER, monsterId);
     }
 } 

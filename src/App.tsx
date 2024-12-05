@@ -19,6 +19,7 @@ import { DevTools } from './components/DevTools'
 import { QuestPanel } from './components/QuestPanel'
 import { StoryPanel } from './components/StoryPanel'
 import { StorySystem } from './class/story-system'
+import { QuestSystem } from './class/quest-system'
 
 
 function App() {
@@ -38,8 +39,20 @@ function App() {
   const blacksmith = EnhanceNpc.create('BLACKSMITH');
   const skillMaster = SkillTrainerNpc.create('SKILL_MASTER');
 
-  const storySystem = StorySystem.getInstance();
-  const unreadCount = storySystem.getUnreadCount();
+  // 只在游戏状态为 'game' 时获取这些值
+  const getGameData = () => {
+    if (gameState !== 'game') return { unreadCount: 0, availableQuestsCount: 0 };
+    
+    const storySystem = StorySystem.getInstance();
+    const questSystem = QuestSystem.getInstance();
+    
+    return {
+      unreadCount: storySystem.getUnreadCount(),
+      availableQuestsCount: questSystem.getAvailableQuests().length
+    };
+  };
+
+  const { unreadCount, availableQuestsCount } = getGameData();
 
   const handleStartNewGame = () => {
     setGameState('creation');
@@ -69,7 +82,7 @@ function App() {
         </div>
         <div className="header-right">
           <Space>
-            <Button 
+            <Button
               icon={<SaveOutlined />}
               onClick={() => {
                 const saveSystem = SaveSystem.getInstance();
@@ -81,48 +94,50 @@ function App() {
           </Space>
         </div>
       </div>
-      
+
       <div className="game-main">
         <div className="game-sider">
           <Space direction="horizontal" size="middle">
-            <Button 
-              icon={<InboxOutlined />} 
+            <Button
+              icon={<InboxOutlined />}
               onClick={() => setIsInventoryVisible(true)}
             >
               背包
             </Button>
-            <Button 
-              icon={<ShopOutlined />} 
+            <Button
+              icon={<ShopOutlined />}
               onClick={() => setIsNpcDialogVisible(true)}
             >
               商店
             </Button>
-            <Button 
-              icon={<ThunderboltOutlined />} 
+            <Button
+              icon={<ThunderboltOutlined />}
               onClick={() => setIsEnhanceDialogVisible(true)}
             >
               强化
             </Button>
-            <Button 
-              icon={<BookOutlined />} 
+            <Button
+              icon={<BookOutlined />}
               onClick={() => setIsSkillTrainerDialogVisible(true)}
             >
               技能
             </Button>
-            <Button 
-              icon={<CompassOutlined />} 
+            <Button
+              icon={<CompassOutlined />}
               onClick={() => setIsSceneSelectorVisible(true)}
             >
               副本
             </Button>
-            <Button 
-              icon={<BookOutlined />} 
+            <Button
+              icon={<BookOutlined />}
               onClick={() => setIsQuestPanelVisible(true)}
             >
-              任务
+              <Badge count={availableQuestsCount} offset={[5, 0]} size="small">
+                任务
+              </Badge>
             </Button>
-            <Button 
-              icon={<BookOutlined />} 
+            <Button
+              icon={<BookOutlined />}
               onClick={() => setIsStoryPanelVisible(true)}
             >
               <Badge count={unreadCount} offset={[5, 0]} size="small">
@@ -137,7 +152,7 @@ function App() {
         </div>
 
         <div className="game-content">
-          
+
           {isInBattle ? (
             <div className="battle-container">
               <Button className="back-button" onClick={() => setIsInBattle(false)}>
@@ -160,15 +175,15 @@ function App() {
       <NpcDialog npc={skillMaster} visible={isSkillTrainerDialogVisible} onClose={() => setIsSkillTrainerDialogVisible(false)} />
       <Inventory visible={isInventoryVisible} onClose={() => setIsInventoryVisible(false)} />
       <SceneSelector visible={isSceneSelectorVisible} onClose={() => setIsSceneSelectorVisible(false)} onSceneSelect={handleSceneSelect} />
-      <QuestPanel 
-        visible={isQuestPanelVisible} 
-        onClose={() => setIsQuestPanelVisible(false)} 
+      <QuestPanel
+        visible={isQuestPanelVisible}
+        onClose={() => setIsQuestPanelVisible(false)}
       />
-      <StoryPanel 
+      <StoryPanel
         visible={isStoryPanelVisible}
         onClose={() => setIsStoryPanelVisible(false)}
       />
-      
+
       {/* 添加开发者工具 */}
       {/* @ts-ignore */}
       {process.env.NODE_ENV === 'development' && <DevTools />}
