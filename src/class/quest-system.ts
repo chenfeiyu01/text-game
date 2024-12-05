@@ -4,6 +4,7 @@ import { Player } from './player';
 import { QUESTS } from '../data/quests';
 import { MessageType } from '../constants/game-system';
 import { getItemById } from '../utils/items';
+import { StorySystem } from './story-system';
 
 export class QuestSystem {
     private static instance: QuestSystem;
@@ -151,5 +152,17 @@ export class QuestSystem {
             MessageType.QUEST,
             `完成任务：${quest.title}`
         );
+
+        // 添加剧情记录
+        const storySystem = StorySystem.getInstance();
+        
+        if (quest?.story) {
+            storySystem.addEntry({
+                id: `QUEST_${questId}`,
+                title: quest.story.title,
+                content: quest.story.content,
+                questId
+            });
+        }
     }
 } 

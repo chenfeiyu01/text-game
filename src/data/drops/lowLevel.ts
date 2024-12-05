@@ -15,7 +15,7 @@ export const MONSTER_DROPS: Record<Monsters, DropRule[]> = {
         {
             itemId: ItemId.Consumable.HEALTH_POTION_1,
             type: DropItemType.NORMAL,
-            baseChance: 0.5,
+            baseChance: 0.3,
             minQuantity: 1,
             maxQuantity: 2,
             condition: {
@@ -23,17 +23,10 @@ export const MONSTER_DROPS: Record<Monsters, DropRule[]> = {
                 maxLevel: 10 // 高等级玩家不再掉落小型药水
             }
         },
-        /**
-         * 史莱姆戒指掉落规则
-         * - 稀有物品
-         * - 基础掉落概率1%
-         * - 每次掉落1个
-         * - 仅在晚上18:00至次日6:00掉落
-         */
         {
             itemId: ItemId.Gear.COPPER_RING,
             type: DropItemType.RARE,
-            baseChance: 0.01,
+            baseChance: 0.1,
             minQuantity: 1,
             maxQuantity: 1,
             condition: {

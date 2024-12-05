@@ -1,0 +1,50 @@
+.story-panel {
+    .story-list {
+        .story-entry {
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s;
+
+            &:hover {
+                background: #f0f0f0;
+            }
+
+            &.unread {
+                background: #e6f7ff;
+                
+                &:hover {
+                    background: #bae7ff;
+                }
+            }
+
+            .entry-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+
+                h4 {
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .entry-time {
+                    color: #999;
+                    font-size: 12px;
+                }
+            }
+
+            .entry-content {
+                color: #666;
+                margin: 0;
+                line-height: 1.6;
+                white-space: pre-wrap;
+            }
+        }
+    }
+} 

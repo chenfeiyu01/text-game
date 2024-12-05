@@ -46,6 +46,10 @@ export const QUESTS: QuestConfig[] = [
                     text: '很好！现在你已经掌握了基本技能。'
                 }
             ]
+        },
+        story: {
+            title: '踏上冒险之路',
+            content: '你来到了冒险者公会，开始了解这个世界的基本规则。技能导师向你介绍了战斗技巧，这是每个冒险者的必修课。'
         }
     },
     {
@@ -91,6 +95,10 @@ export const QUESTS: QuestConfig[] = [
                 }
             ]
         },
+        story: {
+            title: '初次实战',
+            content: '枫叶林是新手冒险者的试炼场。这里的被污染兔子虽然实力不强，但它们的存在暗示着这个世界正在发生某种异变。'
+        },
         prerequisiteQuests: ['WELCOME_TO_ADVENTURE']
     },
     {
@@ -129,9 +137,13 @@ export const QUESTS: QuestConfig[] = [
             complete: [
                 {
                     npcId: NpcFunction.ENHANCE,
-                    text: '很好！记住，装备的品质对冒险至关重要。'
+                    text: '很好！记住，装备��品质对冒险至关重要。'
                 }
             ]
+        },
+        story: {
+            title: '装备的重要性',
+            content: '铁匠教会了你强化装备的方法。在这个危险的世界，一件称手的装备可能就是生存与死亡的区别。'
         },
         prerequisiteQuests: ['FIRST_BATTLE']
     },
@@ -168,7 +180,7 @@ export const QUESTS: QuestConfig[] = [
             progress: [
                 {
                     npcId: NpcFunction.SKILL,
-                    text: '如果无法击败蘑菇战士，可以先提升装备和技能等级。'
+                    text: '如果无法���败蘑菇战士，可以先提升装备和技能等级。'
                 }
             ],
             complete: [
@@ -177,6 +189,10 @@ export const QUESTS: QuestConfig[] = [
                     text: '太棒了！你已经证明了自己的实力。这把铁剑送给你，它将帮助你面对接下来的挑战。'
                 }
             ]
+        },
+        story: {
+            title: '森林深处的威胁',
+            content: '蘑菇战士是枫叶林的统治者，它比普通的被污染生物更加危险。有传言说，这些生物的异变与一股神秘的黑暗力量有关。'
         },
         prerequisiteQuests: ['GEAR_UP']
     }

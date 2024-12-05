@@ -17,7 +17,9 @@ export enum MessageType {
     /** 成就消息 */
     ACHIEVEMENT = 'ACHIEVEMENT', 
     /** 任务消息 */
-    QUEST = 'QUEST'         
+    QUEST = 'QUEST',         
+    /** 剧情消息 */
+    STORY = 'STORY'         
 }
 
 /**

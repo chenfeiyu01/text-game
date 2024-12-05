@@ -5,6 +5,7 @@ import { getSkillById } from '../utils/skills';
 import { Player } from './player';
 import { isGearItem, Item, ItemId } from '../constants/item';
 import { QuestSystem } from './quest-system';
+import { QuestStatus } from '../constants/quest';
 
 
 interface GameSaveData {

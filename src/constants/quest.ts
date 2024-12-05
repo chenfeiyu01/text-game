@@ -101,6 +101,14 @@ export interface QuestDialog {
 }
 
 /**
+ * 任务剧情接口
+ */
+export interface QuestStory {
+    title: string;
+    content: string;
+}
+
+/**
  * 任务配置接口
  */
 export interface QuestConfig {
@@ -129,4 +137,6 @@ export interface QuestConfig {
     };
     /** 前置任务 */
     prerequisiteQuests?: string[];
+    /** 任务剧情 */
+    story?: QuestStory;
 }

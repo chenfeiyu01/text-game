@@ -7,7 +7,7 @@ import CharacterCreation from './components/CharacterCreation'
 import { Player } from './class/player'
 import { SCENES } from './data/maps/scenes'
 import { SaveSystem } from './class/save-system'
-import { Button, Space } from 'antd'
+import { Button, Space, Badge } from 'antd'
 import Inventory from './components/Inventory'
 import { Character } from './class/character'
 import { InboxOutlined, CompassOutlined, ShopOutlined, ThunderboltOutlined, BookOutlined, SaveOutlined } from '@ant-design/icons'
@@ -17,6 +17,8 @@ import { ESCENES } from './constants/scenes'
 import { SceneSelector } from './components/SceneSelector'
 import { DevTools } from './components/DevTools'
 import { QuestPanel } from './components/QuestPanel'
+import { StoryPanel } from './components/StoryPanel'
+import { StorySystem } from './class/story-system'
 
 
 function App() {
@@ -29,11 +31,15 @@ function App() {
   const [isInBattle, setIsInBattle] = useState(false);
   const [isSceneSelectorVisible, setIsSceneSelectorVisible] = useState(false);
   const [isQuestPanelVisible, setIsQuestPanelVisible] = useState(false);
+  const [isStoryPanelVisible, setIsStoryPanelVisible] = useState(false);
 
   // 使用静态工厂方法创建NPC
   const shopkeeper = ShopNpc.create('SHOP_KEEPER');
   const blacksmith = EnhanceNpc.create('BLACKSMITH');
   const skillMaster = SkillTrainerNpc.create('SKILL_MASTER');
+
+  const storySystem = StorySystem.getInstance();
+  const unreadCount = storySystem.getUnreadCount();
 
   const handleStartNewGame = () => {
     setGameState('creation');
@@ -115,6 +121,14 @@ function App() {
             >
               任务
             </Button>
+            <Button 
+              icon={<BookOutlined />} 
+              onClick={() => setIsStoryPanelVisible(true)}
+            >
+              <Badge count={unreadCount} offset={[5, 0]} size="small">
+                剧情日志
+              </Badge>
+            </Button>
             <Button type="text">
               <CharacterBaseStatus character={Player.getInstance()} />
             </Button>
@@ -149,6 +163,10 @@ function App() {
       <QuestPanel 
         visible={isQuestPanelVisible} 
         onClose={() => setIsQuestPanelVisible(false)} 
+      />
+      <StoryPanel 
+        visible={isStoryPanelVisible}
+        onClose={() => setIsStoryPanelVisible(false)}
       />
       
       {/* 添加开发者工具 */}
