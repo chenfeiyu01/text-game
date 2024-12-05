@@ -1,0 +1,48 @@
+.battle-container {
+    .battle-result {
+        text-align: center;
+        padding: 24px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 16px;
+
+            &.victory {
+                color: #52c41a;
+            }
+
+            &.defeat {
+                color: #ff4d4f;
+            }
+        }
+
+        .rewards {
+            margin: 24px 0;
+
+            h3 {
+                color: #faad14;
+                margin-bottom: 12px;
+            }
+
+            .reward-list {
+                display: flex;
+                justify-content: center;
+                gap: 24px;
+                color: #666;
+            }
+        }
+    }
+
+    .scene-info {
+        margin-bottom: 24px;
+        text-align: center;
+
+        h2 {
+            margin-bottom: 8px;
+        }
+    }
+} 

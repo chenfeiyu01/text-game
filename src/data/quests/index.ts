@@ -29,6 +29,7 @@ export const QUESTS: QuestConfig[] = [
                 { id: ItemId.Gear.WOODEN_SWORD, quantity: 1 }
             ]
         },
+        matchScenes: [ESCENES.MAPLE_FOREST],
         dialogs: {
             start: [
                 {

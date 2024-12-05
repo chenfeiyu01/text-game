@@ -158,7 +158,7 @@ function App() {
               <Button className="back-button" onClick={() => setIsInBattle(false)}>
                 返回主界面
               </Button>
-              <BattleScene sceneConfig={SCENES[selectedScene]} />
+              <BattleScene sceneConfig={SCENES[selectedScene]} onBattleEnd={() => setIsInBattle(false)} />
             </div>
           ) : (
             <div className="welcome-content">

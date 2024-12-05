@@ -243,7 +243,6 @@ export class BattleSystem {
 
         // 更新任务进度
         QuestSystem.getInstance().updateQuestProgress(
-            'NEWBIE_TRAINING',
             QuestObjectiveType.KILL_MONSTER,
             this.enemy.id as string
         );
@@ -268,35 +267,31 @@ export class BattleSystem {
         // 计算暴击
         const isCritical = Math.random() < attacker.critRate;
 
-        // 基础伤害计算
-        let damage = attacker.attack * (1 + (isCritical ? attacker.critDamage : 0));
-
+        // 基础伤害计算（向下取整）
+        let damage = Math.floor(attacker.attack * (1 + (isCritical ? attacker.critDamage : 0)));
 
         // 计算追加伤害加成
         const bonusDamage = attacker.stats?.[StatType.BONUS_DAMAGE] || 0;
-        damage *= (1 + bonusDamage);
+        damage = Math.floor(damage * (1 + bonusDamage));
 
         // 如果是技能伤害，计算法术亲和加成
         if (attacker.equippedSkill && attacker.isUsingSkill) {
             const spellAffinity = attacker.stats?.[StatType.SPELL_AFFINITY] || 0;
-            damage *= (1 + spellAffinity);
+            damage = Math.floor(damage * (1 + spellAffinity));
         }
 
-        /**
-         * 这里将伤害计算放在前面，是为了削弱防御力对伤害的影响
-         */
         // 应用防御力减伤
-        damage = Math.max(1, damage - defender.defense);
+        damage = Math.max(1, Math.floor(damage - defender.defense));
 
         // 如果是技能伤害，应用魔法抗性
         if (attacker.isUsingSkill) {
             const magicResistance = defender.stats?.[StatType.MAGIC_RESISTANCE] || 0;
-            damage *= (1 - magicResistance);
+            damage = Math.floor(damage * (1 - magicResistance));
         }
 
-        // 应用最终减伤（对所有伤害生效）
+        // 应用最终减伤
         const damageReduction = defender.stats?.[StatType.DAMAGE_REDUCTION] || 0;
-        damage *= (1 - damageReduction);
+        damage = Math.floor(damage * (1 - damageReduction));
 
         // 确保最小伤害为1
         damage = Math.max(1, damage);
@@ -305,7 +300,7 @@ export class BattleSystem {
         const result = defender.takeDamage(damage);
 
         // 构建战斗消息
-        let actionMessage = `${attacker.name} 对 ${defender.name} 造成了 ${damage.toFixed(0)} 点`;
+        let actionMessage = `${attacker.name} 对 ${defender.name} 造成了 ${damage} 点`;
         if (isCritical) actionMessage += '暴击';
         if (attacker.isUsingSkill) actionMessage += '技能';
         actionMessage += '伤害';
@@ -360,7 +355,7 @@ export class BattleSystem {
             sceneId: this.sceneId,
             monsterId: this.enemy.id as Monsters,
             playerLevel: this.player.level,
-            luck: 1  // 可以从玩家属性中���取幸运值
+            luck: 1  // 可以从玩家属性中取幸运值
         });
 
         console.log('drops 掉落物品', drops)

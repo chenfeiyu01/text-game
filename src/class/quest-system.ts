@@ -94,13 +94,11 @@ export class QuestSystem {
 
             const quest = QUESTS.find(q => q.id === questId);
             if (!quest) return;
-
             // 更新匹配的目标进度
             quest.objectives.forEach((objective, index) => {
                 if (objective.type === type && objective.target === target) {
-                    const currentProgress = progress.objectives[index];
-                    currentProgress.current = Math.min(
-                        currentProgress.current + amount,
+                    objective.current = Math.min(
+                        objective.current + amount,
                         objective.required
                     );
                 }

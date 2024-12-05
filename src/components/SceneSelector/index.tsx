@@ -2,7 +2,11 @@ import React from 'react';
 import { Card, List, Tag, Tooltip, Modal } from 'antd';
 import { SCENES } from '../../data/maps/scenes';
 import { Player } from '../../class/player';
+import { QuestSystem } from '../../class/quest-system';
+import { QuestObjectiveType } from '../../constants/quest';
 import './index.scss';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import { ESCENES } from '../../constants/scenes';
 
 interface SceneSelectorProps {
     visible: boolean;
@@ -17,10 +21,48 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
 }) => {
     const player = Player.getInstance();
     const playerLevel = player.level;
+    const questSystem = QuestSystem.getInstance();
 
     const handleSelect = (sceneId: string) => {
         onSceneSelect(sceneId);
         onClose();
+    };
+
+    // 检查场景是否有相关任务
+    const getSceneQuestInfo = (sceneId: string) => {
+        // 获取所有进行中的任务
+        const inProgressQuests = questSystem.getInProgressQuests();
+        
+        // 找出所有匹配当前副本的任务
+        const matchedQuests = inProgressQuests.filter(quest => 
+            // 检查任务目标中的副本
+            quest.objectives.some(obj => 
+                obj.type === QuestObjectiveType.COMPLETE_DUNGEON && 
+                obj.target === sceneId
+            ) ||
+            // 检查任务的匹配副本列表
+            quest.matchScenes?.includes(sceneId as ESCENES)
+        );
+
+        if (matchedQuests.length > 0) {
+            return (
+                <Tag color="blue" className="quest-tag">
+                    相关任务 ({matchedQuests.length})
+                    <Tooltip 
+                        title={
+                            <div>
+                                {matchedQuests.map(quest => (
+                                    <div key={quest.id}>• {quest.title}</div>
+                                ))}
+                            </div>
+                        }
+                    >
+                        <InfoCircleOutlined style={{ marginLeft: 4 }} />
+                    </Tooltip>
+                </Tag>
+            );
+        }
+        return null;
     };
 
     return (
@@ -45,10 +87,13 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
                                 <Card 
                                     title={
                                         <div className="scene-title">
-                                            <span>{scene.name}</span>
-                                            <Tag color={isLevelMatch ? 'green' : 'red'}>
-                                                Lv.{scene.levelRange.min}-{scene.levelRange.max}
-                                            </Tag>
+                                            <div className="scene-title-left">
+                                                <span>{scene.name}</span>
+                                                <Tag color={isLevelMatch ? 'green' : 'red'}>
+                                                    Lv.{scene.levelRange.min}-{scene.levelRange.max}
+                                                </Tag>
+                                                {getSceneQuestInfo(scene.id)}
+                                            </div>
                                         </div>
                                     }
                                     className={`scene-card ${isLevelMatch ? 'available' : 'locked'}`}

@@ -139,4 +139,6 @@ export interface QuestConfig {
     prerequisiteQuests?: string[];
     /** 任务剧情 */
     story?: QuestStory;
+    /** 匹配的副本 */
+    matchScenes?: Array<ESCENES>;
 }

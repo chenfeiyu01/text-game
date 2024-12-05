@@ -46,7 +46,6 @@ export class Player extends Character {
 
         // 更新任务进度
         QuestSystem.getInstance().updateQuestProgress(
-            'NEWBIE_TRAINING',
             QuestObjectiveType.LEARN_SKILL,
             skill.id
         );
