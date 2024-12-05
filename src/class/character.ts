@@ -487,6 +487,8 @@ export class Character {
      * @returns 计算后的属性值
      */
     public getEffectiveAttribute(attribute: keyof GearStats): number {
+        // TODO: 现在没有做 buff 相关
+        // @ts-ignore
         let baseValue = this[attribute] || 0;
         this._temporaryEffects.forEach(effect => {
             if (effect.attribute === attribute) {

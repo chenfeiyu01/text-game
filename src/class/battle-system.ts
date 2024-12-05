@@ -11,6 +11,8 @@ import { GearSlot, isGearItem } from "../constants/item";
 import { DropSystem } from './drop-system';
 import { Monsters } from "../constants/monsters";
 import { StatType } from "../constants/stats";
+import { QuestSystem } from "./quest-system";
+import { QuestObjectiveType } from '../constants/quest'
 
 /**
  * 战斗系统类
@@ -238,11 +240,18 @@ export class BattleSystem {
             // 处理掉落物品
             this.handleDrops();
         }
+
+        // 更新任务进度
+        QuestSystem.getInstance().updateQuestProgress(
+            'NEWBIE_TRAINING',
+            QuestObjectiveType.KILL_MONSTER,
+            this.enemy.id as string
+        );
     }
 
     /**
      * 获取战斗结
-     * @returns 包含所有战斗日志的字�����
+     * @returns 包含所有战斗日志的字
      */
     public getBattleSummary(): string {
         return this.battleLogs
@@ -258,15 +267,15 @@ export class BattleSystem {
     private handleAttack(attacker: Character, defender: Character): void {
         // 计算暴击
         const isCritical = Math.random() < attacker.critRate;
-        
+
         // 基础伤害计算
         let damage = attacker.attack * (1 + (isCritical ? attacker.critDamage : 0));
-        
-        
+
+
         // 计算追加伤害加成
         const bonusDamage = attacker.stats?.[StatType.BONUS_DAMAGE] || 0;
         damage *= (1 + bonusDamage);
-        
+
         // 如果是技能伤害，计算法术亲和加成
         if (attacker.equippedSkill && attacker.isUsingSkill) {
             const spellAffinity = attacker.stats?.[StatType.SPELL_AFFINITY] || 0;
@@ -278,20 +287,20 @@ export class BattleSystem {
          */
         // 应用防御力减伤
         damage = Math.max(1, damage - defender.defense);
-        
+
         // 如果是技能伤害，应用魔法抗性
         if (attacker.isUsingSkill) {
             const magicResistance = defender.stats?.[StatType.MAGIC_RESISTANCE] || 0;
             damage *= (1 - magicResistance);
         }
-        
+
         // 应用最终减伤（对所有伤害生效）
         const damageReduction = defender.stats?.[StatType.DAMAGE_REDUCTION] || 0;
         damage *= (1 - damageReduction);
-        
+
         // 确保最小伤害为1
         damage = Math.max(1, damage);
-        
+
         // 造成伤害
         const result = defender.takeDamage(damage);
 
@@ -351,7 +360,7 @@ export class BattleSystem {
             sceneId: this.sceneId,
             monsterId: this.enemy.id as Monsters,
             playerLevel: this.player.level,
-            luck: 1  // 可以从玩家属性中获取幸运值
+            luck: 1  // 可以从玩家属性中���取幸运值
         });
 
         console.log('drops 掉落物品', drops)

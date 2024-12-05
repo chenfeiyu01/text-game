@@ -2,6 +2,8 @@ import { Character } from './character';
 import { Skill } from '../constants/skill-list';
 import { Inventory } from './inventory';
 import { isGearItem } from '../constants/item';
+import { QuestSystem } from './quest-system';
+import { QuestObjectiveType } from '../constants/quest'
 
 interface PlayerConfig {
     name: string;
@@ -38,9 +40,18 @@ export class Player extends Character {
         return Player.instance;
     }
 
-    learnSkill(skill: Skill): void {
+    public learnSkill(skill: Skill): boolean {
         this._skills.add(skill.id);
         this.updateState();
+
+        // 更新任务进度
+        QuestSystem.getInstance().updateQuestProgress(
+            'NEWBIE_TRAINING',
+            QuestObjectiveType.LEARN_SKILL,
+            skill.id
+        );
+
+        return true;
     }
 
     /** 序列化玩家数据 */

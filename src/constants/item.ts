@@ -166,6 +166,14 @@ export enum ItemRarity {
     EPIC = 'EPIC'
 }
 
+/** 物品稀有度中文 */
+export const RARITY_CONFIG = {
+    [ItemRarity.COMMON]: { name: '普通' },
+    [ItemRarity.RARE]: { name: '稀有' },
+    [ItemRarity.EPIC]: { name: '史诗' },
+    [ItemRarity.LEGENDARY]: { name: '传说' }
+} as const;
+
 /** 装备基础属性 */
 export interface GearStats {
     /** 攻击力 */

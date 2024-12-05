@@ -6,6 +6,15 @@ export enum NpcFunction {
     STORAGE = 'storage'      // 仓库
 }
 
+export const NPC_FUNCTION_NAMES: Record<NpcFunction, string> = {
+    [NpcFunction.SHOP]: '杂货商人',
+    [NpcFunction.ENHANCE]: '铁匠',
+    [NpcFunction.SKILL]: '技能导师',
+    [NpcFunction.QUEST]: '任务公会',
+    [NpcFunction.STORAGE]: '仓库管理员'
+};
+
+
 export interface NpcDialog {
     id: string;
     text: string;

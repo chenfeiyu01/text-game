@@ -1,3 +1,31 @@
 .shop-panel {
     padding: 16px;
+
+    .shop-header {
+        padding: 16px;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 16px;
+
+        .gold {
+            font-size: 16px;
+            color: #faad14;
+            
+            .anticon {
+                margin-right: 8px;
+            }
+        }
+    }
+
+    .shop-list {
+        .shop-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .quantity {
+                color: #666;
+                font-size: 12px;
+            }
+        }
+    }
 } 

@@ -4,6 +4,7 @@ import { GameMessage, MessageType } from '../constants/game-system';
 import { getSkillById } from '../utils/skills';
 import { Player } from './player';
 import { isGearItem, Item, ItemId } from '../constants/item';
+import { QuestSystem } from './quest-system';
 
 
 interface GameSaveData {
@@ -11,6 +12,12 @@ interface GameSaveData {
     timestamp: number;
     player: ReturnType<Player['serialize']>;
     messages: GameMessage[];
+    quests: {
+        progress: [string, {
+            status: QuestStatus;
+            objectives: { current: number; required: number; }[];
+        }][];
+    };
 }
 
 export class SaveSystem {
@@ -32,12 +39,16 @@ export class SaveSystem {
      */
     public saveGame(player: Player): void {
         const gameSystem = GameSystem.getInstance();
+        const questSystem = QuestSystem.getInstance();
 
         const saveData: GameSaveData = {
             version: this.CURRENT_VERSION,
             timestamp: Date.now(),
             player: player.serialize(),
-            messages: gameSystem.getRecentMessages(100) // 保存最近100条消息
+            messages: gameSystem.getRecentMessages(100), // 保存最近100条消息
+            quests: {
+                progress: Array.from(questSystem['questProgress'].entries())
+            }
         };
 
         try {
@@ -80,6 +91,13 @@ export class SaveSystem {
 
             // 恢复消息历史
             GameSystem.getInstance().restoreMessages(saveData.messages);
+
+            if (saveData.quests) {
+                const questSystem = QuestSystem.getInstance();
+                saveData.quests.progress.forEach(([questId, progress]) => {
+                    questSystem['questProgress'].set(questId, progress);
+                });
+            }
 
             GameSystem.getInstance().sendMessage(MessageType.SYSTEM, '游戏数据已加载');
             return true;

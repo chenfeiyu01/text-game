@@ -5,6 +5,7 @@ import { GameMessage, MessageType, EventType, GameEvent } from '../../constants/
 import { FixedSizeList } from 'react-window';
 import './index.scss';
 import BattleMessage from '../battleMessage';
+import { BookOutlined } from '@ant-design/icons';
 
 const MessageDisplay: React.FC = () => {
     const [messages, setMessages] = useState<GameMessage[]>([]);

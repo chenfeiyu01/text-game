@@ -16,6 +16,7 @@ import { ShopNpc, EnhanceNpc, SkillTrainerNpc } from './class/npc'
 import { ESCENES } from './constants/scenes'
 import { SceneSelector } from './components/SceneSelector'
 import { DevTools } from './components/DevTools'
+import { QuestPanel } from './components/QuestPanel'
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
   const [selectedScene, setSelectedScene] = useState<string>(ESCENES.MAPLE_FOREST);
   const [isInBattle, setIsInBattle] = useState(false);
   const [isSceneSelectorVisible, setIsSceneSelectorVisible] = useState(false);
+  const [isQuestPanelVisible, setIsQuestPanelVisible] = useState(false);
 
   // 使用静态工厂方法创建NPC
   const shopkeeper = ShopNpc.create('SHOP_KEEPER');
@@ -107,6 +109,12 @@ function App() {
             >
               副本
             </Button>
+            <Button 
+              icon={<BookOutlined />} 
+              onClick={() => setIsQuestPanelVisible(true)}
+            >
+              任务
+            </Button>
             <Button type="text">
               <CharacterBaseStatus character={Player.getInstance()} />
             </Button>
@@ -138,8 +146,13 @@ function App() {
       <NpcDialog npc={skillMaster} visible={isSkillTrainerDialogVisible} onClose={() => setIsSkillTrainerDialogVisible(false)} />
       <Inventory visible={isInventoryVisible} onClose={() => setIsInventoryVisible(false)} />
       <SceneSelector visible={isSceneSelectorVisible} onClose={() => setIsSceneSelectorVisible(false)} onSceneSelect={handleSceneSelect} />
+      <QuestPanel 
+        visible={isQuestPanelVisible} 
+        onClose={() => setIsQuestPanelVisible(false)} 
+      />
       
       {/* 添加开发者工具 */}
+      {/* @ts-ignore */}
       {process.env.NODE_ENV === 'development' && <DevTools />}
     </div>
   );

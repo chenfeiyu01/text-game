@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Tabs, List, Tag, Typography, Button, Tooltip, message } from 'antd';
+import { Modal, Tabs, List, Typography, Button, Tooltip, message } from 'antd';
 import { Player } from '../../class/player';
 import { GearItem, InventoryItem, ItemType, isGearItem, getRarityTagColor } from '../../constants/item';
 import { ExperimentOutlined, ThunderboltOutlined, InboxOutlined, GoldOutlined } from '@ant-design/icons';
 import { StatType, getStatDisplay } from '../../constants/stats';
+import { ItemTag } from '../ItemTag';
 import './index.scss';
 
 const { Text } = Typography;
@@ -84,19 +85,7 @@ const Inventory: React.FC<InventoryProps> = ({ visible, onClose }) => {
                     <div className="item-content">
                         <div className="item-basic">
                             <Tooltip title={inventoryItem.item.description}>
-                                <Tag className='item-tag' bordered={false} color={getRarityTagColor(inventoryItem.item.rarity)}>
-                                    {isGearItem(inventoryItem.item) && (
-                                        <>
-                                            {inventoryItem.item.enhanceLevel > 0 && (
-                                                <span className="enhance-level">
-                                                    +{inventoryItem.item.enhanceLevel}
-                                                </span>
-                                            )}
-                                        </>
-                                    )}
-                                    {' '}
-                                    {inventoryItem.item.name}
-                                </Tag>
+                                <ItemTag item={inventoryItem.item} />
                             </Tooltip>
                             {inventoryItem.item.stackable && (
                                 <Text className="item-quantity">x{inventoryItem.quantity}</Text>
