@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import './App.css'
+import './App.scss'
 import BattleScene from './components/BattleScene'
 import CharacterBaseStatus from './components/CharacterBaseStatus'
 import StartScreen from './components/StartScreen'
@@ -76,27 +76,45 @@ function App() {
       
       <div className="game-main">
         <div className="game-sider">
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Button block icon={<InboxOutlined />} onClick={() => setIsInventoryVisible(true)}>
+          <Space direction="horizontal" size="middle">
+            <Button 
+              icon={<InboxOutlined />} 
+              onClick={() => setIsInventoryVisible(true)}
+            >
               背包
             </Button>
-            <Button block icon={<ShopOutlined />} onClick={() => setIsNpcDialogVisible(true)}>
+            <Button 
+              icon={<ShopOutlined />} 
+              onClick={() => setIsNpcDialogVisible(true)}
+            >
               商店
             </Button>
-            <Button block icon={<ThunderboltOutlined />} onClick={() => setIsEnhanceDialogVisible(true)}>
+            <Button 
+              icon={<ThunderboltOutlined />} 
+              onClick={() => setIsEnhanceDialogVisible(true)}
+            >
               强化
             </Button>
-            <Button block icon={<BookOutlined />} onClick={() => setIsSkillTrainerDialogVisible(true)}>
+            <Button 
+              icon={<BookOutlined />} 
+              onClick={() => setIsSkillTrainerDialogVisible(true)}
+            >
               技能
             </Button>
-            <Button block icon={<CompassOutlined />} onClick={() => setIsSceneSelectorVisible(true)}>
-              选择副本
+            <Button 
+              icon={<CompassOutlined />} 
+              onClick={() => setIsSceneSelectorVisible(true)}
+            >
+              副本
             </Button>
+            <Button type="text">
+              <CharacterBaseStatus character={Player.getInstance()} />
+            </Button>
+            {/* <CharacterBaseStatus character={Player.getInstance()} /> */}
           </Space>
         </div>
 
         <div className="game-content">
-          <CharacterBaseStatus character={Player.getInstance()} />
           
           {isInBattle ? (
             <div className="battle-container">

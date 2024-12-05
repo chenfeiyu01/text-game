@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Character } from '../../class/character';
-import { Progress, Modal, Button, Tabs, Tooltip } from 'antd';
+import { Progress, Modal, Button, Tabs, Tooltip, } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons'
 import { GearSlot, GearItem, getRarityColor } from '../../constants/item';
 import { StatType, STAT_CONFIG, formatStatValue } from '../../constants/stats';
 import './index.scss';
@@ -39,7 +40,7 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
         return Object.entries(stats).map(([key, value]) => {
             if (!value) return null;
             const statType = key as StatType;
-            
+
             return (
                 <div key={key} className="stat-item">
                     <span className="stat-name">{STAT_CONFIG[statType].name}</span>
@@ -90,8 +91,8 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
                             <div className="item-stats">
                                 {renderGearStats(equippedItem.stats)}
                             </div>
-                            <Button 
-                                size="small" 
+                            <Button
+                                size="small"
                                 onClick={() => character.unequipItem(slot)}
                                 className="unequip-btn"
                             >
@@ -128,8 +129,8 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
                                     <span>{equippedSkill.chargeCost}%</span>
                                 </div>
                             </div>
-                            <Button 
-                                size="small" 
+                            <Button
+                                size="small"
                                 onClick={() => character.equipSkill(undefined)}
                                 className="unequip-btn"
                             >
@@ -180,7 +181,8 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
 
     return (
         <div className="character-base-status">
-            <Button 
+            <Button
+                icon={<InfoCircleOutlined />}
                 onClick={() => setIsModalVisible(true)}
                 className="status-button"
             >
