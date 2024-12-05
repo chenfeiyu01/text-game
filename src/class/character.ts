@@ -37,7 +37,7 @@ export interface CharacterConfig {
  * 
  * @description
  * 主要功能:
- * - 管理角色基础属性(生命值、魔法值、攻击力等)
+ * - 管理角色基础属性(��命值、魔法值、攻击力等)
  * - 处理战斗相关逻辑(伤害计算、技能使用等)
  * - 管理装备系统
  * - 处理等级和经验值系统
@@ -243,7 +243,7 @@ export class Character {
      * 1-20级：基础经验 = 等级 * 100
      * 21-40级：基础经验 = 等级 * 150 * (1 + (等级-20) * 0.1)
      * 41-60级：基础经验 = 等级 * 200 * (1 + (等级-40) * 0.15)
-     * 60级以上：基础经��� = 等级 * 300 * (1 + (等级-60) * 0.2)
+     * 60级以上：基础经 = 等级 * 300 * (1 + (等级-60) * 0.2)
      */
     private calculateExpNeeded(): number {
         const level = this.level;
@@ -513,7 +513,7 @@ export class Character {
     }
 
     /**
-     * 在每回合结束时更新效果
+     * 在每回合结束时更���效果
      */
     public updateEffects(): void {
         for (const [id, effect] of this._temporaryEffects.entries()) {
@@ -675,5 +675,40 @@ export class Character {
         });
 
         return true;
+    }
+
+    /** 修改基础属性 */
+    public setBaseStat(statType: StatType, value: number): void {
+        switch(statType) {
+            case StatType.ATTACK:
+                this.baseAttack = value;
+                break;
+            case StatType.DEFENSE:
+                this.baseDefense = value;
+                break;
+            case StatType.CRIT_RATE:
+                this.baseCritRate = value;
+                break;
+            case StatType.CRIT_DAMAGE:
+                this.baseCritDamage = value;
+                break;
+        }
+        this.updateAttributes();
+        this.notifyStateChange();
+    }
+
+    public getBaseStat(statType: StatType): number {
+        switch(statType) {
+            case StatType.ATTACK:
+                return this.baseAttack;
+            case StatType.DEFENSE:
+                return this.baseDefense;
+            case StatType.CRIT_RATE:
+                return this.baseCritRate;
+            case StatType.CRIT_DAMAGE:
+                return this.baseCritDamage;
+            default:
+                return 0;
+        }
     }
 }

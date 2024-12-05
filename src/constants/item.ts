@@ -91,7 +91,7 @@ export enum GearItemId {
     COMMANDER_BLADE = 'COMMANDER_BLADE',
     /** 屠龙剑 */
     DRAGON_SLAYER = 'DRAGON_SLAYER',
-    
+
 
     /** 防具 */
     /** 学徒布甲 */
@@ -300,21 +300,9 @@ export function enhanceGear(item: GearItem): {
     // 计算强化后的新属性
     const newStats: GearItem['stats'] = {};
     for (const [key, value] of Object.entries(baseStats)) {
-        if (!value) continue;
-        
-        // 根据属性类型计算成长值
-        const growthRate = ENHANCE_GROWTH_RATE[key as keyof typeof ENHANCE_GROWTH_RATE] || 0;
-        const growth = value * growthRate;
-        // 设置最小成长��,百分比属性最小0.001,整数属性最小1
-        const minGrowth = key === 'critRate' || key === 'critDamage' ? 0.001 : 1;
-        
-        // 根据属性类型设置精度
-        newStats[key as keyof GearItem['stats']] = value + Math.max(
-            minGrowth,
-            key === 'critRate' || key === 'critDamage' 
-                ? Math.round(growth * 1000) / 1000  // 百分比属性保留3位小数
-                : Math.ceil(growth)                 // 整数属性向上取整
-        );
+        const statType = key as StatType;
+        const growthRate = ENHANCE_GROWTH_RATE[statType] || 0;
+        newStats[statType] = calculateEnhancedStat(statType, value, growthRate);
     }
 
     // 更新装备属性和等级
@@ -346,8 +334,12 @@ export const ENHANCE_GROWTH_RATE: Partial<Record<StatType, number>> = {
     [StatType.DEFENSE]: 0.05,
     [StatType.CRIT_RATE]: 0.05,
     [StatType.CRIT_DAMAGE]: 0.08,
-    [StatType.BONUS_DAMAGE]: 0.03,    // 每级提升3%的追加伤害
-    [StatType.SPELL_AFFINITY]: 0.03,  // 每级提升3%的法术亲和
+    [StatType.MAX_HP]: 0.05,
+    [StatType.MAX_MP]: 0.05,
+    [StatType.BONUS_DAMAGE]: 0.03,    // 每级提升1%的追加伤害
+    [StatType.SPELL_AFFINITY]: 0.03,  // 每级提升1%的法术亲和
+    [StatType.DAMAGE_REDUCTION]: 0.03, // 每级提升1%的最终减伤
+    [StatType.MAGIC_RESISTANCE]: 0.03, // 每级提升1%的魔法抗性
 } as const;
 
 /**
@@ -450,4 +442,37 @@ export interface ConsumableItem extends Item {
     effects: ConsumableEffect[];
     /** 使用冷却时间（回合） */
     cooldown?: number;
+}
+
+/**
+ * 计算强化后的属性值
+ * @param statType 属性类型
+ * @param baseValue 基础属性值
+ * @param growthRate 成长系数
+ * @returns 强化后的属性值
+ */
+export function calculateEnhancedStat(
+    statType: StatType,
+    baseValue: number,
+    growthRate: number
+): number {
+    if (!baseValue) return 0;
+
+    const growth = baseValue * growthRate;
+    const isPercentageStat = statType === StatType.CRIT_RATE ||
+        statType === StatType.CRIT_DAMAGE ||
+        statType === StatType.CHARGE_RATE ||
+        statType === StatType.DAMAGE_REDUCTION ||
+        statType === StatType.MAGIC_RESISTANCE ||
+        statType === StatType.SPELL_AFFINITY ||
+        statType === StatType.BONUS_DAMAGE;
+
+    const minGrowth = isPercentageStat ? 0.001 : 1;
+
+    return baseValue + Math.max(
+        minGrowth,
+        isPercentageStat
+            ? Math.round(growth * 1000) / 1000  // 百分比属性保留3位小数
+            : Math.ceil(growth)                 // 整数属性向上取整
+    );
 }

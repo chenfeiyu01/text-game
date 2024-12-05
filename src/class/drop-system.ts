@@ -19,25 +19,39 @@ export class DropSystem {
      * 计算掉落物品
      */
     public calculateDrops(params: {
-        sceneId: string;
-        monsterId: Monsters;
-        playerLevel: number;
-        luck?: number;  // 玩家幸运值加成
+        sceneId: string;        // 场景ID
+        monsterId: Monsters;    // 怪物ID
+        playerLevel: number;    // 玩家等级
+        luck?: number;          // 玩家幸运值加成
     }): ItemId[] {
+        // 解构参数
         const { sceneId, monsterId, playerLevel, luck = 1 } = params;
+        // 初始化掉落物品数组
         const drops: ItemId[] = [];
+        // 获取怪物掉落规则
         const monsterDrops = MONSTER_DROPS[monsterId];
+        // 获取场景掉落修正
         const sceneModifier = SCENE_DROP_MODIFIERS[sceneId];
         
+        // 如果没有掉落规则,直接返回空数组
         if (!monsterDrops) return drops;
 
-        debugger
+        // 遍历每个掉落规则
         monsterDrops.forEach(rule => {
+            // 检查掉落条件是否满足
             if (!this.checkDropCondition(rule, playerLevel)) return;
 
+            // 计算最终掉落概率
             const finalChance = this.calculateFinalChance(rule, sceneModifier, luck);
-            if (Math.random() < finalChance) {
+            console.log('finalChance', finalChance);
+            // 生成随机数判定是否掉落
+            const randomValue = Math.random();
+            console.log('randomValue', randomValue);
+            // 如果随机数小于掉落概率,则添加掉落物品
+            if (randomValue < finalChance) {
+                // 计算掉落数量
                 const quantity = this.calculateDropQuantity(rule, sceneModifier);
+                // 添加指定数量的物品到掉落列表
                 for (let i = 0; i < quantity; i++) {
                     drops.push(rule.itemId);
                 }
@@ -77,7 +91,7 @@ export class DropSystem {
     private calculateFinalChance(
         rule: DropRule,
         sceneModifier: typeof SCENE_DROP_MODIFIERS[string] | undefined,
-        luck: number
+        luck: number = 1
     ): number {
         let chance = rule.baseChance * luck;
         

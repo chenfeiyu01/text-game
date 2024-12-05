@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { EnhanceNpc } from '../../class/npc';
 import { Player } from '../../class/player';
 import { Button, Card, message, Progress, Tooltip } from 'antd';
-import { calculateEnhanceCost, ENHANCE_GROWTH_RATE, GearItem, isEnhanceableStat, isGearItem, ItemId } from '../../constants/item';
+import { calculateEnhanceCost, calculateEnhancedStat, ENHANCE_GROWTH_RATE, GearItem, isEnhanceableStat, isGearItem, ItemId } from '../../constants/item';
 import { getEnhanceSuccessRate } from '../../constants/item';
 import { StatType, getStatName, formatStatValue } from '../../constants/stats';
 import './index.scss';
@@ -86,14 +86,15 @@ export const EnhancePanel: React.FC<EnhancePanelProps> = ({ npc }) => {
                                     const statType = key as StatType;
                                     if (!value || !isEnhanceableStat(statType)) return null;
                                     const growthRate = ENHANCE_GROWTH_RATE[statType] || 0;
-                                    const growth = value * growthRate;
+                                    const enhancedValue = calculateEnhancedStat(statType, value, growthRate);
+                                    
                                     return (
                                         <div key={key} className="preview-stat">
                                             <span className="stat-name">{getStatName(statType)}</span>
                                             <div className="stat-change">
                                                 <span className="current">{formatStatValue(statType, value)}</span>
                                                 <span className="arrow">→</span>
-                                                <span className="after">{formatStatValue(statType, value + growth)}</span>
+                                                <span className="after">{formatStatValue(statType, enhancedValue)}</span>
                                             </div>
                                         </div>
                                     );

@@ -1,0 +1,79 @@
+.game-layout {
+  min-height: 100vh;
+  background: #f0f2f5;
+  display: flex;
+  flex-direction: column;
+
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    height: 64px;
+    background: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+
+    .header-left {
+      h1 {
+        color: #1890ff;
+        margin: 0;
+        font-size: 20px;
+      }
+    }
+  }
+
+  .game-main {
+    flex: 1;
+    display: flex;
+    padding: 24px;
+    gap: 24px;
+
+    .game-sider {
+      width: 200px;
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      height: fit-content;
+    }
+
+    .game-content {
+      flex: 1;
+      min-width: 0; // 防止内容溢出
+
+      .welcome-content {
+        text-align: center;
+        padding: 48px;
+        background: white;
+        border-radius: 8px;
+        margin-top: 24px;
+
+        h2 {
+          color: #1890ff;
+          margin-bottom: 16px;
+        }
+
+        p {
+          color: #666;
+        }
+      }
+
+      .battle-container {
+        background: white;
+        padding: 24px;
+        border-radius: 8px;
+        margin-top: 24px;
+
+        .back-button {
+          margin-bottom: 16px;
+        }
+      }
+    }
+  }
+}
+
+.status-button {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 100;
+} 
