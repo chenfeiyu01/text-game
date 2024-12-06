@@ -11,6 +11,8 @@ import MONSTERS from '../../data/character/monsters';
 import { Scene } from '../../constants/scenes';
 import { QuestSystem } from '../../class/quest-system';
 
+import './index.scss';
+
 
 interface BattleSceneProps {
     sceneConfig: Scene;
@@ -69,7 +71,7 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
         );
 
         const result = await battle.startBattle();
-        
+
         if (result === BattleResult.VICTORY) {
             if (isBossBattle) {
                 // Boss战胜利
@@ -100,26 +102,14 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
         return `继续战斗 (剩余${sceneConfig.battles.length - currentEnemyIndex}个敌人, 下一个: ${sceneConfig.battles[currentEnemyIndex].monster.name})`;
     };
 
-    const handleBattleEnd = (result: BattleResult) => {
-        if (result.victory) {
-            // ... 其他战斗结算逻辑
-            
-            // 更新任务进度
-            if (result.monster) {
-                QuestSystem.getInstance().onMonsterKill(result.monster.id);
-            }
-        }
-    };
 
-    const handleBossVictory = () => {
-        // ... 其他BOSS战胜利逻辑
-        
-        // 更新副本通关进度
-        QuestSystem.getInstance().onSceneComplete(sceneConfig.id);
-    };
 
     return (
         <div className="battle-container">
+            <Button className="back-button" onClick={onBattleEnd}>
+                返回城镇
+            </Button>
+
             <div className="scene-info">
                 <h2>{sceneConfig.name}</h2>
                 <p>当前进度: {isBossBattle ? 'Boss战' : `${currentEnemyIndex + 1}/${sceneConfig.battles.length + 1}`}</p>
@@ -139,18 +129,22 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
                             </div>
                         </div>
                     )}
-                    <Button type="primary" onClick={onBattleEnd}>
+                    <Button type="primary" size="large" onClick={onBattleEnd}>
                         返回
                     </Button>
                 </div>
             ) : (
                 <>
-                    <Button onClick={() => startBattle(enemy!)}>
-                        {getBattleButtonText()}
-                    </Button>
+                    <div className="battle-controls">
+                        <Button type="primary" size="large" onClick={() => startBattle(enemy!)}>
+                            {getBattleButtonText()}
+                        </Button>
+                    </div>
 
                     {player && enemy && (
-                        <BattleStatus player={player} enemy={enemy} />
+                        <div className="battle-status">
+                            <BattleStatus player={player} enemy={enemy} />
+                        </div>
                     )}
                 </>
             )}

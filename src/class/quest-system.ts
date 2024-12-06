@@ -94,47 +94,53 @@ export class QuestSystem {
 
             const quest = QUESTS.find(q => q.id === questId);
             if (!quest) return;
+
             // 更新匹配的目标进度
             quest.objectives.forEach((objective, index) => {
                 if (objective.type === type && objective.target === target) {
-                    objective.current = Math.min(
-                        objective.current + amount,
+                    const currentProgress = progress.objectives[index];
+                    currentProgress.current = Math.min(
+                        currentProgress.current + amount,
                         objective.required
                     );
                 }
             });
 
             // 检查是否所有目标都完成了
-            const allCompleted = progress.objectives.every(
-                (obj, idx) => obj.current >= quest.objectives[idx].required
+            const allCompleted = quest.objectives.every((objective, index) => 
+                progress.objectives[index].current >= objective.required
             );
 
             if (allCompleted) {
-                progress.status = QuestStatus.COMPLETE;
+                // 只发送提示消息，不改变任务状态
                 GameSystem.getInstance().sendMessage(
                     MessageType.QUEST,
-                    `任务可以提交：${quest.title}`
+                    `任务目标已完成：${quest.title}，请返回提交任务`
                 );
             }
         });
     }
 
-    private checkQuestComplete(questId: string): boolean {
+    // 新增：检查任务是否可以提交
+    public canCompleteQuest(questId: string): boolean {
         const quest = QUESTS.find(q => q.id === questId);
         const progress = this.questProgress.get(questId);
-        if (!quest || !progress) return false;
+        if (!quest || !progress || progress.status !== QuestStatus.IN_PROGRESS) return false;
 
-        return progress.objectives.every((obj, index) => 
-            obj.current >= quest.objectives[index].required
+        return quest.objectives.every((objective, index) => 
+            progress.objectives[index].current >= objective.required
         );
     }
 
+    // 修改：提交任务时检查是否满足条件
     public completeQuest(questId: string): void {
+        if (!this.canCompleteQuest(questId)) return;
+
         const quest = QUESTS.find(q => q.id === questId);
         if (!quest) return;
 
         const progress = this.questProgress.get(questId);
-        if (progress?.status !== QuestStatus.COMPLETE) return;
+        if (!progress) return;
 
         const player = Player.getInstance();
         const gameSystem = GameSystem.getInstance();
@@ -182,5 +188,9 @@ export class QuestSystem {
 
     public onMonsterKill(monsterId: string) {
         this.updateQuestProgress(QuestObjectiveType.KILL_MONSTER, monsterId);
+    }
+
+    public getQuestProgress(questId: string) {
+        return this.questProgress.get(questId);
     }
 } 

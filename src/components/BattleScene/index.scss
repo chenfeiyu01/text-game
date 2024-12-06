@@ -1,4 +1,4 @@
-.battle-container {
+.battle-wrapper {
     .battle-result {
         text-align: center;
         padding: 24px;
@@ -40,9 +40,8 @@
     .scene-info {
         margin-bottom: 24px;
         text-align: center;
-
-        h2 {
-            margin-bottom: 8px;
-        }
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 } 

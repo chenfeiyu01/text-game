@@ -45,13 +45,16 @@ export const QuestPanel: React.FC<QuestPanelProps> = ({ visible, onClose }) => {
     };
 
     const renderObjectiveProgress = (quest: QuestConfig) => {
+        const progress = questSystem.getQuestProgress(quest.id);
+        if (!progress) return null;
+
         return quest.objectives.map((obj, index) => (
             <div key={index} className="objective-item">
                 <div className="objective-desc">{obj.description}</div>
                 <Progress
-                    percent={Math.floor((obj.current / obj.required) * 100)}
+                    percent={Math.floor((progress.objectives[index].current / obj.required) * 100)}
                     size="small"
-                    format={() => `${obj.current}/${obj.required}`}
+                    format={() => `${progress.objectives[index].current}/${obj.required}`}
                 />
             </div>
         ));
@@ -110,17 +113,20 @@ export const QuestPanel: React.FC<QuestPanelProps> = ({ visible, onClose }) => {
                 });
                 break;
 
-            case QuestStatus.COMPLETE:
-                // 显示完成对话
-                setCurrentDialog({
-                    dialogs: quest.dialogs.complete,
-                    onComplete: () => {
-                        questSystem.completeQuest(quest.id);
-                        message.success(`完成任务：${quest.title}`);
-                        setSelectedQuest(null);
-                        setCurrentDialog(null);
-                    }
-                });
+            case QuestStatus.IN_PROGRESS:
+                // 检查是否可以提交
+                if (questSystem.canCompleteQuest(quest.id)) {
+                    // 显示完成对话
+                    setCurrentDialog({
+                        dialogs: quest.dialogs.complete,
+                        onComplete: () => {
+                            questSystem.completeQuest(quest.id);
+                            message.success(`完成任务：${quest.title}`);
+                            setSelectedQuest(null);
+                            setCurrentDialog(null);
+                        }
+                    });
+                }
                 break;
         }
     };
@@ -138,15 +144,15 @@ export const QuestPanel: React.FC<QuestPanelProps> = ({ visible, onClose }) => {
                     </Button>
                 );
             case QuestStatus.IN_PROGRESS:
-                return <Button disabled>进行中</Button>;
-            case QuestStatus.COMPLETE:
-                return (
+                return questSystem.canCompleteQuest(quest.id) ? (
                     <Button
                         type="primary"
                         onClick={() => handleQuestAction(quest)}
                     >
                         提交任务
                     </Button>
+                ) : (
+                    <Button disabled>进行中</Button>
                 );
             case QuestStatus.FINISHED:
                 return <Button disabled>已完成</Button>;

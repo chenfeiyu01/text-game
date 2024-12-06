@@ -184,7 +184,6 @@ export class BattleSystem {
      * @param winner 获胜者
      */
     private endBattle(winner: Character) {
-        console.log('走到了endBattle', winner)
         // 记录战斗结束消息到战斗日志
         this.battleLogs.push({
             round: this.currentRound,

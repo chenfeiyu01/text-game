@@ -154,10 +154,7 @@ function App() {
         <div className="game-content">
 
           {isInBattle ? (
-            <div className="battle-container">
-              <Button className="back-button" onClick={() => setIsInBattle(false)}>
-                返回主界面
-              </Button>
+            <div className="battle-wrapper">
               <BattleScene sceneConfig={SCENES[selectedScene]} onBattleEnd={() => setIsInBattle(false)} />
             </div>
           ) : (
