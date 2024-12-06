@@ -38,8 +38,7 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
         if (isFirstBattle) {
             // 首次战斗，初始化玩家和第一个敌人
             currentPlayer = Player.getInstance();
-            currentPlayer.equipSkill(SKILL_LIST[0]);
-            currentEnemy = sceneConfig.battles[0].monster;
+            currentEnemy = new Character(sceneConfig.battles[0].monster);
             battleReward = sceneConfig.battles[0].reward;
             setIsFirstBattle(false);
         } else {
@@ -47,12 +46,12 @@ const BattleScene: React.FC<BattleSceneProps> = ({ sceneConfig, onBattleEnd }) =
             currentPlayer = player!;
             if (currentEnemyIndex >= sceneConfig.battles.length) {
                 // Boss战
-                currentEnemy = sceneConfig.boss.monster;
+                currentEnemy = new Character(sceneConfig.boss.monster);
                 battleReward = sceneConfig.boss.reward;
                 setIsBossBattle(true);
             } else {
                 // 普通战斗
-                currentEnemy = sceneConfig.battles[currentEnemyIndex].monster;
+                currentEnemy = new Character(sceneConfig.battles[currentEnemyIndex].monster);
                 battleReward = sceneConfig.battles[currentEnemyIndex].reward;
             }
         }

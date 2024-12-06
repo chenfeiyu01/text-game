@@ -1,4 +1,5 @@
 import { Character } from "../class/character";
+import { Monster } from "./monsters";
 
 /**
  * 奖励类型接口
@@ -21,7 +22,7 @@ export interface Reward {
  */
 export interface BattleEncounter {
     /** 怪物角色 */
-    monster: Character;
+    monster: Monster;
     /** 战斗奖励 */
     reward: Reward;
 }

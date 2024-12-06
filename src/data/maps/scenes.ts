@@ -12,14 +12,14 @@ export const SCENES: Record<string, Scene> = {
         description: '终年被红色枫叶覆盖的森林，是冒险者们的入门试炼之地。这里的怪物相对温和，适合新手历练。',
         battles: [
             {
-                monster: new Character(MONSTERS[Monsters.CORRUPTED_RABBIT]),
+                monster: MONSTERS[Monsters.CORRUPTED_RABBIT],
                 reward: {
                     exp: 30,
                     gold: 10
                 }
             },
             {
-                monster: new Character(MONSTERS[Monsters.CORRUPTED_VINE]),
+                monster: MONSTERS[Monsters.CORRUPTED_VINE],
                 reward: {
                     exp: 40,
                     gold: 15
@@ -27,7 +27,7 @@ export const SCENES: Record<string, Scene> = {
             }
         ],
         boss: {
-            monster: new Character(MONSTERS[Monsters.MUSHROOM_WARRIOR]),
+            monster: MONSTERS[Monsters.MUSHROOM_WARRIOR],
             reward: {
                 exp: 100,
                 gold: 50
@@ -43,14 +43,14 @@ export const SCENES: Record<string, Scene> = {
         description: '被黑色藤蔓覆盖的幽深峡谷，这里的植物似乎受到了某种黑暗力量的侵蚀。',
         battles: [
             {
-                monster: new Character(MONSTERS[Monsters.SHADOW_WOLF]),
+                monster: MONSTERS[Monsters.SHADOW_WOLF],
                 reward: {
                     exp: 60,
                     gold: 20
                 }
             },
             {
-                monster: new Character(MONSTERS[Monsters.CORRUPTED_VINE]),
+                monster: MONSTERS[Monsters.CORRUPTED_VINE],
                 reward: {
                     exp: 70,
                     gold: 25
@@ -58,7 +58,7 @@ export const SCENES: Record<string, Scene> = {
             }
         ],
         boss: {
-            monster: new Character(MONSTERS[Monsters.ALPHA_SHADOW_WOLF]),
+            monster: MONSTERS[Monsters.ALPHA_SHADOW_WOLF],
             reward: {
                 exp: 200,
                 gold: 100
@@ -74,14 +74,14 @@ export const SCENES: Record<string, Scene> = {
         description: '弥漫着毒雾的沼泽地带，潜伏着各种危险的生物。沼泽深处传来令人不安的声响。',
         battles: [
             {
-                monster: new Character(MONSTERS[Monsters.POISON_TOAD]),
+                monster: MONSTERS[Monsters.POISON_TOAD],
                 reward: {
                     exp: 100,
                     gold: 35
                 }
             },
             {
-                monster: new Character(MONSTERS[Monsters.SHADOW_CROCODILE]),
+                monster: MONSTERS[Monsters.SHADOW_CROCODILE],
                 reward: {
                     exp: 120,
                     gold: 45
@@ -89,7 +89,7 @@ export const SCENES: Record<string, Scene> = {
             }
         ],
         boss: {
-            monster: new Character(MONSTERS[Monsters.SWAMP_HORROR]),
+            monster: MONSTERS[Monsters.SWAMP_HORROR],
             reward: {
                 exp: 350,
                 gold: 200
@@ -105,14 +105,14 @@ export const SCENES: Record<string, Scene> = {
         description: '传说中精灵族居住过的远古遗迹，巨大的古树上盘踞着强大的生物，遗迹中徘徊着堕落的守护者。',
         battles: [
             {
-                monster: new Character(MONSTERS[Monsters.ANCIENT_TREANT]),
+                monster: MONSTERS[Monsters.ANCIENT_TREANT],
                 reward: {
                     exp: 150,
                     gold: 60
                 }
             },
             {
-                monster: new Character(MONSTERS[Monsters.SHADOW_PRIEST]),
+                monster: MONSTERS[Monsters.SHADOW_PRIEST],
                 reward: {
                     exp: 180,
                     gold: 80
@@ -120,7 +120,7 @@ export const SCENES: Record<string, Scene> = {
             }
         ],
         boss: {
-            monster: new Character(MONSTERS[Monsters.CORRUPTED_ARCHDRUID]),
+            monster: MONSTERS[Monsters.CORRUPTED_ARCHDRUID],
             reward: {
                 exp: 500,
                 gold: 300
