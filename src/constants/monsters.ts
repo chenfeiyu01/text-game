@@ -2,6 +2,10 @@ import { Character, CharacterConfig } from "../class/character";
 
 /** 怪物类型 */
 export enum Monsters {
+    /** 特殊怪物 */
+    /** 训练木桩 */
+    TRAINING_DUMMY = 'TRAINING_DUMMY',
+
     /** 异变兔 */
     CORRUPTED_RABBIT = 'CORRUPTED_RABBIT',
     /** 暗影狼 */

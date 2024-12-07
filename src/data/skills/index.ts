@@ -1,18 +1,26 @@
-import { Skill } from "../../constants/skill-list";
+import { Skill, SkillEffectType } from "../../constants/skill-list";
 import { StatType } from "../../constants/stats";
 
 /** 基础技能 */
 const BASIC_SKILLS: Skill[] = [
     {
-        id: 'fireball',
-        name: '火球术',
+        id: 'test-skill-1',
+        name: '测试用技能',
         damage: 50,
         manaCost: 30,
         chargeCost: 100,
-        description: '发射一个火球，造成范围伤害。熟练掌握的火球术会产生额外的灼烧效果。',
+        description: '测试用技能',
         requiredLevel: 1,
         cost: 0,
-        damageType: 'magic'
+        damageType: 'magic',
+        effects: [
+            {
+                type: SkillEffectType.BUFF,
+                stat: StatType.ATTACK,
+                value: 300,
+                duration: 2
+            }
+        ]
     }
 ];
 
@@ -30,7 +38,7 @@ const ADVANCED_SKILLS: Skill[] = [
         damageType: 'magic',
         effects: [
             {
-                type: 'stun',
+                type: SkillEffectType.STUN,
                 chance: 0.3,
                 duration: 1
             }
@@ -64,7 +72,7 @@ const ELITE_SKILLS: Skill[] = [
         damageType: 'magic',
         effects: [
             {
-                type: 'buff',
+                type: SkillEffectType.BUFF,
                 stat: StatType.ATTACK,
                 value: 0.2,
                 duration: 3
@@ -83,7 +91,7 @@ const ELITE_SKILLS: Skill[] = [
         damageType: 'physical',
         effects: [
             {
-                type: 'guaranteed_crit',
+                type: SkillEffectType.GUARANTEED_CRIT,
                 defenseReduction: 0.3
             }
         ]
@@ -104,7 +112,7 @@ const ULTIMATE_SKILLS: Skill[] = [
         damageType: 'magic',
         effects: [
             {
-                type: 'heal',
+                type: SkillEffectType.HEAL,
                 value: 0.2, // 基于最大生命值的20%
             }
         ]
@@ -122,7 +130,7 @@ const ULTIMATE_SKILLS: Skill[] = [
         hitCount: 8,
         effects: [
             {
-                type: 'debuff',
+                type: SkillEffectType.DEBUFF,
                 stat: StatType.DEFENSE,
                 value: -0.3,
                 duration: 2

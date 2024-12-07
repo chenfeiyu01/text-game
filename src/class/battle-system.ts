@@ -117,6 +117,9 @@ export class BattleSystem {
             // 普通攻击
             this.handleAttack(this.player, this.enemy);
         }
+
+        // 回合结束时更新状态
+        this.player.onTurnEnd();
     }
 
     /**
@@ -125,6 +128,9 @@ export class BattleSystem {
      */
     private async performEnemyTurn() {
         this.handleAttack(this.enemy, this.player);
+
+        // 回合结束时更新状态
+        this.enemy.onTurnEnd();
     }
 
     /**

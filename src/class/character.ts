@@ -5,7 +5,7 @@ import { Monsters } from "../constants/monsters";
 import { Skill } from "../constants/skill-list";
 import { GameSystem } from "./game-system";
 import { Inventory } from './inventory';
-import { StatType } from '../constants/stats';
+import { STAT_CONFIG, StatType } from '../constants/stats';
 
 // 在文件顶部添加导出接口
 export interface CharacterConfig {
@@ -37,7 +37,7 @@ export interface CharacterConfig {
  * 
  * @description
  * 主要功能:
- * - 管理角色基础属性(生命值、魔法值、攻击力等)
+ * - 管理角色基础属性(��命值、魔法值、攻击力等)
  * - 处理战斗相关逻辑(伤害计算、技能使用等)
  * - 管理装备系统
  * - 处理等级和经验值系统
@@ -82,7 +82,7 @@ export class Character {
 
     /** 角色属性 */
     public stats: Partial<Record<StatType, number>> = {};
-    
+
     /** 是否正在使用技能 */
     public isUsingSkill: boolean = false;
 
@@ -188,7 +188,7 @@ export class Character {
     /**
      * 获取指定槽位的装备
      * @param slot 装备槽位
-     * @returns 装备物品，如果槽位为空则返回 undefined
+     * @returns ���备物品，如果槽位为空则返回 undefined
      */
     getEquippedItem(slot: GearSlot): GearItem | undefined {
         return this._equippedItems[slot];
@@ -327,7 +327,7 @@ export class Character {
      * @param amount 基础充能量（固定为5%）
      */
     addCharge(amount: number) {
-        // 固定充能量5%，受充能效率影响，上限100%
+        // 固定���能量5%，受充能效率影响，上限100%
         this._charge = Math.min(100, this._charge + 5 * this._chargeRate);
         this.notifyStateChange();
     }
@@ -337,34 +337,22 @@ export class Character {
      * 检查技能是否可用并执行技能效果
      * @returns 技能是否使用成功
      */
-    useSkill(): boolean {
-        if (!this._equippedSkill) {
-            console.log('未装备技能！');
-            return false;
-        }
-
-        if (this._charge < this._equippedSkill.chargeCost) {
-            console.log('充能不足！');
-            return false;
-        }
-
-        if (this._mp < this._equippedSkill.manaCost) {
-            console.log('魔法值不足！');
-            return false;
-        }
-
-        // 使用技能
-        this._mp -= this._equippedSkill.manaCost;
-        this._charge -= this._equippedSkill.chargeCost;
+    useSkill() {
+        if (!this._equippedSkill) return;
 
         // 执行技能效果
-        if (this._equippedSkill.effect) {
-            this._equippedSkill.effect(this);
+        if (this._equippedSkill.effects) {
+            this._equippedSkill.effects.forEach(effect => {
+                if (effect.type === 'heal') {
+                    this.hp = Math.min(this.maxHp, this.hp + (this.maxHp * (effect.value || 0)));
+                }
+                // ... 处理其他效果类型
+            });
         }
 
-        console.log(`${this.name} 使用了 ${this._equippedSkill.name}！`);
-        this.notifyStateChange();
-        return true;
+        this.isUsingSkill = true;
+        this._charge = 0;
+        this._mp -= this._equippedSkill.manaCost;
     }
 
     /**
@@ -486,7 +474,7 @@ export class Character {
         this._critRate = state.critRate;
         this._critDamage = state.critDamage;
         this._chargeRate = state.chargeRate;
-        
+
         this.notifyStateChange();
     }
 
@@ -559,11 +547,11 @@ export class Character {
 
         // 从背包中移除新装备
         this._inventory.removeItem(item.id);
-        
+
         // 装备新物品
         this._equippedItems[item.slot] = item;
         this.updateAttributes();
-        
+
         console.log(`成功装备 ${item.name}`);
         this.notifyStateChange();
         return true;
@@ -631,7 +619,7 @@ export class Character {
                         `${this.name} 恢复了 ${effect.value} 点生命值`
                     );
                     break;
-                    
+
                 case ConsumableEffectType.HEAL_MP:
                     this.mp += effect.value;
                     GameSystem.getInstance().sendMessage(
@@ -662,10 +650,10 @@ export class Character {
                     break;
 
                 case ConsumableEffectType.BUFF_ATTACK:
-                    const attackBuff = effect.isPercentage 
-                        ? this.attack * effect.value 
+                    const attackBuff = effect.isPercentage
+                        ? this.attack * effect.value
                         : effect.value;
-                        
+
                     if (effect.duration) {
                         // 添加临时效果
                         this.addTemporaryEffect(
@@ -680,7 +668,7 @@ export class Character {
                         );
                     }
                     break;
-                    
+
                 // ... 处理其他效果类型
             }
         });
@@ -690,7 +678,7 @@ export class Character {
 
     /** 修改基础属性 */
     public setBaseStat(statType: StatType, value: number): void {
-        switch(statType) {
+        switch (statType) {
             case StatType.ATTACK:
                 this.baseAttack = value;
                 break;
@@ -709,7 +697,7 @@ export class Character {
     }
 
     public getBaseStat(statType: StatType): number {
-        switch(statType) {
+        switch (statType) {
             case StatType.ATTACK:
                 return this.baseAttack;
             case StatType.DEFENSE:
@@ -723,10 +711,6 @@ export class Character {
         }
     }
 
-    public addBuff(stat: StatType, value: number, duration: number) {
-        this.buffs.push({ stat, value, duration });
-        this.updateStats();
-    }
 
     public heal(amount: number) {
         this.hp = Math.min(this.maxHp, this.hp + amount);
@@ -784,5 +768,46 @@ export class Character {
                     return 0;
             }
         })();
+    }
+
+    /** 更新buff状态 */
+    public updateBuffs(): void {
+        // 过滤掉已经过期的buff
+        this.buffs = this.buffs.filter(buff => {
+            buff.duration--;
+            if (buff.duration <= 0) {
+                // 移除buff效果
+                this.stats[buff.stat] = (this.stats[buff.stat] || 0) - buff.value;
+                GameSystem.getInstance().sendMessage(
+                    MessageType.COMBAT,
+                    `${this.name}的${STAT_CONFIG[buff.stat].name}增益效果已结束`
+                );
+                return false;
+            }
+            return true;
+        });
+
+        this.updateStats();
+    }
+
+    /** 添加buff */
+    public addBuff(stat: StatType, value: number, duration: number) {
+        // 如果已经有同类型的buff，先移除旧的
+        this.buffs = this.buffs.filter(buff => buff.stat !== stat);
+
+        this.buffs.push({ stat, value, duration });
+
+        GameSystem.getInstance().sendMessage(
+            MessageType.COMBAT,
+            `${this.name}的${STAT_CONFIG[stat].name}提升了${value * 100}%，持续${duration}回合`
+        );
+
+        this.updateStats();
+    }
+
+    /** 在每回合结束时调用 */
+    public onTurnEnd(): void {
+        this.updateBuffs();
+        this.updateEffects();
     }
 }

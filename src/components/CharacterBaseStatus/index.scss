@@ -273,3 +273,31 @@
         font-weight: 500;
     }
 }
+
+.skill-slot {
+    .item-info {
+        .skill-description {
+            color: #666;
+            font-size: 12px;
+            margin: 8px 0;
+            font-style: italic;
+        }
+
+        .item-stats {
+            .stat-item {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 4px;
+                font-size: 12px;
+            }
+
+            .effect-item {
+                color: #1890ff;
+                font-size: 12px;
+                margin-top: 8px;
+                padding-top: 8px;
+                border-top: 1px dashed #e8e8e8;
+            }
+        }
+    }
+}

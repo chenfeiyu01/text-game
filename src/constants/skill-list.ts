@@ -3,6 +3,24 @@ import { StatType } from "./stats";
 /** 伤害类型 */
 export type DamageType = 'physical' | 'magic';
 
+/** 技能类型 */
+export enum SkillEffectType {
+    /** 眩晕技能 */
+    STUN = 'stun',
+    
+    /** 增益技能 */
+    BUFF = 'buff',
+    
+    /** 减益技能 */
+    DEBUFF = 'debuff',
+    
+    /** 治疗技能 */
+    HEAL = 'heal',
+    
+    /** 必定暴击技能 */
+    GUARANTEED_CRIT = 'guaranteed_crit'
+}
+
 /**
  * 技能效果接口
  * @interface
@@ -14,11 +32,17 @@ export type DamageType = 'physical' | 'magic';
  * @property {number} [defenseReduction] - 防御力降低百分比
  */
 export interface SkillEffect {
-    type: 'stun' | 'buff' | 'debuff' | 'heal' | 'guaranteed_crit';
+    /** 效果类型 */
+    type: SkillEffectType;
+    /** 影响的属性类型 */
     stat?: StatType;
+    /** 效果数值 */
     value?: number;
+    /** 持续时间(回合) */
     duration?: number;
+    /** 触发概率 */
     chance?: number;
+    /** 防御力降低百分比 */
     defenseReduction?: number;
 }
 

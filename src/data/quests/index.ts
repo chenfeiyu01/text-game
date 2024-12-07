@@ -152,7 +152,7 @@ export const QUESTS: QuestConfig[] = [
             complete: [
                 {
                     npcId: NpcFunction.ENHANCE,
-                    text: '很好！记住，装备��品质对冒险至关重要。'
+                    text: '很好！记住，装备的品质对冒险至关重要。'
                 }
             ]
         },
@@ -195,7 +195,7 @@ export const QUESTS: QuestConfig[] = [
             progress: [
                 {
                     npcId: NpcFunction.SKILL,
-                    text: '如果无法���败蘑菇战士，可以先提升装备和技能等级。'
+                    text: '如果无法击败蘑菇战士，可以先提升装备和技能等级。'
                 }
             ],
             complete: [
