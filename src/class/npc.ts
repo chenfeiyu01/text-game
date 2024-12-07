@@ -1,7 +1,8 @@
 import { NpcConfig, NpcFunction, NpcDialog } from '../constants/npc';
 import { GearItem, isGearItem, Item, ItemId } from '../constants/item';
 import { Player } from './player';
-import { Skill, SKILL_LIST } from '../constants/skill-list';
+import { Skill } from '../constants/skill-list';
+import { SKILL_LIST } from '../data/skills';
 import { calculateEnhanceCost, enhanceGear } from '../constants/item';
 import { EnhanceNpcConfig, NPC_CONFIGS, ShopNpcConfig, SkillTrainerNpcConfig } from '../constants/npc-config';
 

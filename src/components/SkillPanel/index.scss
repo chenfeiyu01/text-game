@@ -84,9 +84,26 @@
         }
     }
 
-    .learn-skill-button {
+    .learn-skill-button,
+    .equip-skill-button {
         position: absolute;
         right: 16px;
         bottom: 16px;
+    }
+
+    .equipped-tag {
+        margin-left: 8px;
+        color: #52c41a;
+        font-size: 12px;
+    }
+
+    .equip-skill-button {
+        &[disabled] {
+            background-color: #52c41a;
+            border-color: #52c41a;
+            color: white;
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
     }
 }

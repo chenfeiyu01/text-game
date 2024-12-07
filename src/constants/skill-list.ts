@@ -1,58 +1,63 @@
-import { Character } from "../class/character";
+import { StatType } from "./stats";
+
+/** 伤害类型 */
+export type DamageType = 'physical' | 'magic';
+
+/**
+ * 技能效果接口
+ * @interface
+ * @property {('stun'|'buff'|'debuff'|'heal'|'guaranteed_crit')} type - 效果类型
+ * @property {StatType} [stat] - 影响的属性类型
+ * @property {number} [value] - 效果数值
+ * @property {number} [duration] - 持续时间(回合)
+ * @property {number} [chance] - 触发概率
+ * @property {number} [defenseReduction] - 防御力降低百分比
+ */
+export interface SkillEffect {
+    type: 'stun' | 'buff' | 'debuff' | 'heal' | 'guaranteed_crit';
+    stat?: StatType;
+    value?: number;
+    duration?: number;
+    chance?: number;
+    defenseReduction?: number;
+}
 
 /**
  * 技能接口
  * @interface
- * @description 定义了游戏中技能的基本属性
+ * @property {string} id - 技能唯一标识
+ * @property {string} name - 技能名称
+ * @property {number} damage - 技能伤害值
+ * @property {number} manaCost - 魔法消耗
+ * @property {number} chargeCost - 充能消耗百分比
+ * @property {string} description - 技能描述
+ * @property {number} requiredLevel - 需求等级
+ * @property {number} cost - 学习花费金币
+ * @property {DamageType} damageType - 伤害类型
+ * @property {number} [hitCount] - 攻击次数
+ * @property {SkillEffect[]} [effects] - 技能效果列表
  */
 export interface Skill {
-    /** 技能唯一标识符 */
+    /** 技能唯一标识 */
     id: string;
     /** 技能名称 */
     name: string;
     /** 技能伤害值 */
     damage: number;
-    /** 技能魔法消耗 */
+    /** 魔法消耗 */
     manaCost: number;
-    /** 技能充能消耗 */
+    /** 充能消耗百分比 */
     chargeCost: number;
     /** 技能描述 */
     description: string;
-    /** 技能效果函数 */
-    effect?: (character: Character) => void;
-    /** 学习需求等级 */
+    /** 需求等级 */
     requiredLevel: number;
-    /** 学习费用 */
+    /** 学习花费金币 */
     cost: number;
+    /** 伤害类型 */
+    damageType: DamageType;
+    /** 攻击次数 */
+    hitCount?: number;
+    /** 技能效果列表 */
+    effects?: SkillEffect[];
 }
-
-/**
- * 技能列表
- * @constant
- * @description 游戏中所有可用的技能列表
- */
-export const SKILL_LIST: Skill[] = [
-    {
-        id: 'fireball',
-        name: '火球术',
-        damage: 50,
-        manaCost: 30,
-        chargeCost: 100,
-        description: '发射一个火球，造成范围伤害',
-        requiredLevel: 1,
-        cost: 0
-    },
-    {
-        id: 'heal',
-        name: '治疗术',
-        damage: 0,
-        manaCost: 40,
-        chargeCost: 100,
-        description: '恢复生命值',
-        effect: (character: Character) => {
-            character.hp = Math.min(character.maxHp, character.hp + 50);
-        },
-        requiredLevel: 2,
-        cost: 10
-    },
-];

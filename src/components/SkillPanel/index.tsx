@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { SkillTrainerNpc } from '../../class/npc';
 import { Player } from '../../class/player';
-import { Button, List, message, Tooltip } from 'antd';
+import { Button, List, message, Tooltip, Space } from 'antd';
+import { ToolOutlined } from '@ant-design/icons';
 import './index.scss';
 import { Skill } from '../../constants/skill-list';
 
@@ -59,6 +60,14 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
         return null;
     };
 
+    const handleEquipSkill = (skill: Skill, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const player = Player.getInstance();
+        player.equipSkill(skill);
+        message.success(`成功装备技能：${skill.name}`);
+        setUpdateTrigger(prev => prev + 1);
+    };
+
     return (
         <div className="skill-panel">
             <List
@@ -66,14 +75,19 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
                 dataSource={availableSkills}
                 renderItem={skill => (
                     <List.Item
-                        className={`skill-item ${selectedSkillId === skill.id ? 'selected' : ''} ${player.skills.has(skill.id) ? 'learned' : ''
-                            }`}
+                        className={`skill-item ${selectedSkillId === skill.id ? 'selected' : ''} 
+                                  ${player.skills.has(skill.id) ? 'learned' : ''}`}
                         onClick={() => setSelectedSkillId(skill.id)}
                     >
                         <List.Item.Meta
                             title={
                                 <div className="skill-header">
-                                    <span className="skill-name">{skill.name}</span>
+                                    <span className="skill-name">
+                                        {skill.name}
+                                        {player.equippedSkill?.id === skill.id && 
+                                            <span className="equipped-tag">（已装备）</span>
+                                        }
+                                    </span>
                                     <span className="skill-cost">{skill.cost} 金币</span>
                                 </div>
                             }
@@ -88,29 +102,41 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
                                 </div>
                             }
                         />
-                        {!player.skills.has(skill.id) && (
-                            <Tooltip
-                                title={getDisabledReason(skill)}
-                                placement="top"
-                                open={getDisabledReason(skill) ? undefined : false}
-                            >
+                        <Space>
+                            {player.skills.has(skill.id) ? (
                                 <Button
                                     type="primary"
-                                    className='learn-skill-button'
-                                    disabled={
-                                        player.skills.has(skill.id) ||
-                                        player.level < skill.requiredLevel ||
-                                        player.inventory.getGold() < skill.cost
-                                    }
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleLearnSkill(skill.id);
-                                    }}
+                                    icon={<ToolOutlined />}
+                                    className='equip-skill-button'
+                                    disabled={player.equippedSkill?.id === skill.id}
+                                    onClick={(e) => handleEquipSkill(skill, e)}
                                 >
-                                    学习
+                                    {player.equippedSkill?.id === skill.id ? '已装备' : '装备'}
                                 </Button>
-                            </Tooltip>
-                        )}
+                            ) : (
+                                <Tooltip
+                                    title={getDisabledReason(skill)}
+                                    placement="top"
+                                    open={getDisabledReason(skill) ? undefined : false}
+                                >
+                                    <Button
+                                        type="primary"
+                                        className='learn-skill-button'
+                                        disabled={
+                                            player.skills.has(skill.id) ||
+                                            player.level < skill.requiredLevel ||
+                                            player.inventory.getGold() < skill.cost
+                                        }
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleLearnSkill(skill.id);
+                                        }}
+                                    >
+                                        学习
+                                    </Button>
+                                </Tooltip>
+                            )}
+                        </Space>
                     </List.Item>
                 )}
             />
