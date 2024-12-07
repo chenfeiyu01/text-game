@@ -71,14 +71,14 @@ export const BATTLE_EVENTS = {
                             description: '符文爆炸，损失20%生命值'
                         }
                     },
-                    {
+                    /* {
                         weight: 20,
                         result: {
                             type: EventResultType.HIDDEN_BOSS,
                             value: 0,
                             description: '你惊醒了沉睡的远古守卫！'
                         }
-                    }
+                    } */
                 ]
             }
         ]

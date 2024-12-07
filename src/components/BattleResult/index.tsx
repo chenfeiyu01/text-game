@@ -26,7 +26,7 @@ const BattleResult: React.FC<BattleResultProps> = ({ result, onClose }) => {
                 </div>
             )}
             <Button type="primary" size="large" onClick={onClose}>
-                继续
+                {result.victory ? '继续' : '返回城镇'}
             </Button>
         </Card>
     );

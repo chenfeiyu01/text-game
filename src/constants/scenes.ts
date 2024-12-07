@@ -94,7 +94,7 @@ export enum EventResultType {
     HEAL = 'HEAL',           // 恢复生命
     DAMAGE = 'DAMAGE',       // 受到伤害
     GOLD = 'GOLD',          // 获得/失去金币
-    HIDDEN_BOSS = 'HIDDEN_BOSS', // 触发隐藏Boss
+    // HIDDEN_BOSS = 'HIDDEN_BOSS', // TODO: 触发隐藏Boss
     TREASURE = 'TREASURE',   // 发现宝藏
 }
 

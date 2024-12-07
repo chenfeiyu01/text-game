@@ -20,7 +20,6 @@ const GEAR_SLOT_NAMES: Record<GearSlot, string> = {
 } as const;
 
 const getCharacterStatValue = (character: Character, propertyName: string): number => {
-    console.log('propertyName', propertyName, character.getStat(propertyName as StatType));
     return character.getStat(propertyName as StatType);
 };
 

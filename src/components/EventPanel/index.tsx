@@ -46,17 +46,14 @@ export const EventPanel: React.FC<EventPanelProps> = ({ event, onComplete }) => 
                 player.inventory.addGold(result.value);
                 break;
 
-            case EventResultType.HIDDEN_BOSS:
-                // TODO: 处理隐藏Boss逻辑
-                break;
         }
 
         message.success(result.description);
         
         // 除了特殊事件（如隐藏Boss）外，所有事件选择后都应该继续
-        if (result.type !== EventResultType.HIDDEN_BOSS) {
+        // if (result.type !== EventResultType.HIDDEN_BOSS) {
             onComplete();
-        }
+        // }
     };
 
     return (
