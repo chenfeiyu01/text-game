@@ -33,7 +33,7 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
         // 获取所有进行中的任务
         const inProgressQuests = questSystem.getInProgressQuests();
         
-        // 找出所有匹配当前副本的任务
+        // 找出所��匹配当前副本的任务
         const matchedQuests = inProgressQuests.filter(quest => 
             // 检查任务目标中的副本
             quest.objectives.some(obj => 
@@ -106,12 +106,12 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
                                             <div className="rewards">
                                                 <Tooltip title="经验值范围">
                                                     <div>
-                                                        经验: {scene.battles[0].reward.exp} - {scene.boss.reward.exp}
+                                                        经验: {scene.baseRewards.exp} - {scene.baseRewards.exp * scene.rules?.minBattles}
                                                     </div>
                                                 </Tooltip>
                                                 <Tooltip title="金币范围">
                                                     <div>
-                                                        金币: {scene.battles[0].reward.gold} - {scene.boss.reward.gold}
+                                                        金币: {scene.baseRewards.gold} - {scene.baseRewards.gold * scene.rules?.minBattles}
                                                     </div>
                                                 </Tooltip>
                                             </div>

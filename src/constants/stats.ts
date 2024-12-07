@@ -34,46 +34,57 @@ export enum StatType {
 export const STAT_CONFIG = {
     [StatType.ATTACK]: {
         name: '攻击力',
+        description: '角色在无视防御时造成的伤害值',
         format: (value: number) => `${value}`,
     },
     [StatType.DEFENSE]: {
         name: '防御力',
+        description: '角色在受到伤害时减少的伤害值',
         format: (value: number) => `${value}`,
     },
     [StatType.MAX_HP]: {
         name: '最大生命值',
+        description: '角色的生命上限',
         format: (value: number) => `${value}`,
     },
     [StatType.MAX_MP]: {
         name: '最大魔法值',
+        description: '角色的魔法上限',
         format: (value: number) => `${value}`,
     },
     [StatType.CRIT_RATE]: {
         name: '暴击率',
+        description: '角色产生暴击的概率，上限为 100%',
         format: (value: number) => `${(value * 100).toFixed(1)}%`,
     },
     [StatType.CRIT_DAMAGE]: {
         name: '暴击伤害',
+        description: '暴击时造成的伤害倍率',
         format: (value: number) => `${(value * 100).toFixed(1)}%`,
     },
     [StatType.CHARGE_RATE]: {
         name: '充能效率',
+        description: '角色技能充能的效率，默认为5%',
         format: (value: number) => `${(value * 100).toFixed(1)}%`,
     },
     [StatType.BONUS_DAMAGE]: {
         name: '追加伤害',
+        description: '角色在造成伤害时，按比例提升的伤害量',
         format: (value: number) => `${(value * 100).toFixed(1)}%`,
     },
     [StatType.SPELL_AFFINITY]: {
         name: '法术亲和',
+        description: '角色在施放技能时，按比例提升伤害量',
         format: (value: number) => `${(value * 100).toFixed(1)}%`,
     },
     [StatType.DAMAGE_REDUCTION]: {
         name: '最终减伤',
+        description: '角色在受到伤害时，按比例减少的伤害量',
         format: (value: number) => `${(value * 100).toFixed(1)}%`,
     },
     [StatType.MAGIC_RESISTANCE]: {
         name: '魔法抗性',
+        description: '角色在受到来自技能的伤害时，按比例减少的伤害量',
         format: (value: number) => `${(value * 100).toFixed(1)}%`,
     },
 } as const;

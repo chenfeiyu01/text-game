@@ -1,7 +1,7 @@
 /**
  * 导入所需的类型和类
  */
-import { BattleLog, BattleResult, BattleReward } from "../constants/battle";
+import { BattleLog, EBattleResult, BattleReward } from "../constants/battle";
 import { MessageType } from "../constants/game-system";
 import { GameSystem } from "./game-system";
 import { Character } from "./character";
@@ -60,7 +60,7 @@ export class BattleSystem {
      * 开始战斗
      * @returns 战斗结果
      */
-    public async startBattle(): Promise<BattleResult> {
+    public async startBattle(): Promise<EBattleResult> {
         this.gameSystem.sendMessage(
             MessageType.COMBAT,
             `战斗开始：${this.player.name} VS ${this.enemy.name}`
@@ -79,8 +79,8 @@ export class BattleSystem {
             // 检查战斗结果
             const result = this.checkBattleResult();
             console.log(`战斗结果：${result}`);
-            if (result !== BattleResult.ONGOING) {
-                this.endBattle(result === BattleResult.VICTORY ? this.player : this.enemy);
+            if (result !== EBattleResult.ONGOING) {
+                this.endBattle(result === EBattleResult.VICTORY ? this.player : this.enemy);
                 return result;
             }
 
@@ -173,10 +173,10 @@ export class BattleSystem {
      * 检查战斗结果
      * @returns 战斗结果状态
      */
-    private checkBattleResult(): BattleResult {
-        if (this.enemy.hp <= 0) return BattleResult.VICTORY;
-        if (this.player.hp <= 0) return BattleResult.DEFEAT;
-        return BattleResult.ONGOING;
+    private checkBattleResult(): EBattleResult {
+        if (this.enemy.hp <= 0) return EBattleResult.VICTORY;
+        if (this.player.hp <= 0) return EBattleResult.DEFEAT;
+        return EBattleResult.ONGOING;
     }
 
     /**

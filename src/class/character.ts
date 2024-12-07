@@ -37,7 +37,7 @@ export interface CharacterConfig {
  * 
  * @description
  * 主要功能:
- * - 管理角色基础属性(��命值、魔法值、攻击力等)
+ * - 管理角色基础属性(生命值、魔法值、攻击力等)
  * - 处理战斗相关逻辑(伤害计算、技能使用等)
  * - 管理装备系统
  * - 处理等级和经验值系统
@@ -86,6 +86,8 @@ export class Character {
     /** 是否正在使用技能 */
     public isUsingSkill: boolean = false;
 
+    public buffs: { stat: StatType; value: number; duration: number; }[] = [];
+
     /**
      * 构造函数
      * @param config 角色配置对象
@@ -133,6 +135,21 @@ export class Character {
         this._defense = this.baseDefense;
         this._critRate = this.baseCritRate;
         this._critDamage = this.baseCritDamage;
+
+        // 初始化基础属性到 stats
+        this.stats = {
+            [StatType.ATTACK]: this.baseAttack,
+            [StatType.DEFENSE]: this.baseDefense,
+            [StatType.CRIT_RATE]: this.baseCritRate,
+            [StatType.CRIT_DAMAGE]: this.baseCritDamage,
+            [StatType.CHARGE_RATE]: this._chargeRate,
+            [StatType.MAX_HP]: this._maxHp,
+            [StatType.MAX_MP]: this._maxMp,
+            [StatType.BONUS_DAMAGE]: 0,
+            [StatType.SPELL_AFFINITY]: 0,
+            [StatType.DAMAGE_REDUCTION]: 0,
+            [StatType.MAGIC_RESISTANCE]: 0
+        };
     }
 
     public readonly name: string;         // 角色名称
@@ -153,19 +170,11 @@ export class Character {
     get maxMp(): number { return this._maxMp; }
     get exp(): number { return this._exp; }
     get level(): number { return this._level; }
-    get attack(): number {
-        let baseAttack = this._attack;
-        this._temporaryEffects.forEach(effect => {
-            if (effect.attribute === StatType.ATTACK) {
-                baseAttack += effect.value;
-            }
-        });
-        return baseAttack;
-    }
-    get defense(): number { return this._defense; }
-    get critRate(): number { return this._critRate; }
-    get critDamage(): number { return this._critDamage; }
-    get chargeRate(): number { return this._chargeRate; }
+    get attack(): number { return this.getStat(StatType.ATTACK); }
+    get defense(): number { return this.getStat(StatType.DEFENSE); }
+    get critRate(): number { return this.getStat(StatType.CRIT_RATE); }
+    get critDamage(): number { return this.getStat(StatType.CRIT_DAMAGE); }
+    get chargeRate(): number { return this.getStat(StatType.CHARGE_RATE); }
     get charge(): number { return this._charge; }
     get equippedSkill(): Skill | undefined { return this._equippedSkill; }
     get expNeeded(): number { return this.calculateExpNeeded(); }
@@ -515,7 +524,7 @@ export class Character {
     }
 
     /**
-     * 在每回合结束时更���效果
+     * 在每回合结束时更效果
      */
     public updateEffects(): void {
         for (const [id, effect] of this._temporaryEffects.entries()) {
@@ -601,7 +610,7 @@ export class Character {
         }
     }
 
-    /** 通知状态变化 */
+    /** 通知态变化 */
     protected updateState(): void {
         this.notifyStateChange();
     }
@@ -712,5 +721,68 @@ export class Character {
             default:
                 return 0;
         }
+    }
+
+    public addBuff(stat: StatType, value: number, duration: number) {
+        this.buffs.push({ stat, value, duration });
+        this.updateStats();
+    }
+
+    public heal(amount: number) {
+        this.hp = Math.min(this.maxHp, this.hp + amount);
+        this.notifyStateChange();
+    }
+
+    private updateStats() {
+        // 重置基础属性
+        this.stats[StatType.ATTACK] = this.baseAttack;
+        this.stats[StatType.DEFENSE] = this.baseDefense;
+        this.stats[StatType.CRIT_RATE] = this.baseCritRate;
+        this.stats[StatType.CRIT_DAMAGE] = this.baseCritDamage;
+        this.stats[StatType.CHARGE_RATE] = this._chargeRate;
+
+        // 应用装备加成
+        for (const item of Object.values(this._equippedItems)) {
+            if (item) {
+                Object.entries(item.stats).forEach(([stat, value]) => {
+                    this.stats[stat as StatType] = (this.stats[stat as StatType] || 0) + value;
+                });
+            }
+        }
+
+        // 应用buff效果
+        this.buffs.forEach(buff => {
+            if (buff.duration > 0) {
+                this.stats[buff.stat] = (this.stats[buff.stat] || 0) + buff.value;
+            }
+        });
+
+        this.notifyStateChange();
+    }
+
+    /**
+     * 通过属性类型获取属性值
+     */
+    public getStat(statType: StatType): number {
+        return this.stats[statType] || (() => {
+            switch (statType) {
+                case StatType.MAX_HP:
+                    return this._maxHp;
+                case StatType.MAX_MP:
+                    return this._maxMp;
+                case StatType.ATTACK:
+                    return this.baseAttack;
+                case StatType.DEFENSE:
+                    return this.baseDefense;
+                case StatType.CRIT_RATE:
+                    return this.baseCritRate;
+                case StatType.CRIT_DAMAGE:
+                    return this.baseCritDamage;
+                case StatType.CHARGE_RATE:
+                    return this._chargeRate;
+                default:
+                    return 0;
+            }
+        })();
     }
 }

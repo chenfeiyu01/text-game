@@ -1,7 +1,9 @@
+import { ItemId } from "./item";
+
 /**
  * 战斗系统相关常量和接口定义
  */
-export enum BattleResult {
+export enum EBattleResult {
     /** 战斗胜利 */
     VICTORY = 'VICTORY',
     /** 战斗失败 */ 
@@ -47,5 +49,5 @@ export interface BattleReward {
     /** 获得的金币数量 */
     gold?: number;
     /** 获得的物品ID列表 */
-    items?: string[];
+    items?: ItemId[];
 }

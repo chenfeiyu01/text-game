@@ -1,5 +1,7 @@
 import { Character } from "../class/character";
 import { Monster } from "./monsters";
+import { ItemId } from "./item";
+import { StatType } from "./stats";
 
 /**
  * 奖励类型接口
@@ -39,12 +41,32 @@ export interface Scene {
     name: string;
     /** 场景描述 */
     description: string;
-    /** 普通战斗列表 */
-    battles: BattleEncounter[];
-    /** Boss战斗 */
-    boss: BattleEncounter;
     /** 等级范围 */
     levelRange: { min: number, max: number };
+    /** 普通怪物池 */
+    monsterGroups: MonsterGroup[];
+    /** Boss池 */
+    bosses: Monster[];
+    /** 可能出现的事件 */
+    events: EventConfig[];
+    /** 基础奖励配置 */
+    baseRewards: {
+        exp: number;
+        gold: number;
+        items?: {
+            id: ItemId;
+            odds: number; // 权重
+        }[];
+    };
+    /** 特殊规则 */
+    rules: {
+        minBattles: number;    // 最少战斗次数
+        maxBattles: number;    // 最多战斗次数
+        minEvents: number;     // 最少事件次数
+        maxEvents: number;     // 最多事件次数
+        bossRequired: boolean; // 是否必须击败Boss
+        hiddenBosses?: Monster[]; // 隐藏Boss
+    };
 }
 
 export enum ESCENES {
@@ -62,4 +84,51 @@ export const SCENE_NAMES = {
     [ESCENES.DARKVINE_VALLEY]: '黑藤谷',
     [ESCENES.DARK_SWAMP]: '幽暗沼泽',
     [ESCENES.ANCIENT_RUINS]: '古树遗迹',
+}
+
+/** 事件选项结果类型 */
+export enum EventResultType {
+    BUFF = 'BUFF',           // 获得增益效果
+    DEBUFF = 'DEBUFF',       // 获得减益效果
+    ITEM = 'ITEM',           // 获得物品
+    HEAL = 'HEAL',           // 恢复生命
+    DAMAGE = 'DAMAGE',       // 受到伤害
+    GOLD = 'GOLD',          // 获得/失去金币
+    HIDDEN_BOSS = 'HIDDEN_BOSS', // 触发隐藏Boss
+    TREASURE = 'TREASURE',   // 发现宝藏
+}
+
+interface WeightedResult {
+    result: {
+        type: EventResultType;
+        value: number;
+        duration?: number;
+        stat?: StatType;
+        itemId?: ItemId;
+        description: string;
+    };
+    weight: number;  // 权重，用于计算概率
+}
+
+
+/** 事件选项 */
+export interface EventOption {
+    text: string;           // 选项文本
+    results: WeightedResult[]; // 选择后的结果
+}
+
+/** 事件配置 */
+export interface EventConfig {
+    id: string;
+    title: string;
+    description: string;
+    options: EventOption[];
+}
+
+/** 怪物组配置 */
+export interface MonsterGroup {
+    monsters: Monster[];    // 可能出现的怪物
+    minLevel: number;       // 最低等级
+    maxLevel: number;       // 最高等级
+    rewardMultiplier: number; // 奖励倍率
 }

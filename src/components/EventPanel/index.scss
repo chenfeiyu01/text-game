@@ -1,0 +1,26 @@
+.event-panel {
+    max-width: 600px;
+    margin: 0 auto;
+
+    .event-content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        .event-description {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .event-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+
+            .event-option {
+                height: 40px;
+                font-size: 14px;
+            }
+        }
+    }
+} 

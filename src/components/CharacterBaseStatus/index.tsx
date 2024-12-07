@@ -20,8 +20,8 @@ const GEAR_SLOT_NAMES: Record<GearSlot, string> = {
 } as const;
 
 const getCharacterStatValue = (character: Character, propertyName: string): number => {
-    const value = character[propertyName as keyof Character];
-    return typeof value === 'number' ? value : 0;
+    console.log('propertyName', propertyName, character.getStat(propertyName as StatType));
+    return character.getStat(propertyName as StatType);
 };
 
 const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) => {
@@ -59,16 +59,22 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
             StatType.DEFENSE,
             StatType.CRIT_RATE,
             StatType.CRIT_DAMAGE,
-            StatType.CHARGE_RATE
+            StatType.CHARGE_RATE,
+            StatType.BONUS_DAMAGE,
+            StatType.SPELL_AFFINITY,
+            StatType.DAMAGE_REDUCTION,
+            StatType.MAGIC_RESISTANCE,
         ];
 
         return statsToShow.map(statType => {
-            const propertyName = statType.toLowerCase();
             return (
-                <p key={statType}>
-                    <span>{STAT_CONFIG[statType].name}</span>
-                    <span>{formatStatValue(statType, getCharacterStatValue(character, propertyName))}</span>
-                </p>
+                <div className="stat-item" key={statType}>
+                    <div>
+                        <span className="stat-name">{STAT_CONFIG[statType].name}</span>
+                        （<span className="stat-description">{STAT_CONFIG[statType].description}</span>）
+                    </div>
+                    <span className="stat-value">{formatStatValue(statType, getCharacterStatValue(character, statType))}</span>
+                </div>
             );
         });
     };
