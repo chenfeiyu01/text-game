@@ -1,173 +1,123 @@
-import { Character } from './character';
-import { GameSystem } from './game-system';
-import { GameMessage, MessageType } from '../constants/game-system';
-import { getSkillById } from '../utils/skills';
 import { Player } from './player';
-import { isGearItem, Item, ItemId } from '../constants/item';
-import { QuestSystem } from './quest-system';
-import { QuestStatus } from '../constants/quest';
+import { GearItem, Item } from '../constants/item';
+import { StatType } from '../constants/stats';
+import { getSkillById } from '../utils/skills';
 
-
-interface GameSaveData {
-    version: string;
-    timestamp: number;
-    player: ReturnType<Player['serialize']>;
-    messages: GameMessage[];
-    quests: {
-        progress: [string, {
-            status: QuestStatus;
-            objectives: { current: number; required: number; }[];
-        }][];
-    };
+/** 保存的游戏数据接口 */
+interface SaveData {
+    /** 基础属性 */
+    baseStats: Record<StatType, number>;
+    /** 当前生命值 */
+    hp: number;
+    /** 当前魔法值 */
+    mp: number;
+    /** 当前经验值 */
+    exp: number;
+    /** 当前等级 */
+    level: number;
+    /** 当前充能值 */
+    charge: number;
+    /** 金币数量 */
+    gold: number;
+    /** 已装备的物品 */
+    equippedItems: { [key: string]: GearItem };
+    /** 背包物品 */
+    inventory: { [key: string]: { item: Item; count: number } };
+    /** 已学习的技能ID列表 */
+    learnedSkills: Set<string>;
+    /** 当前装备的技能ID */
+    equippedSkill?: string;
 }
 
+/** 游戏存档系统 */
 export class SaveSystem {
-    private static instance: SaveSystem;
-    private readonly SAVE_KEY = 'game_save_data';
-    private readonly CURRENT_VERSION = '1.0.0';
+    private static readonly SAVE_KEY = 'game_save';
 
-    private constructor() { }
-
-    public static getInstance(): SaveSystem {
-        if (!SaveSystem.instance) {
-            SaveSystem.instance = new SaveSystem();
-        }
-        return SaveSystem.instance;
-    }
-
-    /**
-     * 保存游戏数据
-     */
-    public saveGame(player: Player): void {
-        const gameSystem = GameSystem.getInstance();
-        const questSystem = QuestSystem.getInstance();
-
-        const saveData: GameSaveData = {
-            version: this.CURRENT_VERSION,
-            timestamp: Date.now(),
-            player: player.serialize(),
-            messages: gameSystem.getRecentMessages(100), // 保存最近100条消息
-            quests: {
-                progress: Array.from(questSystem['questProgress'].entries())
-            }
+    /** 保存游戏 */
+    static save(): void {
+        const player = Player.getInstance();
+        
+        const saveData: SaveData = {
+            baseStats: player.getAllBaseStats(),
+            hp: player.hp,
+            mp: player.mp,
+            exp: player.exp,
+            level: player.level,
+            charge: player.charge,
+            gold: player.inventory.gold,
+            equippedItems: player.equippedItems,
+            inventory: player.inventory.getSerializableItems(),
+            learnedSkills: player.skills,
+            equippedSkill: player.equippedSkill?.id
         };
 
-        try {
-            localStorage.setItem(this.SAVE_KEY, JSON.stringify(saveData));
-            gameSystem.sendMessage(MessageType.SYSTEM, '游戏已保存');
-        } catch (error) {
-            gameSystem.sendMessage(MessageType.ERROR, '保存游戏失败');
-            console.error('保存游戏失败:', error);
-        }
+        localStorage.setItem(this.SAVE_KEY, JSON.stringify(saveData));
+        console.log('游戏已保存');
     }
 
-    /**
-     * 加载游戏数据
-     * @returns 加载的角色数据或undefined（加载失败时）
-     */
-    public loadGame(): boolean {
+    /** 加载游戏 */
+    static load(): boolean {
+        const saveStr = localStorage.getItem(this.SAVE_KEY);
+        if (!saveStr) {
+            console.log('没有找到存档');
+            return false;
+        }
+
         try {
-            const saveDataString = localStorage.getItem(this.SAVE_KEY);
-            if (!saveDataString) {
-                GameSystem.getInstance().sendMessage(MessageType.SYSTEM, '没有找到存档数据');
-                return false;
-            }
+            const saveData: SaveData = JSON.parse(saveStr);
+            const player = Player.getInstance();
 
-            const saveData: GameSaveData = JSON.parse(saveDataString);
+            // 恢复基础属性
+            player.setAllBaseStats(saveData.baseStats);
 
-            // 初始化玩家实例
-            Player.initializePlayer({
-                name: saveData.player.name,
-                maxHp: saveData.player.maxHp,
-                maxMp: saveData.player.maxMp,
-                attack: saveData.player.attack,
-                defense: saveData.player.defense,
-                critRate: saveData.player.critRate,
-                critDamage: saveData.player.critDamage,
-                chargeRate: saveData.player.chargeRate
+            // 恢复状态
+            player.restoreState({
+                hp: saveData.hp,
+                mp: saveData.mp,
+                exp: saveData.exp,
+                level: saveData.level,
+                charge: saveData.charge
             });
 
-            // 恢复玩家状态
-            this.restorePlayerState(Player.getInstance(), saveData.player);
+            // 恢复装备
+            Object.entries(saveData.equippedItems).forEach(([slot, item]) => {
+                player.equipItem(item);
+            });
 
-            // 恢复消息历史
-            GameSystem.getInstance().restoreMessages(saveData.messages);
+            // 恢复背包
+            player.inventory.restoreGold(saveData.gold);
+            Object.entries(saveData.inventory).forEach(([id, data]) => {
+                player.inventory.addItem(data.item, data.count);
+            });
 
-            if (saveData.quests) {
-                const questSystem = QuestSystem.getInstance();
-                saveData.quests.progress.forEach(([questId, progress]) => {
-                    questSystem['questProgress'].set(questId, progress);
-                });
+            // 恢复技能
+            player.restoreSkills(saveData.learnedSkills);
+            if (saveData.equippedSkill) {
+                const skill = getSkillById(saveData.equippedSkill);
+                if (skill) {
+                    player.equipSkill(skill);
+                }
             }
 
-            GameSystem.getInstance().sendMessage(MessageType.SYSTEM, '游戏数据已加载');
+            // 更新最终属性
+            player.refreshState();
+
+            console.log('游戏已加载');
             return true;
         } catch (error) {
-            GameSystem.getInstance().sendMessage(MessageType.ERROR, '加载游戏失败');
-            console.error('加载游戏失败:', error);
+            console.error('加载存档失败:', error);
             return false;
         }
     }
 
-    /**
-     * 恢复角色状态
-     */
-    private restorePlayerState(player: Player, savedState: ReturnType<Player['serialize']>): void {
-        // 恢复基础状态
-        player.restoreState({
-            level: savedState.level,
-            exp: savedState.exp,
-            hp: savedState.hp,
-            mp: savedState.mp,
-            attack: savedState.attack,
-            defense: savedState.defense,
-            critRate: savedState.critRate,
-            critDamage: savedState.critDamage,
-            chargeRate: savedState.chargeRate
-        });
-
-        // 恢复技能
-        savedState.skills.forEach(skillId => {
-            const skill = getSkillById(skillId);
-            if (skill) player.learnSkill(skill);
-        });
-
-        if (savedState.equippedSkillId) {
-            const skill = getSkillById(savedState.equippedSkillId);
-            if (skill) player.equipSkill(skill);
-        }
-
-        // 恢复背包
-        if (savedState.inventory) {
-            Object.entries(savedState.inventory.items).forEach(([id, data]) => {
-                player.inventory.addItem(data.item, data.quantity);
-            });
-            player.inventory.addGold(savedState.inventory.gold);
-        }
-
-        // 恢复装备
-        savedState.equippedItems.forEach(({ slot, itemId }) => {
-            if (itemId) {
-                const item = player.inventory.getItems().find(i => i.item.id === itemId)?.item;
-                if (item && isGearItem(item)) {
-                    player.equipItem(item);
-                }
-            }
-        });
+    /** 检查是否有存档 */
+    static hasSave(): boolean {
+        return localStorage.getItem(this.SAVE_KEY) !== null;
     }
 
-    /**
-     * 检查是否存在存档
-     */
-    public hasSaveData(): boolean {
-        return !!localStorage.getItem(this.SAVE_KEY);
-    }
-
-    /**
-     * 删除存档
-     */
-    public deleteSaveData(): void {
+    /** 删除存档 */
+    static deleteSave(): void {
         localStorage.removeItem(this.SAVE_KEY);
-        GameSystem.getInstance().sendMessage(MessageType.SYSTEM, '存档已删除');
+        console.log('存档已删除');
     }
 } 

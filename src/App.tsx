@@ -59,8 +59,7 @@ function App() {
   };
 
   const handleLoadGame = () => {
-    const saveSystem = SaveSystem.getInstance();
-    if (saveSystem.loadGame()) {
+    if (SaveSystem.load()) {
       setGameState('game');
     }
   };
@@ -85,8 +84,7 @@ function App() {
             <Button
               icon={<SaveOutlined />}
               onClick={() => {
-                const saveSystem = SaveSystem.getInstance();
-                saveSystem.saveGame(Player.getInstance());
+                SaveSystem.save();
               }}
             >
               保存游戏
@@ -181,7 +179,7 @@ function App() {
         onClose={() => setIsStoryPanelVisible(false)}
       />
 
-      {/* 添加开发者工具 */}
+      {/* 添加开发者��具 */}
       {/* @ts-ignore */}
       {process.env.NODE_ENV === 'development' && <DevTools />}
     </div>

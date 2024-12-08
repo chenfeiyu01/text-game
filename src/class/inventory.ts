@@ -1,4 +1,4 @@
-import { Item, InventoryItem, ItemId } from '../constants/item';
+import { Item, InventoryItem, ItemId, GearItem } from '../constants/item';
 
 export class Inventory {
     private items: Map<ItemId, InventoryItem> = new Map();
@@ -6,6 +6,12 @@ export class Inventory {
 
     get gold(): number {
         return this._gold;
+    }
+
+    /** 恢复金币数量 */
+    public restoreGold(amount: number): void {
+        this._gold = amount;
+        this.notifyUpdate();
     }
 
     addGold(amount: number): void {
@@ -84,5 +90,14 @@ export class Inventory {
     /** 触发更新 */
     public update(): void {
         this.notifyUpdate();
+    }
+
+    /** 获取可序列化的物品列表 */
+    public getSerializableItems(): { [key: string]: { item: Item; count: number } } {
+        const result: { [key: string]: { item: Item; count: number } } = {};
+        this.items.forEach((value, key) => {
+            result[key] = { item: value.item, count: value.quantity };
+        });
+        return result;
     }
 } 

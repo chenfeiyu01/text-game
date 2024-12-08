@@ -9,8 +9,7 @@ interface StartScreenProps {
 }
 
 const StartScreen: React.FC<StartScreenProps> = ({ onStartNewGame, onLoadGame }) => {
-    const saveSystem = SaveSystem.getInstance();
-    const hasSaveData = saveSystem.hasSaveData();
+    const hasSaveData = SaveSystem.hasSave();
 
     return (
         <div className="start-screen">

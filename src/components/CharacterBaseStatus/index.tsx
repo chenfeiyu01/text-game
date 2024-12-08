@@ -67,13 +67,26 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
         ];
 
         return statsToShow.map(statType => {
+            const baseValue = character.getBaseStat(statType);
+            const bonusValue = character.getBonusStat(statType);
+            const totalValue = baseValue + bonusValue;
+
             return (
                 <div className="stat-item" key={statType}>
-                    <div>
+                    <Tooltip title={STAT_CONFIG[statType].description}>
                         <span className="stat-name">{STAT_CONFIG[statType].name}</span>
-                        （<span className="stat-description">{STAT_CONFIG[statType].description}</span>）
-                    </div>
-                    <span className="stat-value">{formatStatValue(statType, getCharacterStatValue(character, statType))}</span>
+                    </Tooltip>
+                    <span className="stat-value">
+                        {formatStatValue(statType, totalValue)}
+                        {bonusValue !== 0 && (
+                            <span className="stat-breakdown">
+                                （{formatStatValue(statType, baseValue)} + 
+                                <span className={bonusValue > 0 ? 'positive' : 'negative'}>
+                                    {formatStatValue(statType, bonusValue)}
+                                </span>）
+                            </span>
+                        )}
+                    </span>
                 </div>
             );
         });

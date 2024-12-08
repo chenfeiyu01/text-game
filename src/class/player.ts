@@ -53,6 +53,12 @@ export class Player extends Character {
         return true;
     }
 
+    /** 恢复技能列表 */
+    public restoreSkills(skillIds: Set<string>): void {
+        this._skills = new Set(skillIds);
+        this.refreshState();
+    }
+
     /** 序列化玩家数据 */
     serialize() {
         return {
@@ -91,5 +97,10 @@ export class Player extends Character {
                 gold: this.inventory.gold
             }
         } as const;
+    }
+
+    /** 更新玩家状态 */
+    public refreshState(): void {
+        this.updateState();
     }
 }

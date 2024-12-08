@@ -1,4 +1,3 @@
-import { CharacterState } from "../constants/character";
 import { MessageType } from "../constants/game-system";
 import { GearStats, GearItem, GearSlot, ConsumableItem, ConsumableEffectType } from "../constants/item";
 import { Monsters } from "../constants/monsters";
@@ -38,7 +37,7 @@ export interface CharacterConfig {
  * 
  * @description
  * 主要功能:
- * - 管理角色基础属性(生命值、魔法值、攻击力等)
+ * - 管���角色基础属性(生命值、魔法值、攻击力等)
  * - 处理战斗相关逻辑(伤害计算、技能使用等)
  * - 管理装备系统
  * - 处理等级和经验值系统
@@ -71,15 +70,35 @@ export class Character {
     /** 已装备的物品 */
     private _equippedItems: Partial<Record<GearSlot, GearItem>> = {};
 
-    /** 基础属性（不受装备影响的初始值） */
-    /** 基础攻击力 */
-    protected baseAttack: number;
-    /** 基础防御力 */
-    protected baseDefense: number;
-    /** 基础暴击率 */
-    protected baseCritRate: number;
-    /** 基础暴击伤害 */
-    protected baseCritDamage: number;
+    /** 基础属性 */
+    protected baseStats: Record<StatType, number> = {
+        [StatType.ATTACK]: 0,
+        [StatType.DEFENSE]: 0,
+        [StatType.MAX_HP]: 0,
+        [StatType.MAX_MP]: 0,
+        [StatType.CRIT_RATE]: 0,
+        [StatType.CRIT_DAMAGE]: 0,
+        [StatType.CHARGE_RATE]: 0,
+        [StatType.BONUS_DAMAGE]: 0,
+        [StatType.SPELL_AFFINITY]: 0,
+        [StatType.DAMAGE_REDUCTION]: 0,
+        [StatType.MAGIC_RESISTANCE]: 0,
+    };
+
+    /** 加成属性（来自装备、buff等） */
+    protected bonusStats: Record<StatType, number> = {
+        [StatType.ATTACK]: 0,
+        [StatType.DEFENSE]: 0,
+        [StatType.MAX_HP]: 0,
+        [StatType.MAX_MP]: 0,
+        [StatType.CRIT_RATE]: 0,
+        [StatType.CRIT_DAMAGE]: 0,
+        [StatType.CHARGE_RATE]: 0,
+        [StatType.BONUS_DAMAGE]: 0,
+        [StatType.SPELL_AFFINITY]: 0,
+        [StatType.DAMAGE_REDUCTION]: 0,
+        [StatType.MAGIC_RESISTANCE]: 0,
+    };
 
     /** 角色属性 */
     public stats: Partial<Record<StatType, number>> = {};
@@ -97,11 +116,14 @@ export class Character {
     /** 装备栏 */
     protected equipment: Partial<Record<GearSlot, GearItem>> = {};
 
+    /** 已装备的技能 */
+    private _equippedSkill?: Skill;
+
     /**
      * 构造函数
      * @param config 角色配置对象
      * @param config.name 角色名称
-     * @param config.id 角色ID
+     * @param config.id 角���ID
      * @param config.maxHp 最大生命值
      * @param config.maxMp 最大魔法值
      * @param config.attack 攻击力
@@ -127,58 +149,30 @@ export class Character {
 
         this.name = name;
         this.id = id;
-        this._maxHp = maxHp;
-        this._maxMp = maxMp;
-        this.baseAttack = attack;
-        this.baseDefense = defense;
-        this.baseCritRate = critRate;
-        this.baseCritDamage = critDamage;
-        this._chargeRate = chargeRate;
-        this._equippedSkill = equippedSkill;
-
         this._hp = maxHp;
         this._mp = maxMp;
+        this._equippedSkill = equippedSkill;
         this._inventory = new Inventory();
-
-        this._attack = this.baseAttack;
-        this._defense = this.baseDefense;
-        this._critRate = this.baseCritRate;
-        this._critDamage = this.baseCritDamage;
-
-        // 初始化基础属性到 stats
-        this.stats = {
-            [StatType.ATTACK]: this.baseAttack,
-            [StatType.DEFENSE]: this.baseDefense,
-            [StatType.CRIT_RATE]: this.baseCritRate,
-            [StatType.CRIT_DAMAGE]: this.baseCritDamage,
-            [StatType.CHARGE_RATE]: this._chargeRate,
-            [StatType.MAX_HP]: this._maxHp,
-            [StatType.MAX_MP]: this._maxMp,
-            [StatType.BONUS_DAMAGE]: 0,
-            [StatType.SPELL_AFFINITY]: 0,
-            [StatType.DAMAGE_REDUCTION]: 0,
-            [StatType.MAGIC_RESISTANCE]: 0
-        };
-
         this.buffManager = new BuffManager(this);
+
+        // 初始化基础属性
+        this.baseStats[StatType.MAX_HP] = maxHp;
+        this.baseStats[StatType.MAX_MP] = maxMp;
+        this.baseStats[StatType.ATTACK] = attack;
+        this.baseStats[StatType.DEFENSE] = defense;
+        this.baseStats[StatType.CRIT_RATE] = critRate;
+        this.baseStats[StatType.CRIT_DAMAGE] = critDamage;
+        this.baseStats[StatType.CHARGE_RATE] = chargeRate;
     }
 
     public readonly name: string;         // 角色名称
     public readonly id?: Monsters;         // 角色ID
-    private _maxHp: number;               // 最大生命值
-    private _maxMp: number;               // 最大魔法值
-    private _attack: number;              // 攻击力
-    private _defense: number;             // 防御力
-    private _critRate: number;            // 暴击率
-    private _critDamage: number;          // 暴击伤害
-    private _chargeRate: number;          // 充能效率
-    private _equippedSkill?: Skill | undefined;       // 已装备的技能
 
     // Getters - 属性访问器
     get hp(): number { return this._hp; }
     get mp(): number { return this._mp; }
-    get maxHp(): number { return this._maxHp; }
-    get maxMp(): number { return this._maxMp; }
+    get maxHp(): number { return this.getStat(StatType.MAX_HP); }
+    get maxMp(): number { return this.getStat(StatType.MAX_MP); }
     get exp(): number { return this._exp; }
     get level(): number { return this._level; }
     get attack(): number { return this.getStat(StatType.ATTACK); }
@@ -199,7 +193,7 @@ export class Character {
     /**
      * 获取指定槽位的装备
      * @param slot 装备槽位
-     * @returns 装备物品，如果位为空则返回 undefined
+     * @returns 物品，如果位为空则返回 undefined
      */
     getEquippedItem(slot: GearSlot): GearItem | undefined {
         return this._equippedItems[slot];
@@ -226,7 +220,7 @@ export class Character {
      * 设置生命值，确保在0到最大生命值之间
      */
     set hp(value: number) {
-        this._hp = Math.max(0, Math.min(value, this._maxHp));
+        this._hp = Math.max(0, Math.min(value, this.maxHp));
         this.notifyStateChange();
     }
 
@@ -234,7 +228,7 @@ export class Character {
      * 设置魔法值，确保在0到最大魔法值之间
      */
     set mp(value: number) {
-        this._mp = Math.max(0, Math.min(value, this._maxMp));
+        this._mp = Math.max(0, Math.min(value, this.maxMp));
         this.notifyStateChange();
     }
 
@@ -248,7 +242,7 @@ export class Character {
     }
 
     /**
-     * 获得经验值并检查是否升级
+     * 获得经验值并检查��否升级
      * @param amount 获得的经验值数量
      */
     gainExp(amount: number) {
@@ -280,7 +274,7 @@ export class Character {
     }
 
     /**
-     * 检查是否满��升级条件
+     * 检查是否满升级条件
      */
     private checkLevelUp() {
         const expNeeded = this.calculateExpNeeded();
@@ -302,32 +296,32 @@ export class Character {
 
         // 根据等级提升属性
         if (this.level <= 20) {
-            this._maxHp += 15;
-            this._maxMp += 8;
-            this._attack += 3;
-            this._defense += 2;
+            this.baseStats[StatType.MAX_HP] += 15;
+            this.baseStats[StatType.MAX_MP] += 8;
+            this.baseStats[StatType.ATTACK] += 3;
+            this.baseStats[StatType.DEFENSE] += 2;
         } else if (this.level <= 40) {
-            this._maxHp += 12;
-            this._maxMp += 6;
-            this._attack += 2;
-            this._defense += 1.5;
+            this.baseStats[StatType.MAX_HP] += 12;
+            this.baseStats[StatType.MAX_MP] += 6;
+            this.baseStats[StatType.ATTACK] += 2;
+            this.baseStats[StatType.DEFENSE] += 1.5;
         } else if (this.level <= 60) {
-            this._maxHp += 10;
-            this._maxMp += 5;
-            this._attack += 1.5;
-            this._defense += 1;
+            this.baseStats[StatType.MAX_HP] += 10;
+            this.baseStats[StatType.MAX_MP] += 5;
+            this.baseStats[StatType.ATTACK] += 1.5;
+            this.baseStats[StatType.DEFENSE] += 1;
         } else {
-            this._maxHp += 8;
-            this._maxMp += 4;
-            this._attack += 1;
-            this._defense += 0.8;
+            this.baseStats[StatType.MAX_HP] += 8;
+            this.baseStats[StatType.MAX_MP] += 4;
+            this.baseStats[StatType.ATTACK] += 1;
+            this.baseStats[StatType.DEFENSE] += 0.8;
         }
 
         // 恢复满状态
-        this._hp = this._maxHp;
-        this._mp = this._maxMp;
+        this._hp = this.baseStats[StatType.MAX_HP];
+        this._mp = this.baseStats[StatType.MAX_MP];
 
-        console.log(`${this.name} 升级到 ${this.level} 级！下一级需要 ${this.calculateExpNeeded()} 经验值`);
+        console.log(`${this.name} 级��� ${this.level} 级！下一级需要 ${this.calculateExpNeeded()} 经验值`);
 
         // 状态变化通知已经在 hp 和 mp 的 setter 中处理
         this.notifyStateChange();  // 添加知以确保更新
@@ -339,7 +333,7 @@ export class Character {
      */
     addCharge(amount: number) {
         // 固定能量5%，受充能效率影响，上限100%
-        this._charge = Math.min(100, this._charge + 5 * this._chargeRate);
+        this._charge = Math.min(100, this._charge + 5 * this.baseStats[StatType.CHARGE_RATE]);
         this.notifyStateChange();
     }
 
@@ -369,14 +363,14 @@ export class Character {
     /**
      * 计算伤害值
      * @param baseDamage 基础伤害值
-     * @returns 计算后的实际伤害值和是否暴击
+     * @returns 计算后的际伤害值和是否暴击
      */
     calculateDamage(baseDamage: number): { damage: number, isCrit: boolean } {
-        const isCrit = Math.random() < this._critRate;
+        const isCrit = Math.random() < this.baseStats[StatType.CRIT_RATE];
         // 确保基础伤害是数字
         const validBaseDamage = Number(baseDamage) || 0;
         // 计算最终伤害
-        const damage = validBaseDamage * (isCrit ? this._critDamage : 1);
+        const damage = validBaseDamage * (isCrit ? this.baseStats[StatType.CRIT_DAMAGE] : 1);
         return {
             damage: Math.max(0, Math.round(damage)),
             isCrit
@@ -411,11 +405,11 @@ export class Character {
 
     /**
      * 攻击目标
-     * @param target 攻击目标
+     * @param target 攻击标
      * @returns 造成的实际伤害值和是否暴击
      */
     attackTarget(target: Character) {
-        const { damage, isCrit } = this.calculateDamage(this._attack);
+        const { damage, isCrit } = this.calculateDamage(this.baseStats[StatType.ATTACK]);
         const actualDamage = target.takeDamage(damage);
         this.addCharge(actualDamage.damage); // 造成伤害获得5%充能
         return {
@@ -453,21 +447,22 @@ export class Character {
     })();
 
     /**
-     * 恢复保存的��态
+     * 恢复保存的状态
      * @param state 要恢复的角色状态
      */
-    public restoreState(state: CharacterState): void {
-        this._level = state.level;
-        this._exp = state.exp;
+    public restoreState(state: {
+        hp: number;
+        mp: number;
+        exp: number;
+        level: number;
+        charge: number;
+    }): void {
         this._hp = state.hp;
         this._mp = state.mp;
-        this._attack = state.attack;
-        this._defense = state.defense;
-        this._critRate = state.critRate;
-        this._critDamage = state.critDamage;
-        this._chargeRate = state.chargeRate;
-
-        this.notifyStateChange();
+        this._exp = state.exp;
+        this._level = state.level;
+        this._charge = state.charge;
+        this.updateStats();
     }
 
     /**
@@ -542,7 +537,7 @@ export class Character {
 
         // 装备新物品
         this._equippedItems[item.slot] = item;
-        this.updateAttributes();
+        this.updateStats();
 
         console.log(`成功装备 ${item.name}`);
         this.notifyStateChange();
@@ -560,34 +555,12 @@ export class Character {
             // 将物品放回背包
             this._inventory.addItem(item);
             delete this._equippedItems[slot];
-            this.updateAttributes();
+            this.updateStats();
             this.notifyStateChange();
             console.log(`成功卸下 ${item.name}`);
             return true;
         }
         return false;
-    }
-
-    /**
-     * 更新角色属性
-     * 重新计算所有受装备影响的属性值
-     */
-    private updateAttributes(): void {
-        // Reset attributes to base values
-        this._attack = this.baseAttack;
-        this._defense = this.baseDefense;
-        this._critRate = this.baseCritRate;
-        this._critDamage = this.baseCritDamage;
-
-        // Add attributes from equipped items
-        for (const item of Object.values(this._equippedItems)) {
-            if (item) {
-                this._attack += item.stats[StatType.ATTACK] || 0;
-                this._defense += item.stats[StatType.DEFENSE] || 0;
-                this._critRate += item.stats[StatType.CRIT_RATE] || 0;
-                this._critDamage += item.stats[StatType.CRIT_DAMAGE] || 0;
-            }
-        }
     }
 
     /** 通知态变化 */
@@ -616,7 +589,7 @@ export class Character {
                     this.mp += effect.value;
                     GameSystem.getInstance().sendMessage(
                         MessageType.COMBAT,
-                        `${this.name} 恢复了 ${effect.value} 点魔法值`
+                        `${this.name} 恢复了 ${effect.value} 魔法值`
                     );
                     break;
 
@@ -670,39 +643,43 @@ export class Character {
 
     /** 修改基础属性 */
     public setBaseStat(statType: StatType, value: number): void {
-        switch (statType) {
-            case StatType.ATTACK:
-                this.baseAttack = value;
-                break;
-            case StatType.DEFENSE:
-                this.baseDefense = value;
-                break;
-            case StatType.CRIT_RATE:
-                this.baseCritRate = value;
-                break;
-            case StatType.CRIT_DAMAGE:
-                this.baseCritDamage = value;
-                break;
-        }
-        this.updateAttributes();
-        this.notifyStateChange();
+        this.baseStats[statType] = value;
+        this.updateStats();
     }
 
-    public getBaseStat(statType: StatType): number {
-        switch (statType) {
-            case StatType.ATTACK:
-                return this.baseAttack;
-            case StatType.DEFENSE:
-                return this.baseDefense;
-            case StatType.CRIT_RATE:
-                return this.baseCritRate;
-            case StatType.CRIT_DAMAGE:
-                return this.baseCritDamage;
-            default:
-                return 0;
-        }
+    /** 获取基础属性值 */
+    public getBaseStat(stat: StatType): number {
+        return this.baseStats[stat];
     }
 
+    /** 获取所有基础属性 */
+    public getAllBaseStats(): Record<StatType, number> {
+        return { ...this.baseStats };
+    }
+
+    /** 设置所有基础属性 */
+    public setAllBaseStats(stats: Record<StatType, number>): void {
+        Object.entries(stats).forEach(([stat, value]) => {
+            this.baseStats[stat as StatType] = value;
+        });
+        this.updateStats();
+    }
+
+    /** 获取加成属性值 */
+    public getBonusStat(stat: StatType): number {
+        return this.bonusStats[stat];
+    }
+
+    /** 获取最终属性（基础+加成） */
+    public getStat(stat: StatType): number {
+        return this.getBaseStat(stat) + this.getBonusStat(stat);
+    }
+
+    /** 设置加成属性值 */
+    protected setBonusStat(stat: StatType, value: number): void {
+        this.bonusStats[stat] = value;
+        this.updateStats();
+    }
 
     public heal(amount: number) {
         this.hp = Math.min(this.maxHp, this.hp + amount);
@@ -720,21 +697,18 @@ export class Character {
         this.updateStats();
     }
 
-
     /** 更新属性 */
     private updateStats(): void {
-        // 重置基础属性
-        this.stats[StatType.ATTACK] = this.baseAttack;
-        this.stats[StatType.DEFENSE] = this.baseDefense;
-        this.stats[StatType.CRIT_RATE] = this.baseCritRate;
-        this.stats[StatType.CRIT_DAMAGE] = this.baseCritDamage;
-        this.stats[StatType.CHARGE_RATE] = this._chargeRate;
-
+        // 重置加成属性
+        Object.keys(this.bonusStats).forEach(key => {
+            this.bonusStats[key as StatType] = 0;
+        });
+        
         // 应用装备加成
-        for (const [slot, item] of Object.entries(this.equipment)) {
+        for (const [slot, item] of Object.entries(this._equippedItems)) {
             if (item && item.stats) {
                 for (const [stat, value] of Object.entries(item.stats)) {
-                    this.stats[stat as StatType] += value;
+                    this.bonusStats[stat as StatType] += value;
                 }
             }
         }
@@ -742,44 +716,14 @@ export class Character {
         // 应用buff效果
         for (const buff of this.buffManager.getActiveBuffs()) {
             if (buff.stat) {
-                const currentValue = this.stats[buff.stat] || 0;
                 const addValue = buff.isPercentage 
                     ? this.getBaseStat(buff.stat) * buff.value 
                     : buff.value;
-                    
-                this.stats[buff.stat] = currentValue + addValue;
+                this.bonusStats[buff.stat] += addValue;
             }
         }
-    }
 
-    /**
-     * 通过属性类型获取属性值
-     */
-    public getStat(statType: StatType): number {
-        return this.stats[statType] || (() => {
-            switch (statType) {
-                case StatType.MAX_HP:
-                    return this._maxHp;
-                case StatType.MAX_MP:
-                    return this._maxMp;
-                case StatType.HP:
-                    return this.hp;
-                case StatType.MP:
-                    return this.mp;
-                case StatType.ATTACK:
-                    return this.baseAttack;
-                case StatType.DEFENSE:
-                    return this.baseDefense;
-                case StatType.CRIT_RATE:
-                    return this.baseCritRate;
-                case StatType.CRIT_DAMAGE:
-                    return this.baseCritDamage;
-                case StatType.CHARGE_RATE:
-                    return this._chargeRate;
-                default:
-                    return 0;
-            }
-        })();
+        this.notifyStateChange();
     }
 
     /** 添加buff */

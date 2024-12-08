@@ -9,33 +9,46 @@
     .base-stats {
         padding: 16px;
         
-        p {
+        .stat-item {
             display: flex;
             align-items: center;
             margin: 8px 0;
             font-size: 14px;
             justify-content: space-between;
             
-            span {
-                &:first-child {
-                    color: #333;
-                    font-weight: 600;
-                    font-size: 15px;
-                }
-
-                &:last-child {
-                    color: #666;
-                    font-size: 12px;
-                    font-weight: normal;
-                }
+            .stat-name {
+                color: #333;
+                font-weight: 600;
+                font-size: 15px;
+                cursor: help;
             }
 
-            /* &::after {
-                content: '';
-                flex: 1;
-                border-bottom: 1px dashed #eee;
-                margin: 0 8px;
-            } */
+            .stat-description {
+                color: #666;
+                font-size: 12px;
+                font-weight: normal;
+            }
+
+            .stat-value {
+                color: #1890ff;
+                font-weight: 500;
+                font-size: 15px;
+
+                .stat-breakdown {
+                    color: #999;
+                    font-size: 13px;
+                    font-weight: normal;
+                    margin-left: 8px;
+
+                    .positive {
+                        color: #52c41a;
+                    }
+                    
+                    .negative {
+                        color: #f5222d;
+                    }
+                }
+            }
         }
     }
 
