@@ -2,10 +2,11 @@ import { CharacterState } from "../constants/character";
 import { MessageType } from "../constants/game-system";
 import { GearStats, GearItem, GearSlot, ConsumableItem, ConsumableEffectType } from "../constants/item";
 import { Monsters } from "../constants/monsters";
-import { Skill } from "../constants/skill-list";
+import { DamageType, Skill } from "../constants/skill-list";
 import { GameSystem } from "./game-system";
 import { Inventory } from './inventory';
 import { STAT_CONFIG, StatType } from '../constants/stats';
+import { BuffManager, Buff } from "../constants/buff";
 
 // 在文件顶部添加导出接口
 export interface CharacterConfig {
@@ -37,7 +38,7 @@ export interface CharacterConfig {
  * 
  * @description
  * 主要功能:
- * - 管理角色基础属性(��命值、魔法值、攻击力等)
+ * - 管理角色基础属性(生命值、魔法值、攻击力等)
  * - 处理战斗相关逻辑(伤害计算、技能使用等)
  * - 管理装备系统
  * - 处理等级和经验值系统
@@ -87,6 +88,14 @@ export class Character {
     public isUsingSkill: boolean = false;
 
     public buffs: { stat: StatType; value: number; duration: number; }[] = [];
+
+    private buffManager: BuffManager;
+
+    /** 角色当前状态 */
+    private statusEffects: Set<string> = new Set();
+
+    /** 装备栏 */
+    protected equipment: Partial<Record<GearSlot, GearItem>> = {};
 
     /**
      * 构造函数
@@ -150,6 +159,8 @@ export class Character {
             [StatType.DAMAGE_REDUCTION]: 0,
             [StatType.MAGIC_RESISTANCE]: 0
         };
+
+        this.buffManager = new BuffManager(this);
     }
 
     public readonly name: string;         // 角色名称
@@ -188,7 +199,7 @@ export class Character {
     /**
      * 获取指定槽位的装备
      * @param slot 装备槽位
-     * @returns ���备物品，如果槽位为空则返回 undefined
+     * @returns 装备物品，如果位为空则返回 undefined
      */
     getEquippedItem(slot: GearSlot): GearItem | undefined {
         return this._equippedItems[slot];
@@ -269,7 +280,7 @@ export class Character {
     }
 
     /**
-     * 检查是否满足升级条件
+     * 检查是否满��升级条件
      */
     private checkLevelUp() {
         const expNeeded = this.calculateExpNeeded();
@@ -289,7 +300,7 @@ export class Character {
     private levelUp() {
         this._level++;
 
-        // 根据等级段提升属性
+        // 根据等级提升属性
         if (this.level <= 20) {
             this._maxHp += 15;
             this._maxMp += 8;
@@ -319,15 +330,15 @@ export class Character {
         console.log(`${this.name} 升级到 ${this.level} 级！下一级需要 ${this.calculateExpNeeded()} 经验值`);
 
         // 状态变化通知已经在 hp 和 mp 的 setter 中处理
-        this.notifyStateChange();  // 添加通知以确保更新
+        this.notifyStateChange();  // 添加知以确保更新
     }
 
     /**
      * 增加充能值
-     * @param amount 基础充能量（固定为5%）
+     * @param amount 基础充能量（定为5%）
      */
     addCharge(amount: number) {
-        // 固定���能量5%，受充能效率影响，上限100%
+        // 固定能量5%，受充能效率影响，上限100%
         this._charge = Math.min(100, this._charge + 5 * this._chargeRate);
         this.notifyStateChange();
     }
@@ -384,7 +395,8 @@ export class Character {
      * @param damage 受到的伤害值
      * @returns 包含实际伤害值和是否被击败的信息
      */
-    takeDamage(damage: number) {
+    takeDamage(damage: number, damageType: DamageType = DamageType.PHYSICAL) {
+        // TODO: 区分物理伤害和魔法伤害
         // const actualDamage = Math.max(1, damage - this._defense);
         const finalDamage = Math.min(this._hp, damage);
         this.hp -= finalDamage;
@@ -410,26 +422,6 @@ export class Character {
             damage: actualDamage.damage,
             isCrit
         };
-    }
-
-    /**
-     * 获取角色当前状态信息
-     * @returns 包含所有属性的状态字符串
-     */
-    getStatus(): string {
-        return `
-            名称: ${this.name}
-            等级: ${this.level}
-            经验值: ${this.exp}/${this.expNeeded}
-            生命值: ${this.hp}/${this.maxHp}
-            魔法值: ${this.mp}/${this.maxMp}
-            攻击力: ${this.attack}
-            防御力: ${this.defense}
-            暴击率: ${(this.critRate * 100).toFixed(1)}%
-            暴击伤害: ${(this.critDamage * 100).toFixed(1)}%
-            充能: ${this.charge.toFixed(1)}%
-            装备技能: ${this.equippedSkill?.name || '无'}
-        `;
     }
 
     /**
@@ -461,7 +453,7 @@ export class Character {
     })();
 
     /**
-     * 恢复保存的状态
+     * 恢复保存的��态
      * @param state 要恢复的角色状态
      */
     public restoreState(state: CharacterState): void {
@@ -541,7 +533,7 @@ export class Character {
 
         const oldItem = this._equippedItems[item.slot];
         if (oldItem) {
-            // 将原装备放回背包
+            // 将原装备放背包
             this._inventory.addItem(oldItem);
         }
 
@@ -717,7 +709,20 @@ export class Character {
         this.notifyStateChange();
     }
 
-    private updateStats() {
+    /** 更新buff状态 */
+    private updateBuffs() {
+        // 更新buff持续时间
+        this.buffs = this.buffs.filter(buff => {
+            buff.duration--;
+            return buff.duration > 0;
+        });
+
+        this.updateStats();
+    }
+
+
+    /** 更新属性 */
+    private updateStats(): void {
         // 重置基础属性
         this.stats[StatType.ATTACK] = this.baseAttack;
         this.stats[StatType.DEFENSE] = this.baseDefense;
@@ -726,22 +731,25 @@ export class Character {
         this.stats[StatType.CHARGE_RATE] = this._chargeRate;
 
         // 应用装备加成
-        for (const item of Object.values(this._equippedItems)) {
-            if (item) {
-                Object.entries(item.stats).forEach(([stat, value]) => {
-                    this.stats[stat as StatType] = (this.stats[stat as StatType] || 0) + value;
-                });
+        for (const [slot, item] of Object.entries(this.equipment)) {
+            if (item && item.stats) {
+                for (const [stat, value] of Object.entries(item.stats)) {
+                    this.stats[stat as StatType] += value;
+                }
             }
         }
-
+        
         // 应用buff效果
-        this.buffs.forEach(buff => {
-            if (buff.duration > 0) {
-                this.stats[buff.stat] = (this.stats[buff.stat] || 0) + buff.value;
+        for (const buff of this.buffManager.getActiveBuffs()) {
+            if (buff.stat) {
+                const currentValue = this.stats[buff.stat] || 0;
+                const addValue = buff.isPercentage 
+                    ? this.getBaseStat(buff.stat) * buff.value 
+                    : buff.value;
+                    
+                this.stats[buff.stat] = currentValue + addValue;
             }
-        });
-
-        this.notifyStateChange();
+        }
     }
 
     /**
@@ -754,6 +762,10 @@ export class Character {
                     return this._maxHp;
                 case StatType.MAX_MP:
                     return this._maxMp;
+                case StatType.HP:
+                    return this.hp;
+                case StatType.MP:
+                    return this.mp;
                 case StatType.ATTACK:
                     return this.baseAttack;
                 case StatType.DEFENSE:
@@ -770,44 +782,31 @@ export class Character {
         })();
     }
 
-    /** 更新buff状态 */
-    public updateBuffs(): void {
-        // 过滤掉已经过期的buff
-        this.buffs = this.buffs.filter(buff => {
-            buff.duration--;
-            if (buff.duration <= 0) {
-                // 移除buff效果
-                this.stats[buff.stat] = (this.stats[buff.stat] || 0) - buff.value;
-                GameSystem.getInstance().sendMessage(
-                    MessageType.COMBAT,
-                    `${this.name}的${STAT_CONFIG[buff.stat].name}增益效果已结束`
-                );
-                return false;
-            }
-            return true;
-        });
-
-        this.updateStats();
-    }
-
     /** 添加buff */
-    public addBuff(stat: StatType, value: number, duration: number) {
-        // 如果已经有同类型的buff，先移除旧的
-        this.buffs = this.buffs.filter(buff => buff.stat !== stat);
-
-        this.buffs.push({ stat, value, duration });
-
-        GameSystem.getInstance().sendMessage(
-            MessageType.COMBAT,
-            `${this.name}的${STAT_CONFIG[stat].name}提升了${value * 100}%，持续${duration}回合`
-        );
-
+    public addBuff(buff: Buff): void {
+        this.buffManager.addBuff(buff);
         this.updateStats();
     }
 
-    /** 在每回合结束时调用 */
+    /** 更新状态 */
     public onTurnEnd(): void {
-        this.updateBuffs();
+        this.buffManager.update();
+        this.updateStats();
         this.updateEffects();
+    }
+
+    /** 添加状态效果 */
+    public addStatus(status: string): void {
+        this.statusEffects.add(status);
+    }
+
+    /** 移除状态效果 */
+    public removeStatus(status: string): void {
+        this.statusEffects.delete(status);
+    }
+
+    /** 检查是否有某个状态 */
+    public hasStatus(status: string): boolean {
+        return this.statusEffects.has(status);
     }
 }

@@ -7,8 +7,12 @@ export enum StatType {
     ATTACK = 'ATTACK',
     /** 防御力 */
     DEFENSE = 'DEFENSE',
+    /** 当前生命值 */
+    HP = 'HP',
     /** 最大生命值 */
     MAX_HP = 'MAX_HP',
+    /** 当前魔法值 */
+    MP = 'MP',
     /** 最大魔法值 */
     MAX_MP = 'MAX_MP', 
     /** 暴击率 */
@@ -35,22 +39,32 @@ export const STAT_CONFIG = {
     [StatType.ATTACK]: {
         name: '攻击力',
         description: '角色在无视防御时造成的伤害值',
-        format: (value: number) => `${value}`,
+        format: (value: number) => `${Math.floor(value)}`,
     },
     [StatType.DEFENSE]: {
         name: '防御力',
         description: '角色在受到伤害时减少的伤害值',
-        format: (value: number) => `${value}`,
+        format: (value: number) => `${Math.floor(value)}`,
+    },
+    [StatType.HP]: {
+        name: '当前生命值',
+        description: '角色的当前生命值',
+        format: (value: number) => `${Math.floor(value)}`,
+    },
+    [StatType.MP]: {
+        name: '当前魔法值',
+        description: '角色的当前魔法值',
+        format: (value: number) => `${Math.floor(value)}`,
     },
     [StatType.MAX_HP]: {
         name: '最大生命值',
         description: '角色的生命上限',
-        format: (value: number) => `${value}`,
+        format: (value: number) => `${Math.floor(value)}`,
     },
     [StatType.MAX_MP]: {
         name: '最大魔法值',
         description: '角色的魔法上限',
-        format: (value: number) => `${value}`,
+        format: (value: number) => `${Math.floor(value)}`,
     },
     [StatType.CRIT_RATE]: {
         name: '暴击率',

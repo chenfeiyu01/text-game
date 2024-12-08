@@ -1,4 +1,4 @@
-import { Skill, SkillEffectType } from "../../constants/skill-list";
+import { Skill, SkillEffectType, DamageType } from "../../constants/skill-list";
 import { StatType } from "../../constants/stats";
 
 /** 基础技能 */
@@ -12,7 +12,7 @@ const BASIC_SKILLS: Skill[] = [
         description: '测试用技能',
         requiredLevel: 1,
         cost: 0,
-        damageType: 'magic',
+        damageType: DamageType.MAGIC,
         effects: [
             {
                 type: SkillEffectType.BUFF,
@@ -35,7 +35,7 @@ const ADVANCED_SKILLS: Skill[] = [
         description: '召唤雷电打击敌人，有几率使目标麻痹一回合。',
         requiredLevel: 5,
         cost: 200,
-        damageType: 'magic',
+        damageType: DamageType.MAGIC,
         effects: [
             {
                 type: SkillEffectType.STUN,
@@ -53,7 +53,7 @@ const ADVANCED_SKILLS: Skill[] = [
         description: '释放多次剑气攻击，每次攻击都有独立的暴击判定。',
         requiredLevel: 8,
         cost: 300,
-        damageType: 'physical',
+        damageType: DamageType.PHYSICAL,
         hitCount: 3
     }
 ];
@@ -69,7 +69,7 @@ const ELITE_SKILLS: Skill[] = [
         description: '释放龙族之力，造成巨大伤害并提升自身攻击力。',
         requiredLevel: 15,
         cost: 800,
-        damageType: 'magic',
+        damageType: DamageType.MAGIC,
         effects: [
             {
                 type: SkillEffectType.BUFF,
@@ -88,7 +88,7 @@ const ELITE_SKILLS: Skill[] = [
         description: '瞬间移动到敌人身后发动致命一击，必定暴击且无视目标30%防御。',
         requiredLevel: 12,
         cost: 600,
-        damageType: 'physical',
+        damageType: DamageType.PHYSICAL,
         effects: [
             {
                 type: SkillEffectType.GUARANTEED_CRIT,
@@ -109,7 +109,7 @@ const ULTIMATE_SKILLS: Skill[] = [
         description: '召唤天界之力进行审判，造成巨大的神圣伤害，并治疗自身。',
         requiredLevel: 20,
         cost: 1500,
-        damageType: 'magic',
+        damageType: DamageType.MAGIC,
         effects: [
             {
                 type: SkillEffectType.HEAL,
@@ -126,7 +126,7 @@ const ULTIMATE_SKILLS: Skill[] = [
         description: '召唤无数飞剑进行打击，造成多段伤害并降低目标防御。',
         requiredLevel: 20,
         cost: 1500,
-        damageType: 'physical',
+        damageType: DamageType.PHYSICAL,
         hitCount: 8,
         effects: [
             {
@@ -138,7 +138,6 @@ const ULTIMATE_SKILLS: Skill[] = [
         ]
     }
 ];
-
 /** 所有技能列表 */
 export const SKILL_LIST: Skill[] = [
     ...BASIC_SKILLS,

@@ -4,6 +4,7 @@ import { EventConfig, EventResultType } from '../../constants/scenes';
 import { Player } from '../../class/player';
 import { RandomUtils } from '../../utils/random';
 import { getItemById } from '../../utils/items';
+import { SkillBuffs } from '../../constants/buff';
 import './index.scss';
 
 interface EventPanelProps {
@@ -20,11 +21,19 @@ export const EventPanel: React.FC<EventPanelProps> = ({ event, onComplete }) => 
         // 处理事件结果
         switch (result.type) {
             case EventResultType.BUFF:
-                player.addBuff(result.stat!, result.value, result.duration!);
+                player.addBuff(SkillBuffs.createAttributeBuff(
+                    result.stat!,
+                    result.value,
+                    result.duration!
+                ));
                 break;
 
             case EventResultType.DEBUFF:
-                player.addBuff(result.stat!, result.value, result.duration!);
+                player.addBuff(SkillBuffs.createAttributeBuff(
+                    result.stat!,
+                    -result.value,
+                    result.duration!
+                ));
                 break;
 
             case EventResultType.ITEM:

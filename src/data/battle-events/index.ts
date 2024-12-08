@@ -57,14 +57,14 @@ export const BATTLE_EVENTS = {
                         weight: 50,
                         result: {
                             type: EventResultType.BUFF,
-                            value: 0.1,
+                            value: 1,
                             duration: 2,
-                            stat: StatType.SPELL_AFFINITY,
-                            description: '获得法术亲和提升10%，持续2场战斗'
+                            stat: StatType.ATTACK,
+                            description: '获得攻击力提升100%，持续2场战斗'
                         }
                     },
                     {
-                        weight: 30,
+                        weight: 50,
                         result: {
                             type: EventResultType.DAMAGE,
                             value: 0.2,

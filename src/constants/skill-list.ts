@@ -1,22 +1,33 @@
 import { StatType } from "./stats";
 
 /** 伤害类型 */
-export type DamageType = 'physical' | 'magic';
+export enum DamageType {
+    /** 物理伤害 */
+    PHYSICAL = 'physical',
+    /** 魔法伤害 */
+    MAGIC = 'magic'
+}
+
+/** 伤害类型名称映射 */
+export const DamageTypeNames: Record<DamageType, string> = {
+    [DamageType.PHYSICAL]: '物理伤害',
+    [DamageType.MAGIC]: '魔法伤害'
+};
 
 /** 技能类型 */
 export enum SkillEffectType {
     /** 眩晕技能 */
     STUN = 'stun',
-    
+
     /** 增益技能 */
     BUFF = 'buff',
-    
+
     /** 减益技能 */
     DEBUFF = 'debuff',
-    
+
     /** 治疗技能 */
     HEAL = 'heal',
-    
+
     /** 必定暴击技能 */
     GUARANTEED_CRIT = 'guaranteed_crit'
 }
