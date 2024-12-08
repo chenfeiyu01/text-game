@@ -16,10 +16,36 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 
     .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+
       h1 {
         color: #1890ff;
         margin: 0;
         font-size: 20px;
+      }
+
+      .level-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: #666;
+        font-size: 14px;
+
+        .exp-progress {
+          width: 200px;
+          
+          .ant-progress {
+            margin: 0;
+            line-height: 1;
+            
+            .ant-progress-text {
+              font-size: 12px;
+              color: #666;
+            }
+          }
+        }
       }
     }
   }

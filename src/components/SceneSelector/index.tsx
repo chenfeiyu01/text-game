@@ -33,7 +33,7 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
         // 获取所有进行中的任务
         const inProgressQuests = questSystem.getInProgressQuests();
         
-        // 找出所有匹配当前副本的任务
+        // 找出所��匹配当前副本的任务
         const matchedQuests = inProgressQuests.filter(quest => 
             // 检查任务目标中的副本
             quest.objectives.some(obj => 
@@ -89,16 +89,32 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
                                         <div className="scene-title">
                                             <div className="scene-title-left">
                                                 <span>{scene.name}</span>
-                                                <Tag color={isLevelMatch ? 'green' : 'red'}>
-                                                    Lv.{scene.levelRange.min}-{scene.levelRange.max}
+                                                <Tag color={isLevelMatch ? 'green' : 'orange'}>
+                                                    推荐 Lv.{scene.levelRange.min}-{scene.levelRange.max}
                                                 </Tag>
+                                                {!isLevelMatch && playerLevel < scene.levelRange.min && (
+                                                    <Tag color="red">难度较大</Tag>
+                                                )}
+                                                {!isLevelMatch && playerLevel > scene.levelRange.max && (
+                                                    <Tag color="gray">难度较低</Tag>
+                                                )}
                                                 {getSceneQuestInfo(scene.id)}
                                             </div>
                                         </div>
                                     }
                                     className={`scene-card ${isLevelMatch ? 'available' : 'locked'}`}
                                     hoverable
-                                    onClick={() => isLevelMatch && handleSelect(scene.id)}
+                                    onClick={() => {
+                                        if (!isLevelMatch && playerLevel < scene.levelRange.min) {
+                                            Modal.confirm({
+                                                title: '难度警告',
+                                                content: `该副本推荐等级为 ${scene.levelRange.min}-${scene.levelRange.max}，你的等级较低，可能会遇到较大挑战。是否继续？`,
+                                                onOk: () => handleSelect(scene.id)
+                                            });
+                                        } else {
+                                            handleSelect(scene.id);
+                                        }
+                                    }}
                                 >
                                     <div className="scene-content">
                                         <p className="scene-description">{scene.description}</p>

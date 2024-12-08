@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.scss'
 import BattleScene from './components/BattleScene'
 import CharacterBaseStatus from './components/CharacterBaseStatus'
@@ -7,7 +7,7 @@ import CharacterCreation from './components/CharacterCreation'
 import { Player } from './class/player'
 import { SCENES } from './data/maps/scenes'
 import { SaveSystem } from './class/save-system'
-import { Button, Space, Badge } from 'antd'
+import { Button, Space, Badge, Progress } from 'antd'
 import Inventory from './components/Inventory'
 import { Character } from './class/character'
 import { InboxOutlined, CompassOutlined, ShopOutlined, ThunderboltOutlined, BookOutlined, SaveOutlined } from '@ant-design/icons'
@@ -33,6 +33,7 @@ function App() {
   const [isSceneSelectorVisible, setIsSceneSelectorVisible] = useState(false);
   const [isQuestPanelVisible, setIsQuestPanelVisible] = useState(false);
   const [isStoryPanelVisible, setIsStoryPanelVisible] = useState(false);
+  const [expProgress, setExpProgress] = useState({ exp: 0, expNeeded: 0, level: 1 });
 
   // 使用静态工厂方法创建NPC
   const shopkeeper = ShopNpc.create('SHOP_KEEPER');
@@ -73,11 +74,44 @@ function App() {
     setIsInBattle(true);
   };
 
+  // 更新经验值进度
+  useEffect(() => {
+    if (gameState === 'game') {
+      const player = Player.getInstance();
+      const updateExp = () => {
+        setExpProgress({
+          exp: player.exp,
+          expNeeded: player.expNeeded,
+          level: player.level
+        });
+      };
+      
+      // 初始更新
+      updateExp();
+      
+      // 添加状态变化监听
+      const removeListener = player.setStateChangeCallback(updateExp);
+      
+      return () => removeListener();
+    }
+  }, [gameState]);
+
   const renderGameUI = () => (
     <div className="game-layout">
       <div className="game-header">
         <div className="header-left">
           <h1>冒险者日志</h1>
+          <div className="level-info">
+            <span>Lv.{expProgress.level}</span>
+            <div className="exp-progress">
+              <Progress 
+                percent={Math.floor((expProgress.exp / expProgress.expNeeded) * 100)} 
+                format={() => `${expProgress.exp} / ${expProgress.expNeeded}`}
+                size="small"
+                strokeColor="#1890ff"
+              />
+            </div>
+          </div>
         </div>
         <div className="header-right">
           <Space>
@@ -179,7 +213,7 @@ function App() {
         onClose={() => setIsStoryPanelVisible(false)}
       />
 
-      {/* 添加开发者��具 */}
+      {/* 添加开发者工�� */}
       {/* @ts-ignore */}
       {process.env.NODE_ENV === 'development' && <DevTools />}
     </div>

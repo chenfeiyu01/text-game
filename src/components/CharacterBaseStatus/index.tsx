@@ -6,6 +6,7 @@ import { GearSlot, GearItem, getRarityColor } from '../../constants/item';
 import { StatType, STAT_CONFIG, formatStatValue } from '../../constants/stats';
 import './index.scss';
 import { SkillEffect, SkillEffectType } from '../../constants/skill-list';
+import { ItemTag } from '../ItemTag';
 
 interface CharacterBaseStatusProps {
     character: Character;
@@ -55,6 +56,8 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
     // 渲染基础属性面板
     const renderBaseStats = () => {
         const statsToShow = [
+            StatType.MAX_HP,
+            StatType.MAX_MP,
             StatType.ATTACK,
             StatType.DEFENSE,
             StatType.CRIT_RATE,
@@ -77,13 +80,13 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
                         <span className="stat-name">{STAT_CONFIG[statType].name}</span>
                     </Tooltip>
                     <span className="stat-value">
-                        {formatStatValue(statType, totalValue)}
+                        <span>{formatStatValue(statType, totalValue)}</span>
                         {bonusValue !== 0 && (
                             <span className="stat-breakdown">
-                                （{formatStatValue(statType, baseValue)} + 
+                                ({formatStatValue(statType, baseValue)} + 
                                 <span className={bonusValue > 0 ? 'positive' : 'negative'}>
                                     {formatStatValue(statType, bonusValue)}
-                                </span>）
+                                </span>)
                             </span>
                         )}
                     </span>
@@ -101,10 +104,10 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
                         <div className="item-info">
                             <Tooltip title={`装备等级：${equippedItem.enhanceLevel || 0}`} placement="top">
                                 <div className="item-name">
-                                    <span style={{ color: getRarityColor(equippedItem.rarity) }}>
-                                        {equippedItem.name}
+                                    <span>
+                                        <ItemTag item={equippedItem} />
                                     </span>
-                                    <span className="item-level">+{equippedItem.enhanceLevel || 0}</span>
+                                    {/* <span className="item-level">+{equippedItem.enhanceLevel || 0}</span> */}
                                 </div>
                             </Tooltip>
                             <div className="item-stats">

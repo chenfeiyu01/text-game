@@ -5,7 +5,8 @@ import { DamageType, Skill } from "../constants/skill-list";
 import { GameSystem } from "./game-system";
 import { Inventory } from './inventory';
 import { STAT_CONFIG, StatType } from '../constants/stats';
-import { BuffManager, Buff } from "../constants/buff";
+import { Buff } from "../constants/buff";
+import { BuffManager } from "./buff-manager";
 
 // 在文件顶部添加导出接口
 export interface CharacterConfig {
@@ -37,7 +38,7 @@ export interface CharacterConfig {
  * 
  * @description
  * 主要功能:
- * - 管���角色基础属性(生命值、魔法值、攻击力等)
+ * - 管角色基础属性(生命值、魔法值、攻击力等)
  * - 处理战斗相关逻辑(伤害计算、技能使用等)
  * - 管理装备系统
  * - 处理等级和经验值系统
@@ -56,7 +57,7 @@ export class Character {
     private _charge: number = 0;
     /** 状态变化回调函数集合 */
     private _stateChangeCallbacks: Set<() => void> = new Set();
-    /** 角色背包系统 */
+    /** 角色背包��统 */
     protected _inventory: Inventory;
     /** 临时效果集合 */
     private _temporaryEffects: Map<string, {
@@ -123,7 +124,7 @@ export class Character {
      * 构造函数
      * @param config 角色配置对象
      * @param config.name 角色名称
-     * @param config.id 角���ID
+     * @param config.id 角色ID
      * @param config.maxHp 最大生命值
      * @param config.maxMp 最大魔法值
      * @param config.attack 攻击力
@@ -169,8 +170,8 @@ export class Character {
     public readonly id?: Monsters;         // 角色ID
 
     // Getters - 属性访问器
-    get hp(): number { return this._hp; }
-    get mp(): number { return this._mp; }
+    get hp(): number { return Math.floor(this._hp); }
+    get mp(): number { return Math.floor(this._mp); }
     get maxHp(): number { return this.getStat(StatType.MAX_HP); }
     get maxMp(): number { return this.getStat(StatType.MAX_MP); }
     get exp(): number { return this._exp; }
@@ -193,7 +194,7 @@ export class Character {
     /**
      * 获取指定槽位的装备
      * @param slot 装备槽位
-     * @returns 物品，如果位为空则返回 undefined
+     * @returns ����品，如果位为空则返回 undefined
      */
     getEquippedItem(slot: GearSlot): GearItem | undefined {
         return this._equippedItems[slot];
@@ -242,7 +243,7 @@ export class Character {
     }
 
     /**
-     * 获得经验值并检查��否升级
+     * 获得经验值并检查否升级
      * @param amount 获得的经验值数量
      */
     gainExp(amount: number) {
@@ -253,7 +254,7 @@ export class Character {
     }
 
     /**
-     * 计算升级所需经验值
+     * 计算升级���需经验值
      * 1-20级：基础经验 = 等级 * 100
      * 21-40级：基础经验 = 等级 * 150 * (1 + (等级-20) * 0.1)
      * 41-60级：基础经验 = 等级 * 200 * (1 + (等级-40) * 0.15)
@@ -321,7 +322,7 @@ export class Character {
         this._hp = this.baseStats[StatType.MAX_HP];
         this._mp = this.baseStats[StatType.MAX_MP];
 
-        console.log(`${this.name} 级��� ${this.level} 级！下一级需要 ${this.calculateExpNeeded()} 经验值`);
+        console.log(`${this.name} 级 ${this.level} 级！下一级需要 ${this.calculateExpNeeded()} 经验值`);
 
         // 状态变化通知已经在 hp 和 mp 的 setter 中处理
         this.notifyStateChange();  // 添加知以确保更新
@@ -329,11 +330,11 @@ export class Character {
 
     /**
      * 增加充能值
-     * @param amount 基础充能量（定为5%）
+     * @param amount 基础充能量（定为0.05）
      */
     addCharge(amount: number) {
         // 固定能量5%，受充能效率影响，上限100%
-        this._charge = Math.min(100, this._charge + 5 * this.baseStats[StatType.CHARGE_RATE]);
+        this._charge = Math.min(1, this._charge + 0.05 * this.baseStats[StatType.CHARGE_RATE]);
         this.notifyStateChange();
     }
 
@@ -343,7 +344,9 @@ export class Character {
      * @returns 技能是否使用成功
      */
     useSkill() {
-        if (!this._equippedSkill) return;
+        if (!this._equippedSkill) return false;
+        if (this._charge < 1) return false;  // 充能不足
+        if (this._mp < this._equippedSkill.manaCost) return false;  // 魔法不足
 
         // 执行技能效果
         if (this._equippedSkill.effects) {
@@ -356,8 +359,9 @@ export class Character {
         }
 
         this.isUsingSkill = true;
-        this._charge = 0;
+        this._charge = 0;  // 重置充能
         this._mp -= this._equippedSkill.manaCost;
+        return true;
     }
 
     /**
@@ -420,7 +424,7 @@ export class Character {
 
     /**
      * 添加状态变化回调函数
-     * @param callback 回调函数
+     * @param callback 回����数
      * @returns 用于移除回调的函数
      */
     setStateChangeCallback(callback: () => void) {
@@ -463,23 +467,6 @@ export class Character {
         this._level = state.level;
         this._charge = state.charge;
         this.updateStats();
-    }
-
-    /**
-     * 获取实际属性值（包含临时效果）
-     * @param attribute 属性名
-     * @returns 计算后的属性值
-     */
-    public getEffectiveAttribute(attribute: keyof GearStats): number {
-        // TODO: 现在没有做 buff 相关
-        // @ts-ignore
-        let baseValue = this[attribute] || 0;
-        this._temporaryEffects.forEach(effect => {
-            if (effect.attribute === attribute) {
-                baseValue += effect.value;
-            }
-        });
-        return baseValue;
     }
 
     /**
@@ -535,7 +522,7 @@ export class Character {
         // 从背包中移除新装备
         this._inventory.removeItem(item.id);
 
-        // 装备新物品
+        // 装备新物��
         this._equippedItems[item.slot] = item;
         this.updateStats();
 
@@ -749,8 +736,14 @@ export class Character {
         this.statusEffects.delete(status);
     }
 
-    /** 检查是否有某个状态 */
+    /** 检查是否有某个���态 */
     public hasStatus(status: string): boolean {
         return this.statusEffects.has(status);
+    }
+
+    /** 直接装备物品（用于加载存档） */
+    public restoreEquipment(slot: GearSlot, item: GearItem): void {
+        this._equippedItems[slot] = item;
+        this.updateStats();
     }
 }

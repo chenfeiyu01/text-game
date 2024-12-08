@@ -21,9 +21,11 @@ export class DungeonGenerator {
         const { rules, monsterGroups, bosses, events } = scene;
         const { minBattles, maxBattles, minEvents, maxEvents } = rules;
 
-        // 决定战斗和事件的数量
+        // 决定战斗和事件的数量（如果没有事件则事件数量为0）
         const battleCount = RandomUtils.getRandomInt(minBattles, maxBattles);
-        const eventCount = RandomUtils.getRandomInt(minEvents, maxEvents);
+        const eventCount = events?.length 
+            ? RandomUtils.getRandomInt(minEvents, maxEvents)
+            : 0;
 
         // 生成节点池
         const nodes: DungeonNode[] = [
@@ -35,14 +37,14 @@ export class DungeonGenerator {
                 },
                 next: []
             })),
-            // 生成事件节点
-            ...Array(eventCount).fill(null).map(() => ({
+            // 只在有事件时生成事件节点
+            ...(events?.length ? Array(eventCount).fill(null).map(() => ({
                 type: 'EVENT' as const,
                 content: {
                     event: RandomUtils.getRandomElement(events)
                 },
                 next: []
-            }))
+            })) : [])
         ];
 
         // 打乱节点顺序

@@ -1,10 +1,12 @@
 import { Player } from './player';
-import { GearItem, Item } from '../constants/item';
+import { GearItem, GearSlot, Item } from '../constants/item';
 import { StatType } from '../constants/stats';
 import { getSkillById } from '../utils/skills';
 
 /** 保存的游戏数据接口 */
 interface SaveData {
+    /** 玩家名称 */
+    name: string;
     /** 基础属性 */
     baseStats: Record<StatType, number>;
     /** 当前生命值 */
@@ -20,11 +22,11 @@ interface SaveData {
     /** 金币数量 */
     gold: number;
     /** 已装备的物品 */
-    equippedItems: { [key: string]: GearItem };
+    equippedItems: { [key in GearSlot]?: GearItem };
     /** 背包物品 */
     inventory: { [key: string]: { item: Item; count: number } };
     /** 已学习的技能ID列表 */
-    learnedSkills: Set<string>;
+    learnedSkills: string[];
     /** 当前装备的技能ID */
     equippedSkill?: string;
 }
@@ -38,6 +40,7 @@ export class SaveSystem {
         const player = Player.getInstance();
         
         const saveData: SaveData = {
+            name: player.name,
             baseStats: player.getAllBaseStats(),
             hp: player.hp,
             mp: player.mp,
@@ -47,7 +50,7 @@ export class SaveSystem {
             gold: player.inventory.gold,
             equippedItems: player.equippedItems,
             inventory: player.inventory.getSerializableItems(),
-            learnedSkills: player.skills,
+            learnedSkills: Array.from(player.skills),
             equippedSkill: player.equippedSkill?.id
         };
 
@@ -59,13 +62,24 @@ export class SaveSystem {
     static load(): boolean {
         const saveStr = localStorage.getItem(this.SAVE_KEY);
         if (!saveStr) {
-            console.log('没有找到存档');
+            console.log('没���找到存档');
             return false;
         }
 
         try {
             const saveData: SaveData = JSON.parse(saveStr);
-            const player = Player.getInstance();
+
+            // 初始化玩家
+            const player = Player.initializePlayer({
+                name: saveData.name,
+                maxHp: saveData.baseStats[StatType.MAX_HP],
+                maxMp: saveData.baseStats[StatType.MAX_MP],
+                attack: saveData.baseStats[StatType.ATTACK],
+                defense: saveData.baseStats[StatType.DEFENSE],
+                critRate: saveData.baseStats[StatType.CRIT_RATE],
+                critDamage: saveData.baseStats[StatType.CRIT_DAMAGE],
+                chargeRate: saveData.baseStats[StatType.CHARGE_RATE]
+            });
 
             // 恢复基础属性
             player.setAllBaseStats(saveData.baseStats);
@@ -81,7 +95,7 @@ export class SaveSystem {
 
             // 恢复装备
             Object.entries(saveData.equippedItems).forEach(([slot, item]) => {
-                player.equipItem(item);
+                player.restoreEquipment(slot as GearSlot, item);
             });
 
             // 恢复背包
@@ -91,7 +105,7 @@ export class SaveSystem {
             });
 
             // 恢复技能
-            player.restoreSkills(saveData.learnedSkills);
+            player.restoreSkills(new Set(saveData.learnedSkills));
             if (saveData.equippedSkill) {
                 const skill = getSkillById(saveData.equippedSkill);
                 if (skill) {
