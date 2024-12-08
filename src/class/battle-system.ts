@@ -13,6 +13,7 @@ import { Monsters } from "../constants/monsters";
 import { StatType } from "../constants/stats";
 import { QuestSystem } from "./quest-system";
 import { QuestObjectiveType } from '../constants/quest'
+import { SkillEffectType } from '../constants/skill-list'
 
 /**
  * 战斗系统类
@@ -98,7 +99,7 @@ export class BattleSystem {
      */
     private async performPlayerTurn() {
         // 检查是否可以使用技能
-        const canUseSkill = this.player.charge >= 100 &&
+        const canUseSkill = this.player.charge >= 1 &&
             this.player.mp >= (this.player.equippedSkill?.manaCost || 0);
 
         if (canUseSkill && this.player.equippedSkill) {
@@ -106,6 +107,14 @@ export class BattleSystem {
             this.player.useSkill();
             const damageResult = this.player.calculateDamage(this.player.equippedSkill.damage);
             const result = this.enemy.takeDamage(damageResult.damage);
+
+            // 处理技能效果
+            this.player.equippedSkill.effects?.forEach(effect => {
+                if (effect.type === SkillEffectType.DEBUFF && effect.buff) {
+                    this.enemy.addBuff(effect.buff);
+                }
+            });
+
             this.recordBattleAction(
                 `使用技能「${this.player.equippedSkill.name}」`,
                 result.damage,

@@ -1,143 +1,177 @@
-import { Skill, SkillEffectType, DamageType } from "../../constants/skill-list";
-import { StatType } from "../../constants/stats";
+import { Skill, SkillEffectType } from '../../constants/skill-list';
+import { StatType } from '../../constants/stats';
+import { SkillImpl } from '../../constants/skill-list';
+import { BuffSourceType, BuffType } from '../../constants/buff';
+import { DamageType } from '../../constants/battle';
 
 /** 基础技能 */
 const BASIC_SKILLS: Skill[] = [
-    {
-        id: 'test-skill-1',
-        name: '测试用技能',
-        damage: 50,
-        manaCost: 30,
-        chargeCost: 100,
-        description: '测试用技能',
-        requiredLevel: 1,
-        cost: 0,
-        damageType: DamageType.MAGIC,
-        effects: [
+    new SkillImpl(
+        'test-skill-1',
+        '测试用技能',
+        '测试用技能',
+        [
             {
                 type: SkillEffectType.BUFF,
-                stat: StatType.ATTACK,
-                value: 300,
-                duration: 2
+                buff: {
+                    id: 'test-skill-1-buff',
+                    name: '力量增幅',
+                    description: '提升攻击力',
+                    duration: 2,
+                    type: BuffType.ATTRIBUTE,
+                    stat: StatType.ATTACK,
+                    value: 3,
+                    isPercentage: false,
+                    source: BuffSourceType.SKILL
+                }
             }
-        ]
-    }
+        ],
+        30,
+        100,
+        0,
+        1,
+        50,
+        DamageType.MAGIC
+    )
 ];
 
 /** 进阶技能 */
 const ADVANCED_SKILLS: Skill[] = [
-    {
-        id: 'thunder_strike',
-        name: '雷霆一击',
-        damage: 120,
-        manaCost: 45,
-        chargeCost: 100,
-        description: '召唤雷电打击敌人，有几率使目标麻痹一回合。',
-        requiredLevel: 5,
-        cost: 200,
-        damageType: DamageType.MAGIC,
-        effects: [
+    new SkillImpl(
+        'thunder_strike',
+        '雷霆一击',
+        '释放强大的雷电能量，造成魔法伤害并有几率使目标眩晕。',
+        [
             {
                 type: SkillEffectType.STUN,
                 chance: 0.3,
                 duration: 1
             }
-        ]
-    },
-    {
-        id: 'blade_storm',
-        name: '剑刃风暴',
-        damage: 80,
-        manaCost: 40,
-        chargeCost: 100,
-        description: '释放多次剑气攻击，每次攻击都有独立的暴击判定。',
-        requiredLevel: 8,
-        cost: 300,
-        damageType: DamageType.PHYSICAL,
-        hitCount: 3
-    }
+        ],
+        35,
+        100,
+        200,
+        5,
+        120,
+        DamageType.MAGIC
+    ),
+    new SkillImpl(
+        'blade_storm',
+        '剑刃风暴',
+        '释放多次剑气攻击，每次攻击都有独立的暴击判定。',
+        [
+            {
+                type: SkillEffectType.DAMAGE,
+                damageType: DamageType.PHYSICAL,
+                value: 100,
+                isPercentage: false
+            }
+        ],
+        40,
+        100,
+        300,
+        8,
+        80,
+        DamageType.PHYSICAL
+    )
 ];
 
 /** 精英技能 */
 const ELITE_SKILLS: Skill[] = [
-    {
-        id: 'dragon_rage',
-        name: '龙之怒焰',
-        damage: 200,
-        manaCost: 80,
-        chargeCost: 100,
-        description: '释放龙族之力，造成巨大伤害并提升自身攻击力。',
-        requiredLevel: 15,
-        cost: 800,
-        damageType: DamageType.MAGIC,
-        effects: [
+    new SkillImpl(
+        'dragon_rage',
+        '龙之怒焰',
+        '释放龙族之力，造成巨大伤害并提升自身攻击力。',
+        [
             {
                 type: SkillEffectType.BUFF,
-                stat: StatType.ATTACK,
-                value: 0.2,
-                duration: 3
+                buff: {
+                    id: 'dragon-rage-buff',
+                    name: '龙之力',
+                    description: '龙族之力增幅攻击力',
+                    duration: 3,
+                    type: BuffType.ATTRIBUTE,
+                    stat: StatType.ATTACK,
+                    value: 0.2,
+                    isPercentage: true,
+                    source: BuffSourceType.SKILL
+                }
             }
-        ]
-    },
-    {
-        id: 'shadow_assault',
-        name: '暗影突袭',
-        damage: 150,
-        manaCost: 60,
-        chargeCost: 100,
-        description: '瞬间移动到敌人身后发动致命一击，必定暴击且无视目标30%防御。',
-        requiredLevel: 12,
-        cost: 600,
-        damageType: DamageType.PHYSICAL,
-        effects: [
+        ],
+        80,
+        100,
+        800,
+        15,
+        200,
+        DamageType.MAGIC
+    ),
+    new SkillImpl(
+        'shadow_assault',
+        '暗影突袭',
+        '瞬间接近目标进行致命一击，必定暴击并无视部分防御。',
+        [
             {
                 type: SkillEffectType.GUARANTEED_CRIT,
                 defenseReduction: 0.3
             }
-        ]
-    }
+        ],
+        60,
+        100,
+        800,
+        15,
+        150,
+        DamageType.PHYSICAL
+    )
 ];
 
 /** 终极技能 */
 const ULTIMATE_SKILLS: Skill[] = [
-    {
-        id: 'celestial_judgment',
-        name: '天之裁决',
-        damage: 300,
-        manaCost: 100,
-        chargeCost: 100,
-        description: '召唤天界之力进行审判，造成巨大的神圣伤害，并治疗自身。',
-        requiredLevel: 20,
-        cost: 1500,
-        damageType: DamageType.MAGIC,
-        effects: [
+    new SkillImpl(
+        'celestial_judgment',
+        '天之裁决',
+        '召唤天界之力进行审判，造成巨大的神圣伤害，并治疗自身。',
+        [
             {
                 type: SkillEffectType.HEAL,
-                value: 0.2, // 基于最大生命值的20%
+                value: 0.2
             }
-        ]
-    },
-    {
-        id: 'thousand_blades',
-        name: '千刃飞舞',
-        damage: 80,
-        manaCost: 120,
-        chargeCost: 100,
-        description: '召唤无数飞剑进行打击，造成多段伤害并降低目标防御。',
-        requiredLevel: 20,
-        cost: 1500,
-        damageType: DamageType.PHYSICAL,
-        hitCount: 8,
-        effects: [
+        ],
+        100,
+        100,
+        1500,
+        20,
+        300,
+        DamageType.MAGIC
+    ),
+    new SkillImpl(
+        'thousand_blades',
+        '千刃飞舞',
+        '召唤无数飞剑进行打击，造成多段伤害并降低目标防御。',
+        [
             {
                 type: SkillEffectType.DEBUFF,
-                stat: StatType.DEFENSE,
-                value: -0.3,
-                duration: 2
+                buff: {
+                    id: 'thousand-blades-debuff',
+                    name: '破甲',
+                    description: '防御力降低',
+                    duration: 2,
+                    type: BuffType.ATTRIBUTE,
+                    stat: StatType.DEFENSE,
+                    value: 0.3,
+                    isPercentage: true,
+                    source: BuffSourceType.SKILL
+                }
             }
-        ]
-    }
+        ],
+        120,
+        100,
+        1500,
+        20,
+        80,
+        DamageType.PHYSICAL
+    )
 ];
+
 /** 所有技能列表 */
 export const SKILL_LIST: Skill[] = [
     ...BASIC_SKILLS,

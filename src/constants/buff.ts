@@ -1,6 +1,6 @@
 import { STAT_CONFIG, StatType } from "./stats";
 import { Character } from "../class/character";
-import { DamageType, DamageTypeNames } from "./skill-list";
+import { DamageType, DamageTypeNames } from "./battle";
 
 /** Buff来源类型 */
 export enum BuffSourceType {

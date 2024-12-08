@@ -94,6 +94,13 @@ export const SkillPanel: React.FC<SkillPanelProps> = ({ npc }) => {
                             description={
                                 <div className="skill-info">
                                     <div className="skill-description">{skill.description}</div>
+                                    <div className="skill-effects">
+                                        {skill.getEffectDescriptions().map((desc, index) => (
+                                            <div key={index} className="effect-item">
+                                                {desc}
+                                            </div>
+                                        ))}
+                                    </div>
                                     <div className="skill-requirements">
                                         <span>需求等级: {skill.requiredLevel}</span>
                                         <span>魔法消耗: {skill.manaCost}</span>

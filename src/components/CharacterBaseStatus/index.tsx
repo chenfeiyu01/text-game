@@ -5,8 +5,9 @@ import { InfoCircleOutlined } from '@ant-design/icons'
 import { GearSlot, GearItem, getRarityColor } from '../../constants/item';
 import { StatType, STAT_CONFIG, formatStatValue } from '../../constants/stats';
 import './index.scss';
-import { SkillEffect, SkillEffectType } from '../../constants/skill-list';
+import { Skill, SkillEffect, SkillEffectType } from '../../constants/skill-list';
 import { ItemTag } from '../ItemTag';
+import { DamageTypeNames } from '../../constants/battle';
 
 interface CharacterBaseStatusProps {
     character: Character;
@@ -147,7 +148,7 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
                             <div className="item-stats">
                                 <div className="stat-item">
                                     <span>伤害类型</span>
-                                    <span>{equippedSkill.damageType === 'physical' ? '物理' : '魔法'}</span>
+                                    <span>{DamageTypeNames[equippedSkill.damageType]}</span>
                                 </div>
                                 <div className="stat-item">
                                     <span>基础伤害</span>
@@ -169,7 +170,7 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
                                 )}
                                 {equippedSkill.effects?.map((effect, index) => (
                                     <div key={index} className="effect-item">
-                                        {renderSkillEffect(effect)}
+                                        {renderSkillEffect(equippedSkill)}
                                     </div>
                                 ))}
                             </div>
@@ -191,21 +192,12 @@ const CharacterBaseStatus: React.FC<CharacterBaseStatusProps> = ({ character }) 
         );
     };
 
-    const renderSkillEffect = (effect: SkillEffect) => {
-        switch (effect.type) {
-            case SkillEffectType.STUN:
-                return `${effect.chance ? effect.chance * 100 : 0}%几率眩晕${effect.duration}回合`;
-            case SkillEffectType.BUFF:
-                return `提升${STAT_CONFIG[effect.stat!].name} ${effect.value! * 100}% (${effect.duration}回合)`;
-            case SkillEffectType.DEBUFF:
-                return `降低${STAT_CONFIG[effect.stat!].name} ${Math.abs(effect.value!) * 100}% (${effect.duration}回合)`;
-            case SkillEffectType.HEAL:
-                return `恢复${effect.value! * 100}%最大生命值`;
-            case SkillEffectType.GUARANTEED_CRIT:
-                return `必定暴击，无视目标${effect.defenseReduction! * 100}%防御`;
-            default:
-                return '';
-        }
+    const renderSkillEffect = (skill: Skill) => {
+        return skill.getEffectDescriptions().map((desc, index) => (
+            <div key={index} className="effect-item">
+                {desc}
+            </div>
+        ));
     };
 
     const items = [

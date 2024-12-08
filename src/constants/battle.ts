@@ -51,3 +51,13 @@ export interface BattleReward {
     /** 获得的物品ID列表 */
     items?: ItemId[];
 }
+
+export enum DamageType {
+    PHYSICAL = '物理',
+    MAGIC = '魔法'
+}
+
+export const DamageTypeNames = {
+    [DamageType.PHYSICAL]: '物理',
+    [DamageType.MAGIC]: '魔法'
+}
