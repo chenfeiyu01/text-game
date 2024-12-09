@@ -35,10 +35,6 @@
         }
     }
 
-    .item-quantity {
-        color: #666;
-    }
-
     .inventory-item {
         .item-basic {
             display: flex;
@@ -116,6 +112,7 @@
 
                 .item-quantity {
                     color: #666;
+                    width: 40px;
                 }
             }
 

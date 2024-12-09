@@ -33,7 +33,7 @@ export const SceneSelector: React.FC<SceneSelectorProps> = ({
         // 获取所有进行中的任务
         const inProgressQuests = questSystem.getInProgressQuests();
         
-        // 找出所��匹配当前副本的任务
+        // 找出所有匹配当前副本的任务
         const matchedQuests = inProgressQuests.filter(quest => 
             // 检查任务目标中的副本
             quest.objectives.some(obj => 

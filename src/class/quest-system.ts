@@ -162,6 +162,7 @@ export class QuestSystem {
             });
         }
 
+        // 更新任务状态
         progress.status = QuestStatus.FINISHED;
         gameSystem.sendMessage(
             MessageType.QUEST,
@@ -170,7 +171,6 @@ export class QuestSystem {
 
         // 添加剧情记录
         const storySystem = StorySystem.getInstance();
-        
         if (quest?.story) {
             storySystem.addEntry({
                 id: `QUEST_${questId}`,
@@ -179,6 +179,14 @@ export class QuestSystem {
                 questId
             });
         }
+
+        // 更新所有任务的可用状态
+        QUESTS.forEach(q => {
+            const qProgress = this.questProgress.get(q.id);
+            if (qProgress && qProgress.status === QuestStatus.UNAVAILABLE) {
+                qProgress.status = this.checkQuestAvailability(q);
+            }
+        });
     }
 
     // 在 BattleScene 中调用
@@ -190,7 +198,27 @@ export class QuestSystem {
         this.updateQuestProgress(QuestObjectiveType.KILL_MONSTER, monsterId);
     }
 
-    public getQuestProgress(questId: string) {
-        return this.questProgress.get(questId);
+    public getQuestProgress(questId: string): { 
+        status: QuestStatus; 
+        objectives: { current: number; required: number }[] 
+    } | null {
+        return this.questProgress.get(questId) || null;
+    }
+
+    public restoreProgress(progress: Array<{
+        id: string;
+        status: QuestStatus;
+        objectives: { current: number; required: number }[];
+    }>) {
+        progress.forEach(({ id, status, objectives }) => {
+            this.questProgress.set(id, { status, objectives });
+        });
+    }
+
+    public getAllQuestProgress(): Map<string, {
+        status: QuestStatus;
+        objectives: { current: number; required: number }[];
+    }> {
+        return this.questProgress;
     }
 } 

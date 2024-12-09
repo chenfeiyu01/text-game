@@ -40,16 +40,12 @@ export interface CharacterConfig {
 }
 
 /**
- * 角色类
- * 包含角色的基本属性和战斗相关的方���
- *
+ * 角色基类
  * @description
  * 主要功能:
- * - 管角色基础属性(生命值、魔法值、攻击力等)
+ * - 管理角色基础属性(生命值、魔法值、攻击力等)
  * - 处理战斗相关逻辑(伤害计算、技能使用等)
  * - 管理装备系统
- * - 处理等级和经验值系统
- * - 管理临时状态效果
  */
 export class Character {
   /** 当前生命值 */
@@ -64,7 +60,7 @@ export class Character {
   private _charge: number = 0;
   /** 状态变化回调函数集合 */
   private _stateChangeCallbacks: Set<() => void> = new Set();
-  /** 角色背包��统 */
+  /** 角色背包系统 */
   protected _inventory: Inventory;
   /** 临时效果集合 */
   private _temporaryEffects: Map<
@@ -232,7 +228,7 @@ export class Character {
   /**
    * 获取指定槽位的装备
    * @param slot 装备槽位
-   * @returns ����品，如果位为空则返回 undefined
+   * @returns 装备，如果位为空则返回 undefined
    */
   getEquippedItem(slot: GearSlot): GearItem | undefined {
     return this._equippedItems[slot];
@@ -294,7 +290,7 @@ export class Character {
   }
 
   /**
-   * 计算升级���需经验值
+   * 计算升级所需经验值
    * 1-20级：基础经验 = 等级 * 100
    * 21-40级：基础经验 = 等级 * 150 * (1 + (等级-20) * 0.1)
    * 41-60级：基础经验 = 等级 * 200 * (1 + (等级-40) * 0.15)
@@ -365,7 +361,7 @@ export class Character {
     console.log(
       `${this.name} 级 ${
         this.level
-      } 级��下一级需要 ${this.calculateExpNeeded()} 经验值`
+      } 级下一级需要 ${this.calculateExpNeeded()} 经验值`
     );
 
     // 状态变化通知已经在 hp 和 mp 的 setter 中处理
@@ -486,7 +482,7 @@ export class Character {
 
   /**
    * 添加状态变化回调函数
-   * @param callback 回����数
+   * @param callback 回调函数
    * @returns 用于移除回调的函数
    */
   setStateChangeCallback(callback: () => void) {
@@ -788,7 +784,7 @@ export class Character {
     this.updateEffects();
   }
 
-  /** 添加状态���果 */
+  /** 添加状态效果 */
   public addStatus(status: string): void {
     this.statusEffects.add(status);
   }
@@ -798,7 +794,7 @@ export class Character {
     this.statusEffects.delete(status);
   }
 
-  /** 检查是否有某个���态 */
+  /** 检查是否有某个状态 */
   public hasStatus(status: string): boolean {
     return this.statusEffects.has(status);
   }

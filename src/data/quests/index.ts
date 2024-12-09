@@ -63,56 +63,58 @@ export const QUESTS: QuestConfig[] = [
 "干得不错！"莉娜在任务卷轴上盖上了完成的印章，"第一次执行任务就这么顺利，看来你很有冒险者的天赋。"
 她从抽屉里取出一个小袋子："这是你的报酬，50枚铜币。对了，还有这个..."
 莉娜又拿出一枚铜质徽章："这是'见习冒险者'的徽章。虽然只是最基础的等级，但这代表着你正式成为了一名冒险者。继续努力的话，以后还能获得更高级的徽章。"
-她若有所思地补充道："说起来，最近像这样的异变生物越来越多了。不知道是不是和那些奇怪的传闻有关...算了，这些都是协会高层要操心的事。"
+她若有所思地补充道："说起来，最近像这样的异变生物越来越多了。不知道是不是和那些奇怪的传闻有关...算了，这些都是协会高层操心的事。"
 莉娜整理好文件，微笑着说："要不要再接一个任务？协会里还有不少适合新手的委托。"`
         }
     },
     {
         id: 'FIRST_BATTLE',
-        title: '初次战斗',
+        title: '枫叶林的试炼',
         type: QuestType.MAIN,
-        description: '前往枫叶林，与被污染的兔子战斗，测试你的战斗技巧。',
-        level: 1,
+        description: '枫叶林中出现了大量异变生物，为了证明自己的实力，你需要完成对枫叶林的探索。',
+        level: 2,
         objectives: [
             {
-                type: QuestObjectiveType.KILL_MONSTER,
-                target: Monsters.CORRUPTED_RABBIT,
+                type: QuestObjectiveType.COMPLETE_DUNGEON,
+                target: ESCENES.MAPLE_FOREST,
                 current: 0,
-                required: 3,
-                description: `击败3只${MONSTERS[Monsters.CORRUPTED_RABBIT].name}`
+                required: 1,
+                description: `通关${SCENE_NAMES[ESCENES.MAPLE_FOREST]}副本`
             }
         ],
         reward: {
-            exp: 100,
-            gold: 100,
+            exp: 300,
+            gold: 200,
             items: [
-                { id: ItemId.Consumable.HEALTH_POTION_1, quantity: 3 }
+                { id: ItemId.Consumable.HEALTH_POTION_1, quantity: 3 },
+                { id: ItemId.Consumable.MANA_POTION_1, quantity: 2 },
+                { id: ItemId.Gear.IRON_SWORD, quantity: 1 }
             ]
         },
         dialogs: {
             start: [
                 {
                     npcId: NpcFunction.SKILL,
-                    text: '是时候实践一下了。前往枫叶林，那里有一些被污染的兔子，它们实力较弱，适合你进行实战训练。',
-                    options: [{ text: '明白了', next: null }]
+                    text: '枫叶林的情况越来越糟糕了。异变兔和暗影狼的数量在不断增加，甚至有传言说出现了一只强大的暗影狼王。我们需要一位勇敢的冒险者前去调查。',
+                    options: [{ text: '我愿意接受这个任务', next: null }]
                 }
             ],
             progress: [
                 {
                     npcId: NpcFunction.SKILL,
-                    text: '继续努力，完成训练！'
+                    text: '要小心那些异变生物，特别是暗影狼王。它的实力远超普通的怪物。'
                 }
             ],
             complete: [
                 {
                     npcId: NpcFunction.SKILL,
-                    text: '做得不错！这些生命药水送给你，记住在战斗中及时恢复生命值。'
+                    text: '干得漂亮！你成功击败了暗影狼王，证明了自己的实力。这些补给和装备是你应得的奖励。记住，这只是开始，还有更多的挑战在等着你。'
                 }
             ]
         },
         story: {
-            title: '初次实战',
-            content: '枫叶林是新手冒险者的试炼场。这里的被污染兔子虽然实力不强，但它们的存在暗示着这个世界正在发生某种异变。'
+            title: '森林的异变',
+            content: '枫叶林曾经是一片宁静祥和的森林，但最近这里的生物开始发生异变。暗影狼王的出现更是预示着某种黑暗力量正在蔓延。你的冒险之旅，从清理这片被污染的森林开始。'
         },
         prerequisiteQuests: ['WELCOME_TO_ADVENTURE']
     },

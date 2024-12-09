@@ -213,7 +213,7 @@ function App() {
         onClose={() => setIsStoryPanelVisible(false)}
       />
 
-      {/* 添加开发者工�� */}
+      {/* 添加开发者工工具 */}
       {/* @ts-ignore */}
       {process.env.NODE_ENV === 'development' && <DevTools />}
     </div>

@@ -2,6 +2,8 @@ import { Player } from './player';
 import { GearItem, GearSlot, Item } from '../constants/item';
 import { StatType } from '../constants/stats';
 import { getSkillById } from '../utils/skills';
+import { QuestSystem } from './quest-system';
+import { QuestStatus } from '../constants/quest';
 
 /** 保存的游戏数据接口 */
 interface SaveData {
@@ -29,6 +31,14 @@ interface SaveData {
     learnedSkills: string[];
     /** 当前装备的技能ID */
     equippedSkill?: string;
+    /** 任务进度 */
+    quests: {
+        progress: Array<{
+            id: string;
+            status: QuestStatus;
+            objectives: { current: number; required: number }[];
+        }>;
+    };
 }
 
 /** 游戏存档系统 */
@@ -38,6 +48,7 @@ export class SaveSystem {
     /** 保存游戏 */
     static save(): void {
         const player = Player.getInstance();
+        const questSystem = QuestSystem.getInstance();
         
         const saveData: SaveData = {
             name: player.name,
@@ -51,7 +62,14 @@ export class SaveSystem {
             equippedItems: player.equippedItems,
             inventory: player.inventory.getSerializableItems(),
             learnedSkills: Array.from(player.skills),
-            equippedSkill: player.equippedSkill?.id
+            equippedSkill: player.equippedSkill?.id,
+            quests: {
+                progress: Array.from(questSystem.getAllQuestProgress()).map(([id, data]) => ({
+                    id,
+                    status: data.status,
+                    objectives: data.objectives
+                }))
+            }
         };
 
         localStorage.setItem(this.SAVE_KEY, JSON.stringify(saveData));
@@ -62,7 +80,7 @@ export class SaveSystem {
     static load(): boolean {
         const saveStr = localStorage.getItem(this.SAVE_KEY);
         if (!saveStr) {
-            console.log('没���找到存档');
+            console.log('没有找到存档');
             return false;
         }
 
@@ -111,6 +129,12 @@ export class SaveSystem {
                 if (skill) {
                     player.equipSkill(skill);
                 }
+            }
+
+            // 恢复任务进度
+            const questSystem = QuestSystem.getInstance();
+            if (saveData.quests?.progress) {
+                questSystem.restoreProgress(saveData.quests.progress);
             }
 
             // 更新最终属性

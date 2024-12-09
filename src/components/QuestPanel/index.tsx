@@ -45,16 +45,16 @@ export const QuestPanel: React.FC<QuestPanelProps> = ({ visible, onClose }) => {
     };
 
     const renderObjectiveProgress = (quest: QuestConfig) => {
-        const progress = questSystem.getQuestProgress(quest.id);
-        if (!progress) return null;
+        const progressData = questSystem.getQuestProgress(quest.id);
+        if (!progressData) return null;
 
         return quest.objectives.map((obj, index) => (
             <div key={index} className="objective-item">
                 <div className="objective-desc">{obj.description}</div>
                 <Progress
-                    percent={Math.floor((progress.objectives[index].current / obj.required) * 100)}
+                    percent={Math.floor((progressData.objectives[index].current / obj.required) * 100)}
                     size="small"
-                    format={() => `${progress.objectives[index].current}/${obj.required}`}
+                    format={() => `${progressData.objectives[index].current}/${obj.required}`}
                 />
             </div>
         ));
