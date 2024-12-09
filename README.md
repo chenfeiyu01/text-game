@@ -1,50 +1,31 @@
-# React + TypeScript + Vite
+# 文字冒险游戏
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个基于 React + TypeScript 开发的文字冒险游戏。
 
-Currently, two official plugins are available:
+## 特性
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 回合制战斗系统
+- 装备强化系统
+- 技能系统
+- 任务系统
+- Rogue-like 副本系统
+- 事件系统
+- 背包系统
+- 存档系统
 
-## Expanding the ESLint configuration
+## 游戏内容
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- 多个探索场景
+- 丰富的怪物种类
+- 多样的装备和道具
+- 随机事件和隐藏剧情
+- 可升级的技能树
 
-- Configure the top-level `parserOptions` property like this:
+## 技术栈
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- React 18
+- TypeScript
+- Ant Design
+- SCSS
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## 开发

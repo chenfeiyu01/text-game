@@ -5,6 +5,7 @@ import { ESCENES } from "../../constants/scenes";
 
 /** 怪物掉落配置 */
 export const MONSTER_DROPS: Record<Monsters, DropRule[]> = {
+    [Monsters.TRAINING_DUMMY]: [],
     [Monsters.CORRUPTED_RABBIT]: [
         /** 
          * 生命药水掉落规则
